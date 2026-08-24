@@ -1,2 +1,1 @@
-# i2cc
-I2C Command - GUI for interfacing with I2C devices
+# I2C Commander - GUI for interfacing with I2C devices
