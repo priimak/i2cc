@@ -1,0 +1,16 @@
+site_name: I2C Commander
+theme:
+  name: material
+  features:
+    - navigation.sections
+
+# Markdown extensions
+markdown_extensions:
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - "Introduction": "intro.md"
