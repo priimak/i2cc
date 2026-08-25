@@ -1,6 +1,8 @@
 site_name: I2C Commander
 theme:
   name: material
+  logo:
+    src/i2cc/images/i2cc-logo.png
   features:
     - navigation.sections
 
