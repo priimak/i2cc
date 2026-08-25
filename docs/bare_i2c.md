@@ -2,7 +2,7 @@
 
 Preceeding text will walk through example of communicating with 
 [BMP581](https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581), temperature 
-and pressure sensor. Here is a picture _I2CDriver_ dongle and _BMP581_ breakout board connected together.
+and pressure sensor. Here is a picture of _I2CDriver_ dongle and _BMP581_ breakout board connected together.
 
 ![](images/dongle-and-device.png)
 
@@ -54,6 +54,17 @@ and `P` represent start and stop condition respectively.
 happen and it will appear in bright red. You can find more about details of how data is transferred on the wire in 
 "[A Basic Guide to I2C](https://www.ti.com/lit/an/sbaa565/sbaa565.pdf)", pdf document maintained by Texas Instruments.
 
+Let's parse out this particular transaction. Going from left to right transaction opens with start condition `S`
+followed by a slave device address `1000111`, which in hex is 0x47, exactly what you see in the dropdown box for the 
+"_I2C Device Address_" after you clicked on the "_Scan_" button. This address is 7 bits wide and it is followed by a 
+bit `W` indicating that master intends to write something to a slave device. To that slave responded with `Ack` and 
+master then sent one full byte `00000001`. This is the address of the register that we intend to read. 
+Then we see `Sr`, a restart condition followed again by a slave device address `1000111` but now followed by a read bit
+`R`. Slave responds with `Ack` and then master releases data line allowing slave to drive it. Master, however, continues
+to drive clock line. Slave then responds with `01010000` byte, now that it is driving data line while master is 
+listening. In turn, master responds with `Ack` and a stop condition `P`, at which point it stops driving both the clock 
+and the data lines. This concludes the transaction.
+
 In the left most panel you will see results of reading that register. Both in hex and binary.
 
 ![](images/read-register-results.png)
@@ -94,7 +105,7 @@ We will come to see what "_Define register_" do in the next page of this tutoria
 In BMP581 all registers hold one byte and their addresses fit into one byte. If you request to read two or more bytes
 for a given register different things can happen depending on the make and model of the slave device. Sometimes it 
 will simply return the same byte as many times as you have requested it. In case of BMP581 it will actually return 
-value of the next registers. For example register `0x02` holds ASIC revision ID which will be `0b00110010`.
+value of the subsequent registers. For example register `0x02` holds ASIC revision ID which will be `0b00110010`.
 Let's request to read two bytes for register at address `0x01`.
 
 ![](images/read-register-two-bytes-input.png)
@@ -104,9 +115,17 @@ At the bottom of application you will see following transaction log
 ![](images/read-register-two-bytes-one-line-log.png)
 
 You can see that first returned value is for register at address 0x01 and the second one for register at address 0x02.
-I2CC, however, are anable to deduce that these bytes correspond to two different registers and since we requested to
+I2CC, however, is unable to deduce that these bytes correspond to two different registers and since we requested to
 read two byte register at address 0x01, then that is what it will assume. It is important to note that this behavior is
-vendor specific. You will need to read documentation for your specific chip to understand it is to be expected here.
+vendor specific. You will need to read documentation for your specific chip to understand what is to be expected here.
+
+## Wide register addresses
+
+Just as we can read registers that hold multiple bytes, register addresses do not have to be of one byte width.
+Let say that device have so many addresses that it needs more than one byte to address them, for example two bytes.
+The way to trigger that would be to write address in the _Addr:_ input field in hex padding it with zeroes if necessary
+such that address value is unambiguously of two or more bytes with. For example, you can enter `0x0001`.
+
 
 ## Links
 
