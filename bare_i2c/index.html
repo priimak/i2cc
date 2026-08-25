@@ -308,6 +308,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#multibyte-registers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multibyte registers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#links" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -407,6 +418,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#multibyte-registers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multibyte registers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#links" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -435,15 +457,24 @@
 
 
 <h1 id="sending-and-receiving-low-level-i2c-commands">Sending and Receiving low level I2C commands.<a class="headerlink" href="#sending-and-receiving-low-level-i2c-commands" title="Permanent link">&para;</a></h1>
-<p>When you first open <em>I2CC</em>, it should look like so:</p>
+<p>Preceeding text will walk through example of communicating with 
+<a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>, temperature 
+and pressure sensor. Here is a picture <em>I2CDriver</em> dongle and <em>BMP581</em> breakout board connected together.</p>
+<p><img alt="" src="../images/dongle-and-device.png" /></p>
+<p>Now lets open <em>I2CC</em> application. It should look like so:</p>
 <p><img alt="" src="../images/default-window.png" /></p>
 <p>In the lower right corner you can see that I2C dongle is connected on serial port <code>/dev/ttyUSB0</code>. If nothing is shown
 that means that you do not have dongle connected or recognized by the host computer.</p>
 <p><img alt="" src="../images/serial-port-to-dongle.png" /></p>
 <p>Clicking on <em>Scan</em> button will perform scan for devices on I2C bus at which point they will appear in the dropdown box.</p>
 <p><img alt="" src="../images/scan.png" /></p>
-<p>Application always operates within context of some project. Project <strong><em>default</em></strong> is, well, the default project. That is
-shown in the left lower corner. You can create new project by going to menu "<em>File</em>" =&gt; "<em>New Project</em>".</p>
+<p>Application always operates within context of some project. Project <strong><em>default</em></strong> is, well, the default project. It is 
+created the first time you run I2CC, and it cannot be deleted. Other user defined projects can be deleted at will.
+Almost everything that you see on the screen is automatically saved in the open project, including window geometry,
+registers were accessed, custom commands and so on. Thus, when you close and then open application again you should see 
+almost exactly what you saw when you closed it. A new project can be created by going to 
+menu "<em>File</em>" =&gt; "<em>New Project</em>".</p>
+<p>Currently active project is shown in the left lower corner.</p>
 <p><img alt="" src="../images/where-is-project.png" /></p>
 <p>Clock speed by default is 100 KHz, but you can select higher value in <code>Speed</code> drop down box. Note that at higher speeds
 you may need to lower value of the pullup resitor.</p>
@@ -452,14 +483,16 @@ you may need to lower value of the pullup resitor.</p>
 <a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>
 temperature and pressure sensor. Register at address 0x1 holds ASCI ID which according the documentation should be
 <code>0b01010000</code>. So, enter <code>1</code> into <em>Addr:</em> field and click <code>Read Register</code> or simply press <code>Enter</code>. Note, that values in
-<em>Addr:</em> field are always interpreted as hexadecimal.</p>
+<em>Addr:</em> field are always interpreted as hexadecimal. You can also enter them with <code>0x</code> prefix to make it more explicit.</p>
 <p><img alt="" src="../images/read-register-input.png" /></p>
-<p>As a result at the bottom of the window you will exact bits exchanged in the transaction between master and slave.</p>
+<p>As a result at the bottom of the window you will see exact bits exchanged in the transaction between master and slave.</p>
 <p><img alt="" src="../images/read-register-transaction-data.png" /></p>
 <p>Highlighted in yellow are bits that were sent from master to the slave and in pink from slave to the master. Letters <code>S</code>
 and <code>P</code> represent start and stop condition respectively.
 <code>Sr</code> is a restart condition. <code>W</code> indicates that we are writing to the slave and
-<code>R</code> that we are reading from the slave device. <code>Ack</code> is acknowledgment from either device.</p>
+<code>R</code> that we are reading from the slave device. <code>Ack</code> is acknowledgment from either device. Unlikely <code>Nack</code> can also 
+happen and it will appear in bright red. You can find more about details of how data is transferred on the wire in 
+"<a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a>", pdf document maintained by Texas Instruments.</p>
 <p>In the left most panel you will see results of reading that register. Both in hex and binary.</p>
 <p><img alt="" src="../images/read-register-results.png" /></p>
 <p>Indeed, you can see that value of this register is <code>0b01010000</code> as per the specification for this device.</p>
@@ -479,8 +512,24 @@ value into results panel.</p>
 by clicking on <em>Re-Read All</em> button. Double-clicking on any row there will also re-read selected register.</p>
 <p>Right mouse click will get you context menu.</p>
 <p><img alt="" src="../images/results-panel-context-menu.png" /></p>
+<p>Option "<em>Remove from results panel</em>" will remove selected row and "<em>Clear results panel</em>" will remove all rows.
+We will come to see what "<em>Define register</em>" do in the next page of this tutorial.</p>
+<h2 id="multibyte-registers">Multibyte registers<a class="headerlink" href="#multibyte-registers" title="Permanent link">&para;</a></h2>
+<p>In BMP581 all registers hold one byte and their addresses fit into one byte. If you request to read two or more bytes
+for a given register different things can happen depending on the make and model of the slave device. Sometimes it 
+will simply return the same byte as many times as you have requested it. In case of BMP581 it will actually return 
+value of the next registers. For example register <code>0x02</code> holds ASIC revision ID which will be <code>0b00110010</code>.
+Let's request to read two bytes for register at address <code>0x01</code>.</p>
+<p><img alt="" src="../images/read-register-two-bytes-input.png" /></p>
+<p>At the bottom of application you will see following transaction log</p>
+<p><img alt="" src="../images/read-register-two-bytes-one-line-log.png" /></p>
+<p>You can see that first returned value is for register at address 0x01 and the second one for register at address 0x02.
+I2CC, however, are anable to deduce that these bytes correspond to two different registers and since we requested to
+read two byte register at address 0x01, then that is what it will assume. It is important to note that this behavior is
+vendor specific. You will need to read documentation for your specific chip to understand it is to be expected here.</p>
 <h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a> - I2C application note maintained by Texas Instruments.</li>
 <li><a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a> - sensor used in the example interaction above.</li>
 </ul>
 
