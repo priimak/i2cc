@@ -319,6 +319,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#wide-register-addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wide register addresses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#links" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -429,6 +440,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#wide-register-addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wide register addresses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#links" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -459,7 +481,7 @@
 <h1 id="sending-and-receiving-low-level-i2c-commands">Sending and Receiving low level I2C commands.<a class="headerlink" href="#sending-and-receiving-low-level-i2c-commands" title="Permanent link">&para;</a></h1>
 <p>Preceeding text will walk through example of communicating with 
 <a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>, temperature 
-and pressure sensor. Here is a picture <em>I2CDriver</em> dongle and <em>BMP581</em> breakout board connected together.</p>
+and pressure sensor. Here is a picture of <em>I2CDriver</em> dongle and <em>BMP581</em> breakout board connected together.</p>
 <p><img alt="" src="../images/dongle-and-device.png" /></p>
 <p>Now lets open <em>I2CC</em> application. It should look like so:</p>
 <p><img alt="" src="../images/default-window.png" /></p>
@@ -493,6 +515,16 @@ and <code>P</code> represent start and stop condition respectively.
 <code>R</code> that we are reading from the slave device. <code>Ack</code> is acknowledgment from either device. Unlikely <code>Nack</code> can also 
 happen and it will appear in bright red. You can find more about details of how data is transferred on the wire in 
 "<a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a>", pdf document maintained by Texas Instruments.</p>
+<p>Let's parse out this particular transaction. Going from left to right transaction opens with start condition <code>S</code>
+followed by a slave device address <code>1000111</code>, which in hex is 0x47, exactly what you see in the dropdown box for the 
+"<em>I2C Device Address</em>" after you clicked on the "<em>Scan</em>" button. This address is 7 bits wide and it is followed by a 
+bit <code>W</code> indicating that master intends to write something to a slave device. To that slave responded with <code>Ack</code> and 
+master then sent one full byte <code>00000001</code>. This is the address of the register that we intend to read. 
+Then we see <code>Sr</code>, a restart condition followed again by a slave device address <code>1000111</code> but now followed by a read bit
+<code>R</code>. Slave responds with <code>Ack</code> and then master releases data line allowing slave to drive it. Master, however, continues
+to drive clock line. Slave then responds with <code>01010000</code> byte, now that it is driving data line while master is 
+listening. In turn, master responds with <code>Ack</code> and a stop condition <code>P</code>, at which point it stops driving both the clock 
+and the data lines. This concludes the transaction.</p>
 <p>In the left most panel you will see results of reading that register. Both in hex and binary.</p>
 <p><img alt="" src="../images/read-register-results.png" /></p>
 <p>Indeed, you can see that value of this register is <code>0b01010000</code> as per the specification for this device.</p>
@@ -518,15 +550,20 @@ We will come to see what "<em>Define register</em>" do in the next page of this 
 <p>In BMP581 all registers hold one byte and their addresses fit into one byte. If you request to read two or more bytes
 for a given register different things can happen depending on the make and model of the slave device. Sometimes it 
 will simply return the same byte as many times as you have requested it. In case of BMP581 it will actually return 
-value of the next registers. For example register <code>0x02</code> holds ASIC revision ID which will be <code>0b00110010</code>.
+value of the subsequent registers. For example register <code>0x02</code> holds ASIC revision ID which will be <code>0b00110010</code>.
 Let's request to read two bytes for register at address <code>0x01</code>.</p>
 <p><img alt="" src="../images/read-register-two-bytes-input.png" /></p>
 <p>At the bottom of application you will see following transaction log</p>
 <p><img alt="" src="../images/read-register-two-bytes-one-line-log.png" /></p>
 <p>You can see that first returned value is for register at address 0x01 and the second one for register at address 0x02.
-I2CC, however, are anable to deduce that these bytes correspond to two different registers and since we requested to
+I2CC, however, is unable to deduce that these bytes correspond to two different registers and since we requested to
 read two byte register at address 0x01, then that is what it will assume. It is important to note that this behavior is
-vendor specific. You will need to read documentation for your specific chip to understand it is to be expected here.</p>
+vendor specific. You will need to read documentation for your specific chip to understand what is to be expected here.</p>
+<h2 id="wide-register-addresses">Wide register addresses<a class="headerlink" href="#wide-register-addresses" title="Permanent link">&para;</a></h2>
+<p>Just as we can read registers that hold multiple bytes, register addresses do not have to be of one byte width.
+Let say that device have so many addresses that it needs more than one byte to address them, for example two bytes.
+The way to trigger that would be to write address in the <em>Addr:</em> input field in hex padding it with zeroes if necessary
+such that address value is unambiguously of two or more bytes with. For example, you can enter <code>0x0001</code>.</p>
 <h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a> - I2C application note maintained by Texas Instruments.</li>
