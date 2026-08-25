@@ -368,6 +368,18 @@
 
 
 <h1 id="accessing-devices-using-high-level-register-models">Accessing devices using high level register models<a class="headerlink" href="#accessing-devices-using-high-level-register-models" title="Permanent link">&para;</a></h1>
+<p>Sending low level register read and write commands on I2C bus is useful,
+but registers always have clear specifications for their fields and how to 
+interpret them. Here is a definition for OSR register for BMP581 chip </p>
+<p><img alt="" src="../images/bmp581-osr-register-spec.png" /></p>
+<p>Let's define this register in I2CC to enable much higher level access 
+to this chip.</p>
+<p>But first, since we are dealing with BPM581 chip lets create project specific to this
+chip. We do that by going to menu "<em>File</em>" =&gt; "<em>Save as Project</em>".</p>
+<p><img alt="" src="../images/save-project-as.png" /></p>
+<p>This will copy currently opened project under a new name and open it. This will be 
+reflected in the project label in the lower left corner.</p>
+<p><img alt="" src="../images/new-project-label.png" /></p>
 
 
 
