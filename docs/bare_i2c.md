@@ -45,3 +45,27 @@ In the left most panel you will see results of reading that register. Both in he
 ![](images/read-register-results.png)
 
 Indeed, you can see that value of this register is `0b01010000` as per the specification for this device.
+
+Register at 0x1, however, is read/only, and so we cannot use it show write operation. Register 0x36 is read/write. 
+It controls oversampling and selection if we want to measure pressure (temperature measurements are always enabled).
+To set overampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write 
+`0b01000000` into this register. To that end we enter `0b01000000` into _Value:_ field and `0x36` into _Addr:_ and 
+press `Write Register` button.
+
+![](images/write-register-input.png)
+
+Note, that value has to be entered with prefixes ether `0x` or `0b` for hex or binary formats respectfully.
+
+At the bottom you will see raw bit-by-bit transaction. 
+
+![](images/write-register-transaction-data.png)
+
+The reason it is so long is that we combine it with read for the same register, which allows us to place register 
+value into results panel.
+
+![](images/write-register-results.png)
+
+
+## Links
+
+* [BMP581](https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581) - sensor used in the example interaction above.
