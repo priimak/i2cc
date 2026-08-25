@@ -286,6 +286,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Low level access
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -302,6 +320,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -381,6 +429,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -425,6 +492,22 @@ and <code>P</code> represent start and stop condition respectively.
 <p>In the left most panel you will see results of reading that register. Both in hex and binary.</p>
 <p><img alt="" src="../images/read-register-results.png" /></p>
 <p>Indeed, you can see that value of this register is <code>0b01010000</code> as per the specification for this device.</p>
+<p>Register at 0x1, however, is read/only, and so we cannot use it show write operation. Register 0x36 is read/write. 
+It controls oversampling and selection if we want to measure pressure (temperature measurements are always enabled).
+To set overampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write 
+<code>0b01000000</code> into this register. To that end we enter <code>0b01000000</code> into <em>Value:</em> field and <code>0x36</code> into <em>Addr:</em> and 
+press <code>Write Register</code> button.</p>
+<p><img alt="" src="../images/write-register-input.png" /></p>
+<p>Note, that value has to be entered with prefixes ether <code>0x</code> or <code>0b</code> for hex or binary formats respectfully.</p>
+<p>At the bottom you will see raw bit-by-bit transaction. </p>
+<p><img alt="" src="../images/write-register-transaction-data.png" /></p>
+<p>The reason it is so long is that we combine it with read for the same register, which allows us to place register 
+value into results panel.</p>
+<p><img alt="" src="../images/write-register-results.png" /></p>
+<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a> - sensor used in the example interaction above.</li>
+</ul>
 
 
 
