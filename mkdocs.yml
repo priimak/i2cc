@@ -13,4 +13,9 @@ markdown_extensions:
   - pymdownx.superfences
 
 nav:
-  - "Introduction": "intro.md"
+  - "Introduction": "index.md"
+  - "Installation": "install.md"
+  - "Application overview": "intro.md"
+  - "Low level access": "bare_i2c.md"
+  - "Register model level access": "register_i2c.md"
+  - "High level programming": "high_level_i2c.md"
