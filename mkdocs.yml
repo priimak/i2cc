@@ -15,7 +15,6 @@ markdown_extensions:
 nav:
   - "Introduction": "index.md"
   - "Installation": "install.md"
-  - "Application overview": "intro.md"
   - "Low level access": "bare_i2c.md"
   - "Register model level access": "register_i2c.md"
   - "High level programming": "high_level_i2c.md"
