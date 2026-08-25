@@ -66,7 +66,7 @@ class InfoPanel(HBoxPanel):
 class I2CDriverWindow(MainWindow):
     def __init__(self, screen_dim: tuple[int, int], app: App):
         super().__init__(
-            objectName="MainWindow", windowTitle="I2CDriver GUI", css="QMainWindow { background-color: #ffffff; }"
+            objectName="MainWindow", windowTitle="I2C Commander", css="QMainWindow { background-color: #ffffff; }"
         )
         set_geometry(
             app_state=app.persistence.state,

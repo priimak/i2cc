@@ -65,6 +65,12 @@ value into results panel.
 
 ![](images/write-register-results.png)
 
+Now that there are more than one register in the results panel it might make sense to be able to re-read all of them
+by clicking on _Re-Read All_ button. Double-clicking on any row there will also re-read selected register.
+
+Right mouse click will get you context menu.
+
+![](images/results-panel-context-menu.png)
 
 ## Links
 
