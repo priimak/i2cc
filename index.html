@@ -10,6 +10,8 @@
       
       
       
+        <link rel="next" href="install/">
+      
       
         
       
@@ -96,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              I2C Commander (I2CC)
+              Introduction
             
           </span>
         </div>
@@ -189,6 +191,118 @@
       
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
   
   
     <li class="md-nav__item">
@@ -199,7 +313,88 @@
   <span class="md-ellipsis">
     
   
-    Introduction
+    Application overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="bare_i2c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Low level access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="register_i2c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Register model level access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="high_level_i2c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High level programming
   
 
     
@@ -232,6 +427,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -248,26 +462,31 @@
 
 
 <h1 id="i2c-commander-i2cc">I2C Commander (I2CC)<a class="headerlink" href="#i2c-commander-i2cc" title="Permanent link">&para;</a></h1>
-<p>Consider a case where you need to interface with some embedded relatively low level device. For example an 
-environmental sensor, an accelerometer, pwm generator that controls LEDs and so on. More often than not you 
-will be interacting with such device using <a href="https://en.wikipedia.org/wiki/I2C">I2C</a> protocol. This is a very low 
-level two-wire protocol that can connect a multiple devices on a same bus. </p>
+<p>Consider a case where you need to interface with some embedded relatively low level device. For example an environmental
+sensor, an accelerometer, pwm generator that controls LEDs and so on. More often than not you will be interacting with
+such device using <a href="https://en.wikipedia.org/wiki/I2C">I2C</a> protocol. This is a very low level two-wire protocol that can
+connect a multiple devices on a same bus.</p>
 <p><img alt="" src="images/i2c-topology.png" /></p>
-<p>Two wires that define I2C bus 
-are <em>serial clock line</em> (SCL) and <em>serial data line</em> (SDL). Any given device connected on the bus is either 
-a <em>master</em> or a  <em>slave</em>. Master is the only device that initiates communication to a slave, and it is the one 
-that drives the clock line. Slave devices are passive. They watch clock and data lines and respond when requested 
-by the master. I2C protocol defines only slave devices addressing and commands when master writes something 
-to a slave or reads from one. Based on this low level communication protocol devices define next higher level 
-abstraction. Typically, abstraction of registers with addresses and values and commands on I2C bus to read and 
-write such registers. Above that, in the vendor specifications sheets you find next level of abstraction related to 
-even higher level concepts such internal state of the device, how to control data acquisition, perform calibration 
-and so on.</p>
+<p>Two wires that define I2C bus are <em>serial clock line</em> (SCL) and <em>serial data line</em> (SDL). Any given device connected on
+the bus is either a <em>master</em> or a <em>slave</em>. Master is the only device that initiates communication to a slave, and it is
+the one that drives the clock line. Note that while in general multiple masters on the same bus are possible not every 
+master supports logic for negotiating between masters. Slave devices are passive. They watch clock and data lines and 
+respond when
+requested by the master. I2C protocol defines only slave devices addressing and commands when master writes something to
+a slave or reads from one. Based on this low level communication protocol devices define next higher level abstraction.
+Typically, abstraction of registers with their addresses and values and commands on I2C bus to read and write such
+registers. Above that, in the vendor specifications datasheets you find next level of abstraction related to even higher
+level concepts such internal state of the device, how to control data acquisition, perform calibration and so on.</p>
 <p><img alt="" src="images/i2c-levels.png" /></p>
-<p>I2C Commander is GUI application that allows you to address all three levels abstraction when interfacing with 
-I2C devices. To that end it controls generic I2C master device that can send and receive arbitrary commands on 
-the bus. At the moment it uses <a href="https://i2cdriver.com/">I²CDriver</a> dongle that one end connects to the host computer 
-over USB and on the other end has pins to connect it to the I2C bus. </p>
+<p>I2C Commander is GUI application that allows you to address all three levels abstraction when interfacing with I2C
+devices. To that end it controls generic I2C master device that can send and receive arbitrary commands on the bus. At
+the moment it uses <a href="https://i2cdriver.com/">I²CDriver</a> dongle that one end connects to the host computer over USB and on
+the other end has pins to connect it to the I2C bus. </p>
+<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/I2C">I2C</a> - Wikipedia page about I2C protocol.</li>
+<li><a href="https://i2cdriver.com/">I²CDriver</a> - USB to I2C dongle used by <em>i2cc</em>.</li>
+</ul>
 
 
 
