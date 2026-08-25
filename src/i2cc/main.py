@@ -208,3 +208,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# TODO: "Save Project As" should error if new project allready exist.
