@@ -63,6 +63,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#installation" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -224,6 +229,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -344,6 +351,8 @@
   
   
   
+    
+  
   
 </nav>
                   </div>
@@ -360,9 +369,21 @@
 
 
 
-  <h1>Installation</h1>
-
-
+<h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
+<p><em>I2C Commander</em> application is written in pure python 3.13 and can be installed on Windows, Mac or Linux. Snippets below address 
+Windows installation.</p>
+<p>Open PowerShell window and install <code>uv</code> (application for managing python and python based applications). You can skip 
+this step if <code>uv</code> is already installed.</p>
+<div class="highlight"><pre><span></span><code>winget install --id=astral-sh.uv  -e
+</code></pre></div>
+<p>Once <code>uv</code> is installed run</p>
+<div class="highlight"><pre><span></span><code>uv tool install --cache-dir .cache -p 3.13 --force git+https://github.com/priimak/i2cc.git@release
+</code></pre></div>
+<p>This will install latest release version of <em>I2C Commander</em> (executable i2cc.exe).</p>
+<p>If newer version of I2C Commander is available then you can upgrade your previously installed version by running following command in PowerShell window.</p>
+<div class="highlight"><pre><span></span><code>uv tool upgrade i2cc
+</code></pre></div>
+<p>To run <em>I2C Commander</em> simply open PowerShell window type <code>i2cc</code> and press <code>Enter</code>.</p>
 
 
 
