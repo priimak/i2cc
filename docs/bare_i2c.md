@@ -13,3 +13,8 @@ Clicking on _Scan_ button will perform scan for devices on I2C bus at which poin
 the dropdown box.
 
 ![](images/scan.png)
+
+Application operates within context of some project. Project **_default_** is, well, the default project.
+That is shown in the left lower corner.
+
+![](images/where-is-project.png)
