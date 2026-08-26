@@ -62,7 +62,7 @@ Selecting "_Edit register_" from context menu will allow you to modify this regi
 
 You can also create register from data already present in the register results table. 
 
-![](images/define-new-register-from-results.webp)
+![](images/define-new-register-from-results.gif)
 
 You can see that register width and address are automatically filled in.
 
