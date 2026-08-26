@@ -3,7 +3,7 @@
 Consider a case where you need to interface with some embedded relatively low level device. For example an environmental
 sensor, an accelerometer, pwm generator that controls LEDs or something else. More often than not you will be interacting with
 such device using [I2C](https://en.wikipedia.org/wiki/I2C) protocol. This is a very low level two-wire protocol that can
-connect a multiple devices on a same bus.
+connect multiple devices on the same bus.
 
 ![](images/i2c-topology.png)
 
