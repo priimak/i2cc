@@ -52,9 +52,12 @@ Option "_Read Register_" is first and default action for double-clicking. "_Dele
 want to delete this register and then deletes it. Selecting "_Write register_" brings up another dialog where you 
 can enter values for each individual fields.
 
-![](images/register-model-write-1.png)
+![](images/register-write-anime.gif)
 
+Since all fixed point types are discrete you can cycle through them by using up and down arrow buttons to the right 
+of each field. Alternatively when you are editing each field you can simply use up and down arrow keys on the keyboard 
+to the same effect.
 
 ## Links
 
-* [Fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic) - definition of fixed point numbers
+* [Fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic) - definition of fixed point numbers.
