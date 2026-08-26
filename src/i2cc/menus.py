@@ -28,7 +28,7 @@ class FileMenu(QMenu):
                 DeleteProjectDialog(app, app.project.name).exec()
 
         self.addAction("&New Project", lambda: NewProjectDialog(app).exec())
-        self.addAction("&Save As Project", lambda: SaveAsProjectDialog(app).exec())
+        self.addAction("&Save Project As", lambda: SaveAsProjectDialog(app).exec())
         self.addAction("&Open Project", lambda: OpenProjectDialog(app).exec())
         self.addAction("&Delete Project", delete_project)
         self.addSeparator()

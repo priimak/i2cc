@@ -233,15 +233,20 @@ class NewProjectDialog(Dialog):
 
 class SaveAsProjectDialog(Dialog):
     def __init__(self, app: App):
-        super().__init__(app.main_window, windowTitle="Save As Project", modal=True)
+        super().__init__(app.main_window, windowTitle="Save Project As", modal=True)
         self.app = app
         new_project_name = Variable[str]("")
 
         def create_new_project():
             try:
-                app.project.save()
-                app.create_copy_of_project(app.project.name, new_project_name.value)
-                self.close()
+                if new_project_name.value in app.projects.list_projects():
+                    app.show_error(
+                        f"Project under name [{new_project_name.value}] already exist. Please pick another name."
+                    )
+                else:
+                    app.project.save()
+                    app.create_copy_of_project(app.project.name, new_project_name.value)
+                    self.close()
             except Exception as ex:
                 app.show_error(f"{ex}")
 
