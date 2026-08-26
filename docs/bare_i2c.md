@@ -56,10 +56,10 @@ happen and it will appear in bright red. You can find more about details of how 
 
 Let's parse out this particular transaction. Going from left to right transaction opens with start condition `S`
 followed by a slave device address `1000111`, which in hex is 0x47, exactly what you see in the dropdown box for the 
-"_I2C Device Address_" after you clicked on the "_Scan_" button. This address is 7 bits wide and it is followed by a 
-bit `W` indicating that master intends to write something to a slave device. To that slave responded with `Ack` and 
-master then sent one full byte `00000001`. This is the address of the register that we intend to read. 
-Then we see `Sr`, a restart condition followed again by a slave device address `1000111` but now followed by a read bit
+"_I2C Device Address_" after you clicked on the "_Scan_" button. This address is 7 bits wide, and it is followed by a 
+bit `W` indicating that master intends to write something to a slave device. Slave responded with `Ack` and 
+master then sends one full byte `00000001`. This is the address of the register that we intend to read. 
+Then we see `Sr`, a restart condition followed again by a slave device address `1000111`, now followed by a read bit
 `R`. Slave responds with `Ack` and then master releases data line allowing slave to drive it. Master, however, continues
 to drive clock line. Slave then responds with `01010000` byte, now that it is driving data line while master is 
 listening. In turn, master responds with `Ack` and a stop condition `P`, at which point it stops driving both the clock 
