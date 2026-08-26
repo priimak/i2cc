@@ -58,6 +58,14 @@ Since all fixed point types are discrete you can cycle through them by using up 
 of each field. Alternatively when you are editing each field you can simply use up and down arrow keys on the keyboard 
 to the same effect.
 
+Selecting "_Edit register_" from context menu will allow you to modify this register model.
+
+You can also create register from data already present in the register results table. 
+
+![](images/define-new-register-from-results.webp)
+
+You can see that register width and address are automatically filled in.
+
 ## Links
 
 * [Fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic) - definition of fixed point numbers.
