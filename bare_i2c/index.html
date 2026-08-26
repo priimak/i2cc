@@ -479,9 +479,9 @@
 
 
 <h1 id="sending-and-receiving-low-level-i2c-commands">Sending and Receiving low level I2C commands.<a class="headerlink" href="#sending-and-receiving-low-level-i2c-commands" title="Permanent link">&para;</a></h1>
-<p>Preceeding text will walk through example of communicating with 
-<a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>, temperature 
-and pressure sensor. Here is a picture of <em>I2CDriver</em> dongle and <em>BMP581</em> breakout board connected together.</p>
+<p>Preceeding text will walk through example of communicating with
+<a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>, temperature and
+pressure sensor. Here is a picture of <em>I2CDriver</em> dongle and <em>BMP581</em> breakout board connected together.</p>
 <p><img alt="" src="../images/dongle-and-device.png" /></p>
 <p>Now lets open <em>I2CC</em> application. It should look like so:</p>
 <p><img alt="" src="../images/default-window.png" /></p>
@@ -490,12 +490,12 @@ that means that you do not have dongle connected or recognized by the host compu
 <p><img alt="" src="../images/serial-port-to-dongle.png" /></p>
 <p>Clicking on <em>Scan</em> button will perform scan for devices on I2C bus at which point they will appear in the dropdown box.</p>
 <p><img alt="" src="../images/scan.png" /></p>
-<p>Application always operates within context of some project. Project <strong><em>default</em></strong> is, well, the default project. It is 
+<p>Application always operates within context of some project. Project <strong><em>default</em></strong> is, well, the default project. It is
 created the first time you run I2CC, and it cannot be deleted. Other user defined projects can be deleted at will.
 Almost everything that you see on the screen is automatically saved in the open project, including window geometry,
-registers were accessed, custom commands and so on. Thus, when you close and then open application again you should see 
-almost exactly what you saw when you closed it. A new project can be created by going to 
-menu "<em>File</em>" =&gt; "<em>New Project</em>".</p>
+registers read values, custom commands and so on. Thus, when you close and then open application again you should see
+almost exactly what you saw when you closed it. A new project can be created by going to menu "<em>File</em>" =&gt; "<em>New Project</em>
+".</p>
 <p>Currently active project is shown in the left lower corner.</p>
 <p><img alt="" src="../images/where-is-project.png" /></p>
 <p>Clock speed by default is 100 KHz, but you can select higher value in <code>Speed</code> drop down box. Note that at higher speeds
@@ -503,7 +503,7 @@ you may need to lower value of the pullup resitor.</p>
 <p><img alt="" src="../images/speed-and-pullup.png" /></p>
 <p>At the device address 0x47 I have
 <a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>
-temperature and pressure sensor. Register at address 0x1 holds ASCI ID which according the documentation should be
+temperature and pressure sensor. Register at address 0x01 holds ASIC ID which according to the documentation should be
 <code>0b01010000</code>. So, enter <code>1</code> into <em>Addr:</em> field and click <code>Read Register</code> or simply press <code>Enter</code>. Note, that values in
 <em>Addr:</em> field are always interpreted as hexadecimal. You can also enter them with <code>0x</code> prefix to make it more explicit.</p>
 <p><img alt="" src="../images/read-register-input.png" /></p>
@@ -512,62 +512,64 @@ temperature and pressure sensor. Register at address 0x1 holds ASCI ID which acc
 <p>Highlighted in yellow are bits that were sent from master to the slave and in pink from slave to the master. Letters <code>S</code>
 and <code>P</code> represent start and stop condition respectively.
 <code>Sr</code> is a restart condition. <code>W</code> indicates that we are writing to the slave and
-<code>R</code> that we are reading from the slave device. <code>Ack</code> is acknowledgment from either device. Unlikely <code>Nack</code> can also 
-happen and it will appear in bright red. You can find more about details of how data is transferred on the wire in 
+<code>R</code> that we are reading from the slave device. <code>Ack</code> is acknowledgment from either device. Unlikely <code>Nack</code> can also
+happen and it will appear in bright red. You can find more about details of how data is transferred on the wire in
 "<a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a>", pdf document maintained by Texas Instruments.</p>
 <p>Let's parse out this particular transaction. Going from left to right transaction opens with start condition <code>S</code>
-followed by a slave device address <code>1000111</code>, which in hex is 0x47, exactly what you see in the dropdown box for the 
-"<em>I2C Device Address</em>" after you clicked on the "<em>Scan</em>" button. This address is 7 bits wide, and it is followed by a 
-bit <code>W</code> indicating that master intends to write something to a slave device. Slave responded with <code>Ack</code> and 
-master then sends one full byte <code>00000001</code>. This is the address of the register that we intend to read. 
-Then we see <code>Sr</code>, a restart condition followed again by a slave device address <code>1000111</code>, now followed by a read bit
+followed by a slave device address <code>1000111</code>, which in hex is 0x47, exactly what you see in the dropdown box for the
+"<em>I2C Device Address</em>" after you clicked on the "<em>Scan</em>" button. This address is 7 bits wide, and it is followed by a
+bit <code>W</code> indicating that master intends to write something to a slave device. Slave responded with <code>Ack</code> and master then
+sends one full byte <code>00000001</code>. This is the address of the register that we intend to read. Then we see <code>Sr</code>, a restart
+condition followed again by a slave device address <code>1000111</code>, now followed by a read bit
 <code>R</code>. Slave responds with <code>Ack</code> and then master releases data line allowing slave to drive it. Master, however, continues
-to drive clock line. Slave then responds with <code>01010000</code> byte, now that it is driving data line while master is 
-listening. In turn, master responds with <code>Ack</code> and a stop condition <code>P</code>, at which point it stops driving both the clock 
+to drive clock line. Slave then responds with <code>01010000</code> byte, now that it is driving data line while master is
+listening. In turn, master responds with <code>Ack</code> and a stop condition <code>P</code>, at which point it stops driving both the clock
 and the data lines. This concludes the transaction.</p>
 <p>In the left most panel you will see results of reading that register. Both in hex and binary.</p>
 <p><img alt="" src="../images/read-register-results.png" /></p>
 <p>Indeed, you can see that value of this register is <code>0b01010000</code> as per the specification for this device.</p>
-<p>Register at 0x1, however, is read/only, and so we cannot use it show write operation. Register 0x36 is read/write. 
-It controls oversampling and selection if we want to measure pressure (temperature measurements are always enabled).
-To set overampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write 
-<code>0b01000000</code> into this register. To that end we enter <code>0b01000000</code> into <em>Value:</em> field and <code>0x36</code> into <em>Addr:</em> and 
-press <code>Write Register</code> button.</p>
+<p>Register at 0x1, however, is read/only, and so we cannot use it show write operation. Register 0x36 is read/write. It
+controls oversampling and selection if we want to measure pressure (temperature measurements are always enabled). To set
+overampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write
+<code>0b01000000</code> into this register. To that end we enter <code>0b01000000</code> into <em>Value:</em> field and <code>0x36</code> into <em>Addr:</em> and press
+<code>Write Register</code> button.</p>
 <p><img alt="" src="../images/write-register-input.png" /></p>
 <p>Note, that value has to be entered with prefixes ether <code>0x</code> or <code>0b</code> for hex or binary formats respectfully.</p>
-<p>At the bottom you will see raw bit-by-bit transaction. </p>
+<p>At the bottom you will see raw bit-by-bit transaction.</p>
 <p><img alt="" src="../images/write-register-transaction-data.png" /></p>
-<p>The reason it is so long is that we combine it with read for the same register, which allows us to place register 
-value into results panel.</p>
+<p>The reason it is so long is that we combine it with read for the same register, which allows us to place register value
+into results panel.</p>
 <p><img alt="" src="../images/write-register-results.png" /></p>
-<p>Now that there are more than one register in the results panel it might make sense to be able to re-read all of them
-by clicking on <em>Re-Read All</em> button. Double-clicking on any row there will also re-read selected register.</p>
+<p>Now that there are more than one register in the results panel it might make sense to be able to re-read all of them by
+clicking on <em>Re-Read All</em> button. Double-clicking on any row there will also re-read selected register.</p>
 <p>Right mouse click will get you context menu.</p>
 <p><img alt="" src="../images/results-panel-context-menu.png" /></p>
-<p>Option "<em>Remove from results panel</em>" will remove selected row and "<em>Clear results panel</em>" will remove all rows.
-We will come to see what "<em>Define register</em>" do in the next page of this tutorial.</p>
+<p>Option "<em>Remove from results panel</em>" will remove selected row and "<em>Clear results panel</em>" will remove all rows. We will
+come to see what "<em>Define register</em>" do in the next page of this tutorial.</p>
 <h2 id="multibyte-registers">Multibyte registers<a class="headerlink" href="#multibyte-registers" title="Permanent link">&para;</a></h2>
 <p>In BMP581 all registers hold one byte and their addresses fit into one byte. If you request to read two or more bytes
-for a given register different things can happen depending on the make and model of the slave device. Sometimes it 
-will simply return the same byte as many times as you have requested it. In case of BMP581 it will actually return 
-value of the subsequent registers. For example register <code>0x02</code> holds ASIC revision ID which will be <code>0b00110010</code>.
-Let's request to read two bytes for register at address <code>0x01</code>.</p>
+for a given register different things can happen depending on the make and model of the slave device. Sometimes it will
+simply return the same byte as many times as you have requested it. In case of BMP581 it will actually return value of
+the subsequent registers. For example register <code>0x02</code> holds ASIC revision ID which will be <code>0b00110010</code>. Let's request
+to read two bytes for register at address <code>0x01</code>.</p>
 <p><img alt="" src="../images/read-register-two-bytes-input.png" /></p>
 <p>At the bottom of application you will see following transaction log</p>
 <p><img alt="" src="../images/read-register-two-bytes-one-line-log.png" /></p>
 <p>You can see that first returned value is for register at address 0x01 and the second one for register at address 0x02.
-I2CC, however, is unable to deduce that these bytes correspond to two different registers and since we requested to
-read two byte register at address 0x01, then that is what it will assume. It is important to note that this behavior is
+I2CC, however, is unable to deduce that these bytes correspond to two different registers and since we requested to read
+two byte register at address 0x01, then that is what it will assume. It is important to note that this behavior is
 vendor specific. You will need to read documentation for your specific chip to understand what is to be expected here.</p>
 <h2 id="wide-register-addresses">Wide register addresses<a class="headerlink" href="#wide-register-addresses" title="Permanent link">&para;</a></h2>
-<p>Just as we can read registers that hold multiple bytes, register addresses do not have to be of one byte width.
-Let say that device have so many addresses that it needs more than one byte to address them, for example two bytes.
-The way to trigger that would be to write address in the <em>Addr:</em> input field in hex padding it with zeroes if necessary
-such that address value is unambiguously of two or more bytes with. For example, you can enter <code>0x0001</code>.</p>
+<p>Just as we can read registers that hold multiple bytes, register addresses do not have to be of one byte width. Let say
+that device have so many registers that it needs more than one byte to address them, for example two bytes. The way to
+trigger that would be to write address in the <em>Addr:</em> input field in hex padding it with zeroes if necessary such that
+address value is unambiguously of two or more bytes with. For example, you can enter <code>0x0001</code>.</p>
 <h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a> - I2C application note maintained by Texas Instruments.</li>
-<li><a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a> - sensor used in the example interaction above.</li>
+<li><a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a> - I2C application note maintained by Texas
+  Instruments.</li>
+<li><a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a> - sensor used in
+  the example interaction above.</li>
 </ul>
 
 
