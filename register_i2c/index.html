@@ -284,6 +284,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Register model level access
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -300,6 +318,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -352,6 +400,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -368,18 +435,45 @@
 
 
 <h1 id="accessing-devices-using-high-level-register-models">Accessing devices using high level register models<a class="headerlink" href="#accessing-devices-using-high-level-register-models" title="Permanent link">&para;</a></h1>
-<p>Sending low level register read and write commands on I2C bus is useful,
-but registers always have clear specifications for their fields and how to 
-interpret them. Here is a definition for OSR register for BMP581 chip </p>
+<p>Sending low level register read and write commands on I2C bus is useful, but registers always have clear specifications
+for their fields and how to interpret them. Here is a definition for OSR register for BMP581 chip</p>
 <p><img alt="" src="../images/bmp581-osr-register-spec.png" /></p>
-<p>Let's define this register in I2CC to enable much higher level access 
-to this chip.</p>
-<p>But first, since we are dealing with BPM581 chip lets create project specific to this
-chip. We do that by going to menu "<em>File</em>" =&gt; "<em>Save as Project</em>".</p>
+<p>Let's define this register in I2CC to enable much higher level access to this chip.</p>
+<p>But first, since we are dealing with BPM581 chip lets create project specific to this chip. We do that by going to menu
+"<em>File</em>" =&gt; "<em>Save Project As</em>".</p>
 <p><img alt="" src="../images/save-project-as.png" /></p>
-<p>This will copy currently opened project under a new name and open it. This will be 
-reflected in the project label in the lower left corner.</p>
+<p>This will copy currently opened project under a new name and open it. This will be reflected in the project label in the
+lower left corner.</p>
 <p><img alt="" src="../images/new-project-label.png" /></p>
+<p>There are two ways to define a register. We will do first when we need to more informaton upfront. In the <em>RegList</em> tab
+click on "<em>Define new register</em>" button.</p>
+<p><img alt="" src="../images/define-new-register-main.png" /></p>
+<p>You will then be prompted to provide how wide is this register going to be, i.e. how many bits it will hold. The choices
+are 8, 16, 24 and 32. For our chip app registers are 8 bit wide. So we simply click "<em>Ok</em>". This will bring us to the
+next window "<em>Create new register</em>"</p>
+<p><img alt="" src="../images/define-new-register-dialog-1.png" /></p>
+<p>We enter register name <code>OSR_CONFIG</code> and address <code>0x36</code> and click a couple of times on
+"<em>Add New Field</em>" button. This gives us three, so far empty, fields. Now by clicking checkboxes on the left we pick bits
+assigned to each field and gieve each field a name as per manufacturer provoded documentation.</p>
+<p><img alt="" src="../images/define-new-register-dialog-2.png" /></p>
+<p>All feilds are read/write and have numeric types <code>U3.0</code>, <code>U3.0</code> and <code>U1.0</code>, i.e. they are all unsigned fixed point
+numbers with no fractional parts. Let's click "<em>Ok</em>" and now in <em>RegList</em> table you will see one entry for our newly 
+defined register.</p>
+<p><img alt="" src="../images/register-osr-config-defined.png" /></p>
+<p>In the <em>Results</em> panel on the left entry for this register has both name and an address.
+On the right of <em>RegList</em> table there is a user readable definition for this register as well 
+values stored in the raw data. The reason these values are show is that this register is present 
+in the left most <em>Results</em> table. We can re-read this register by double-clicking on <em>RegList</em> row for it or 
+selecting it and clicking on "<em>Read Register</em>" button. By right mouse-clicking we can access its context menu.</p>
+<p><img alt="" src="../images/reglist-context-menu.png" /></p>
+<p>Option "<em>Read Register</em>" is first and default action for double-clicking. "<em>Delete register</em>" prompts you to confirm that you 
+want to delete this register and then deletes it. Selecting "<em>Write register</em>" brings up another dialog where you 
+can enter values for each individual fields.</p>
+<p><img alt="" src="../images/register-model-write-1.png" /></p>
+<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Fixed-point_arithmetic">Fixed-point arithmetic</a> - definition of fixed point numbers</li>
+</ul>
 
 
 
