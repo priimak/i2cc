@@ -517,10 +517,10 @@ happen and it will appear in bright red. You can find more about details of how 
 "<a href="https://www.ti.com/lit/an/sbaa565/sbaa565.pdf">A Basic Guide to I2C</a>", pdf document maintained by Texas Instruments.</p>
 <p>Let's parse out this particular transaction. Going from left to right transaction opens with start condition <code>S</code>
 followed by a slave device address <code>1000111</code>, which in hex is 0x47, exactly what you see in the dropdown box for the 
-"<em>I2C Device Address</em>" after you clicked on the "<em>Scan</em>" button. This address is 7 bits wide and it is followed by a 
-bit <code>W</code> indicating that master intends to write something to a slave device. To that slave responded with <code>Ack</code> and 
-master then sent one full byte <code>00000001</code>. This is the address of the register that we intend to read. 
-Then we see <code>Sr</code>, a restart condition followed again by a slave device address <code>1000111</code> but now followed by a read bit
+"<em>I2C Device Address</em>" after you clicked on the "<em>Scan</em>" button. This address is 7 bits wide, and it is followed by a 
+bit <code>W</code> indicating that master intends to write something to a slave device. Slave responded with <code>Ack</code> and 
+master then sends one full byte <code>00000001</code>. This is the address of the register that we intend to read. 
+Then we see <code>Sr</code>, a restart condition followed again by a slave device address <code>1000111</code>, now followed by a read bit
 <code>R</code>. Slave responds with <code>Ack</code> and then master releases data line allowing slave to drive it. Master, however, continues
 to drive clock line. Slave then responds with <code>01010000</code> byte, now that it is driving data line while master is 
 listening. In turn, master responds with <code>Ack</code> and a stop condition <code>P</code>, at which point it stops driving both the clock 
