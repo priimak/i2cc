@@ -433,23 +433,24 @@
 
 
 <h1 id="i2c-commander-i2cc">I2C Commander (I2CC)<a class="headerlink" href="#i2c-commander-i2cc" title="Permanent link">&para;</a></h1>
-<p>Consider a case where you need to interface with some embedded relatively low level device. For example an environmental
-sensor, an accelerometer, pwm generator that controls LEDs or something else. More often than not you will be interacting with
-such device using <a href="https://en.wikipedia.org/wiki/I2C">I2C</a> protocol. This is a very low level two-wire protocol that can
+<p>Consider a case where you need to interface with some embedded relatively low-level device. For example, an environmental
+sensor, an accelerometer, a PWM generator that controls LEDs or something else. More often than not you will be interacting with
+such devices using <a href="https://en.wikipedia.org/wiki/I2C">I2C</a> protocol. This is a very low-level two-wire protocol that can
 connect multiple devices on the same bus.</p>
 <p><img alt="" src="images/i2c-topology.png" /></p>
-<p>Two wires that define I2C bus are <em>serial clock line</em> (SCL) and <em>serial data line</em> (SDL). Any given device connected on
-the bus is either a <em>master</em> or a <em>slave</em>. Master is the only device that initiates communication to a slave, and it is
-the one that drives the clock line. Note that while in general multiple masters on the same bus are possible not every
-master supports logic for negotiating between masters. Slave devices are passive. They watch clock and data lines and
-respond when requested by the master. I2C protocol defines only slave devices addressing and commands when master writes
-something to a slave or reads from one. Based on this low level communication protocol devices define next higher level
-abstraction. Typically, abstraction of registers with their addresses and values and commands on I2C bus to read and
-write such registers. Above that, in the vendor specifications datasheets you find next level of abstraction related to
-even higher level concepts such as internal state of the device, how to control data acquisition, perform calibration and
-so on.</p>
+<p>Two wires that define the I2C bus are the <em>serial clock line</em> (SCL) and <em>serial data line</em> (SDL). Any given device 
+connected on the bus is either a <em>master</em> or a <em>slave</em>. Master is the only device that initiates communication to a 
+slave, and it is the one that drives the clock line. Note that while, in general, multiple masters on the same bus are 
+possible, not every master supports logic for negotiating between masters. Slave devices are passive. They watch clock 
+and data lines and respond when requested by the master. The I2C protocol defines only slave device addressing and 
+commands when a master writes something to a slave or reads from one. Based on this low-level communication protocol, 
+devices define the next higher-level
+abstraction. Typically, abstraction of registers with their addresses and values and commands on the I2C bus to read 
+and write such registers. Above that, in the vendor specification datasheets, you find the next level of abstraction 
+related to even higher-level concepts, such as the internal state of the device, how to control data acquisition, perform 
+calibration, and so on.</p>
 <p><img alt="" src="images/i2c-levels.png" /></p>
-<p>I2C Commander is a GUI application that allows you to address all three levels if abstraction when interfacing with I2C
+<p>I2C Commander is a GUI application that allows you to address all three levels of abstraction when interfacing with I2C
 devices. To that end it controls generic I2C master device that can send and receive arbitrary commands on the bus. At
 the moment it uses <a href="https://i2cdriver.com/">I²CDriver</a> dongle that on one end connects to the host computer over USB and
 on the other end has pins to connect it to the I2C bus.</p>

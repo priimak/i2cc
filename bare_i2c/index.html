@@ -479,22 +479,22 @@
 
 
 <h1 id="sending-and-receiving-low-level-i2c-commands">Sending and Receiving low level I2C commands.<a class="headerlink" href="#sending-and-receiving-low-level-i2c-commands" title="Permanent link">&para;</a></h1>
-<p>Preceeding text will walk through example of communicating with
+<p>In this tutorial we will walk through an example of communicating with the
 <a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>, temperature and
-pressure sensor. Here is a picture of <em>I2CDriver</em> dongle and <em>BMP581</em> breakout board connected together.</p>
+pressure sensor. Here is a picture of the <em>I2CDriver</em> dongle and the <em>BMP581</em> breakout board connected together.</p>
 <p><img alt="" src="../images/dongle-and-device.png" /></p>
 <p>Now lets open <em>I2CC</em> application. It should look like so:</p>
 <p><img alt="" src="../images/default-window.png" /></p>
-<p>In the lower right corner you can see that I2C dongle is connected on serial port <code>/dev/ttyUSB0</code>. If nothing is shown
-that means that you do not have dongle connected or recognized by the host computer.</p>
+<p>In the lower right corner you can see that I2C dongle is connected on serial port <code>/dev/ttyUSB0</code>. If nothing is shown,
+that means that you do not have a dongle connected or recognized by the host computer.</p>
 <p><img alt="" src="../images/serial-port-to-dongle.png" /></p>
 <p>Clicking on <em>Scan</em> button will perform scan for devices on I2C bus at which point they will appear in the dropdown box.</p>
 <p><img alt="" src="../images/scan.png" /></p>
-<p>Application always operates within context of some project. Project <strong><em>default</em></strong> is, well, the default project. It is
-created the first time you run I2CC, and it cannot be deleted. Other user defined projects can be deleted at will.
-Almost everything that you see on the screen is automatically saved in the open project, including window geometry,
-registers read values, custom commands and so on. Thus, when you close and then open application again you should see
-almost exactly what you saw when you closed it. A new project can be created by going to menu "<em>File</em>" =&gt; "<em>New Project</em>
+<p>Application always operates within the context of some project. Project <strong><em>default</em></strong> is, well, the default project. It 
+is created the first time you run I2CC, and it cannot be deleted. Other user-defined projects can be deleted at will.
+Almost everything you see on the screen is automatically saved in the open project, including window geometry,
+registers read values, custom commands, and so on. Thus, when you close and then reopen the application again you should 
+see almost exactly what you saw when you closed it. A new project can be created by going to menu "<em>File</em>" =&gt; "<em>New Project</em>
 ".</p>
 <p>Currently active project is shown in the left lower corner.</p>
 <p><img alt="" src="../images/where-is-project.png" /></p>
