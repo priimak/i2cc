@@ -1,8 +1,8 @@
 # Sending and Receiving low level I2C commands.
 
-Preceeding text will walk through example of communicating with
+In this tutorial we will walk through an example of communicating with the
 [BMP581](https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581), temperature and
-pressure sensor. Here is a picture of _I2CDriver_ dongle and _BMP581_ breakout board connected together.
+pressure sensor. Here is a picture of the _I2CDriver_ dongle and the _BMP581_ breakout board connected together.
 
 ![](images/dongle-and-device.png)
 
@@ -10,8 +10,8 @@ Now lets open _I2CC_ application. It should look like so:
 
 ![](images/default-window.png)
 
-In the lower right corner you can see that I2C dongle is connected on serial port `/dev/ttyUSB0`. If nothing is shown
-that means that you do not have dongle connected or recognized by the host computer.
+In the lower right corner you can see that I2C dongle is connected on serial port `/dev/ttyUSB0`. If nothing is shown,
+that means that you do not have a dongle connected or recognized by the host computer.
 
 ![](images/serial-port-to-dongle.png)
 
@@ -19,11 +19,11 @@ Clicking on _Scan_ button will perform scan for devices on I2C bus at which poin
 
 ![](images/scan.png)
 
-Application always operates within context of some project. Project **_default_** is, well, the default project. It is
-created the first time you run I2CC, and it cannot be deleted. Other user defined projects can be deleted at will.
-Almost everything that you see on the screen is automatically saved in the open project, including window geometry,
-registers read values, custom commands and so on. Thus, when you close and then open application again you should see
-almost exactly what you saw when you closed it. A new project can be created by going to menu "_File_" => "_New Project_
+Application always operates within the context of some project. Project **_default_** is, well, the default project. It 
+is created the first time you run I2CC, and it cannot be deleted. Other user-defined projects can be deleted at will.
+Almost everything you see on the screen is automatically saved in the open project, including window geometry,
+registers read values, custom commands, and so on. Thus, when you close and then reopen the application again you should 
+see almost exactly what you saw when you closed it. A new project can be created by going to menu "_File_" => "_New Project_
 ".
 
 Currently active project is shown in the left lower corner.
