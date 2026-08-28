@@ -66,6 +66,12 @@ You can also create register from data already present in the register results t
 
 You can see that register width and address are automatically filled in.
 
+Once you have all registers defined there might be a lot of them. To make it easier to find them
+you can enter text in the search field above the table of registers. This will perform a dynamic 
+fuzzy search for entered characters across both, register names and their fields.
+
+![](images/registers-fuzzy-search.png)
+
 ## Links
 
 * [Fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic) - definition of fixed point numbers.
