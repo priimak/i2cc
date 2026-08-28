@@ -34,8 +34,11 @@ assigned to each field and gieve each field a name as per manufacturer provoded 
 
 ![](images/define-new-register-dialog-2.png)
 
-All feilds are read/write and have numeric types `U3.0`, `U3.0` and `U1.0`, i.e. they are all unsigned fixed point
-numbers with no fractional parts. Let's click "_Ok_" and now in _RegList_ table you will see one entry for our newly 
+All fields above are read/write and have numeric types `U3.0`, `U3.0` and `U1.0`, i.e. they are all unsigned fixed point
+numbers with no fractional parts. This sybolic representation of fixed point numbers is know as 
+"[Q number format](https://en.wikipedia.org/wiki/Q_(number_format))". 
+
+Let's click "_Ok_" and now in _RegList_ table you will see one entry for our newly 
 defined register.
 
 ![](images/register-osr-config-defined.png)
@@ -75,3 +78,4 @@ fuzzy search for entered characters across both, register names and their fields
 ## Links
 
 * [Fixed-point arithmetic](https://en.wikipedia.org/wiki/Fixed-point_arithmetic) - definition of fixed point numbers.
+* [Q number format](https://en.wikipedia.org/wiki/Q_(number_format)) - representation that we use for fixed point numbers
