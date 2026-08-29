@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from collections.abc import Callable
 from typing import Any, override
 
@@ -108,6 +109,7 @@ class ProjectTableView(QTableView):
         self.selection_filter_changed = selection_filter_changed
         self.open_project = open_project
         self.close_dialog = close_dialog
+        self.selectRow(0)
 
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
         super().mouseDoubleClickEvent(event)
@@ -139,15 +141,50 @@ class ProjectTableView(QTableView):
                     super().keyPressEvent(event)
 
 
-class OpenProjectDialog(Dialog):
-    def __init__(self, app: App):
-        super().__init__(app.main_window, windowTitle="Open Project", modal=True)
+class SimpleProjectDialogBase(Dialog):
+    def __init__(
+        self,
+        app: App,
+        window_title: str,
+    ):
+        super().__init__(app.main_window, windowTitle=window_title, modal=True)
         self.app = app
+
+    def actions_widgets(self, ok_label: str, cancel_label: str = "Cancel") -> HBoxPanel:
+        return HBoxPanel(
+            [
+                W(QLabel(), stretch=10),
+                PushButton(ok_label, on_clicked=self.ok_action),
+                PushButton(cancel_label, on_clicked=self.cancel_action),
+            ]
+        )
+
+    @override
+    def close(self) -> bool:
+        self.app.update_project_selector_current_project(self.app.project.name)
+        return super().close()
+
+    @abstractmethod
+    def ok_action(self):
+        pass
+
+    def cancel_action(self):
+        self.close()
+
+    @override
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        event_key = event.key()
+        if event_key == Qt.Key.Key_Escape:
+            self.cancel_action()
+        else:
+            super().keyPressEvent(event)
+
+
+class OpenProjectDialog(SimpleProjectDialogBase):
+    def __init__(self, app: App):
+        super().__init__(app, window_title="Open Project")
         self.project_to_open: str | None = None
-        self.layout = VBoxLayout()
-        self.setLayout(self.layout)
         label = RichTextLabel("Open Project")
-        self.layout.addWidget(label)
 
         def selection_filter_changed(char_filter: list[str]):
             if char_filter == []:
@@ -157,163 +194,117 @@ class OpenProjectDialog(Dialog):
                     'Open Project [<span style="background-color: yellow;">' + (",".join(char_filter)) + "</span>]"
                 )
 
-        def open_project():
-            indexes: list[QModelIndex] = self.projects_table.selectedIndexes()
-            if len(indexes) == 1:
-                project_name_to_open = self.projects_table.projects_model.project_names_raw[indexes[0].row()]
-                self.project_to_open = project_name_to_open
-                self.close()
-                app.open_project(project_name_to_open)
-
         self.projects_table = ProjectTableView(
             app,
             selection_filter_changed=selection_filter_changed,
-            open_project=open_project,
-            close_dialog=self.close,
+            open_project=self.ok_action,
+            close_dialog=self.cancel_action,
         )
-        self.projects_table.selectRow(0)
-        self.layout.addWidget(self.projects_table)
-        self.layout.addWidget(
-            HBoxPanel(
+
+        self.setLayout(VBoxLayout([label, self.projects_table, self.actions_widgets("Open", "Cancel")]))
+
+    def ok_action(self):
+        indexes: list[QModelIndex] = self.projects_table.selectedIndexes()
+        if len(indexes) == 1:
+            project_name_to_open = self.projects_table.projects_model.project_names_raw[indexes[0].row()]
+            self.project_to_open = project_name_to_open
+            self.close()
+            self.app.open_project(project_name_to_open)
+            self.app.update_project_selector_current_project(self.app.project.name)
+
+
+class NewProjectDialog(SimpleProjectDialogBase):
+    def __init__(self, app: App):
+        super().__init__(app, window_title="Create New Project")
+        self.new_project_name = Variable[str]("")
+        self.setLayout(
+            VBoxLayout(
                 [
-                    W(QLabel(), stretch=10),
-                    PushButton("Open", on_clicked=open_project),
-                    PushButton("Cancel", on_clicked=self.close),
+                    Label("Create New Project"),
+                    LineEdit("", min_width=100, reactive_variable=self.new_project_name),
+                    self.actions_widgets("New Project"),
                 ]
             )
         )
 
-    @override
-    def close(self) -> bool:
-        self.app.update_project_selector_current_project(self.app.project.name)
-        return super().close()
-
-
-class NewProjectDialog(Dialog):
-    def __init__(self, app: App):
-        super().__init__(app.main_window, windowTitle="Create New Project", modal=True)
-        self.app = app
-        new_project_name = Variable[str]("")
-
-        def create_new_project():
-            try:
-                app.create_new_project(new_project_name.value)
-                self.close()
-            except Exception as ex:
-                app.show_error(f"{ex}")
-
-        layout = VBoxLayout(
-            [
-                Label("Create New Project"),
-                LineEdit("", min_width=100, reactive_variable=new_project_name),
-                HBoxPanel(
-                    [
-                        W(QLabel(), stretch=10),
-                        PushButton("New Project", on_clicked=create_new_project),
-                        PushButton("Cancel", on_clicked=self.close),
-                    ]
-                ),
-            ]
-        )
-        self.setLayout(layout)
-
-    @override
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        event_key = event.key()
-        if event_key == Qt.Key.Key_Escape:
+    def ok_action(self):
+        try:
+            self.app.create_new_project(self.new_project_name.value)
+            self.app.update_project_selector_current_project(self.app.project.name)
             self.close()
+        except Exception as ex:
+            self.app.show_error(f"{ex}")
+
+
+class ImportNameProjectDialog(SimpleProjectDialogBase):
+    def __init__(self, app: App, original_name: str):
+        super().__init__(app, window_title="Import Project Under Name")
+        self.project_name = Variable[str]("")
+        self.setLayout(
+            VBoxLayout(
+                [
+                    Label(
+                        f'Project under name "{original_name}" already exists.\n'
+                        "Please pick new name under which to import project"
+                    ),
+                    LineEdit("", min_width=100, reactive_variable=self.project_name),
+                    self.actions_widgets("Ok"),
+                ]
+            )
+        )
+
+    def ok_action(self):
+        if self.project_name.value in self.app.projects.list_projects():
+            self.app.show_error("Project under this name already exist. Please pick another name.")
         else:
-            super().keyPressEvent(event)
+            self.close()
 
-    @override
-    def close(self) -> bool:
-        self.app.update_project_selector_current_project(self.app.project.name)
-        return super().close()
+    def cancel_action(self):
+        self.project_name.value = ""
+        super().cancel_action()
 
 
-class SaveAsProjectDialog(Dialog):
+class SaveAsProjectDialog(SimpleProjectDialogBase):
     def __init__(self, app: App):
-        super().__init__(app.main_window, windowTitle="Save Project As", modal=True)
-        self.app = app
-        new_project_name = Variable[str]("")
-
-        def create_new_project():
-            try:
-                if new_project_name.value in app.projects.list_projects():
-                    app.show_error(
-                        f"Project under name [{new_project_name.value}] already exist. Please pick another name."
-                    )
-                else:
-                    app.project.save()
-                    app.create_copy_of_project(app.project.name, new_project_name.value)
-                    self.close()
-            except Exception as ex:
-                app.show_error(f"{ex}")
-
+        super().__init__(app, window_title="Save Project As")
+        self.new_project_name = Variable[str]("")
         self.setLayout(
             VBoxLayout(
                 [
                     Label("Create copy of current project"),
-                    LineEdit("", min_width=100, reactive_variable=new_project_name),
-                    HBoxPanel(
-                        [
-                            W(QLabel(), stretch=10),
-                            PushButton("New Project", on_clicked=create_new_project),
-                            PushButton("Cancel", on_clicked=self.close),
-                        ]
-                    ),
+                    LineEdit("", min_width=100, reactive_variable=self.new_project_name),
+                    self.actions_widgets("New Project"),
                 ]
             )
         )
 
-    @override
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        event_key = event.key()
-        if event_key == Qt.Key.Key_Escape:
-            self.close()
-        else:
-            super().keyPressEvent(event)
+    def ok_action(self):
+        try:
+            if self.new_project_name.value in self.app.projects.list_projects():
+                self.app.show_error(
+                    f"Project under name [{self.new_project_name.value}] already exist. Please pick another name."
+                )
+            else:
+                self.app.project.save()
+                self.app.create_copy_of_project(self.app.project.name, self.new_project_name.value)
+                self.close()
+                self.app.update_project_selector_current_project(self.app.project.name)
+        except Exception as ex:
+            self.app.show_error(f"{ex}")
 
-    @override
-    def close(self) -> bool:
-        self.app.update_project_selector_current_project(self.app.project.name)
-        return super().close()
 
-
-class DeleteProjectDialog(Dialog):
+class DeleteProjectDialog(SimpleProjectDialogBase):
     def __init__(self, app: App, project_to_delete: str):
-        super().__init__(app.main_window, windowTitle="Delete Project?", modal=True)
-        self.app = app
-
-        def do_delete():
-            self.app.delete_project(project_to_delete)
-            self.close()
+        super().__init__(app, window_title="Delete Project?")
+        self.project_to_delete = project_to_delete
 
         self.setLayout(
             VBoxLayout(
-                [
-                    RichTextLabel(f"Delete Project [<b>{project_to_delete}</b>]?"),
-                    HBoxPanel(
-                        [
-                            PushButton("Yes", on_clicked=do_delete),
-                            PushButton("No", on_clicked=self.close),
-                            W(QLabel(), stretch=10),
-                        ],
-                        margins=0,
-                    ),
-                ]
+                [RichTextLabel(f"Delete Project [<b>{project_to_delete}</b>]?"), self.actions_widgets("Yes", "No")]
             )
         )
 
-    @override
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        event_key = event.key()
-        if event_key == Qt.Key.Key_Escape:
-            self.close()
-        else:
-            super().keyPressEvent(event)
-
-    @override
-    def close(self) -> bool:
+    def ok_action(self):
+        self.app.delete_project(self.project_to_delete)
+        self.close()
         self.app.update_project_selector_current_project(self.app.project.name)
-        return super().close()

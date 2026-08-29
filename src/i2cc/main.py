@@ -160,7 +160,7 @@ class I2CDriverWindow(MainWindow):
             self.reg_list_panel.splitter.restoreState(QByteArray.fromBase64(spl_state.encode("utf-8")))
 
     def show_error(self, message: str) -> None:
-        QMessageBox.critical(None, "Error", message)
+        QMessageBox.critical(self, "Error", message)
 
 
 def main():

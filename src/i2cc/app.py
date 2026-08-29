@@ -1,11 +1,12 @@
 from collections.abc import Callable
+from pathlib import Path
 
 from bitstring import BitArray
 from i2c_api import I2CLogger, I2CMaster
 from i2c_api.log import I2CTransactionElement
 from i2capi_i2cdriver import I2CMasterI2CDriver
 from i2cdriver import I2CDriver
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox
 from rgscore import Register
 from sprats.collections import Variable
 from sprats.config import AppPersistence
@@ -39,7 +40,9 @@ class App:
 
         self.write_register_address_str = Variable[str]("")
         self.write_register_value_str = Variable[str]("")
-        self.write_register_num_bytes = Variable[int](1, valid_values=[1, 2, 3, 4])
+
+        # TODO: make write work with 0 bytes of payload
+        self.write_register_num_bytes = Variable[int](1, valid_values=[0, 1, 2, 3, 4])
 
         self.show_error: Callable[[str], None] = lambda _: None
 
@@ -267,3 +270,33 @@ class App:
                 row.name_and_address = (
                     f"{register.name} @ 0x{register.address:0{register.address_bus_width_bytes * 2}X}"
                 )
+
+    def export_project(self):
+        last_used_dir = Path(self.persistence.state.get_value("last_used_dir", str(Path.home().absolute())))
+        file_name, _ = QFileDialog.getSaveFileName(
+            self.main_window,
+            caption="Export project into file",
+            dir=str(last_used_dir / f"{self.project.name}.gz"),
+            filter="*.gz",
+        )
+        if file_name != "":
+            try:
+                self.project.export_to_file(file_name, override_if_exists=True)
+                QMessageBox.information(self.main_window, "Info", f'Project exported into file "{file_name}"')
+                self.persistence.state.set_value("last_used_dir", str(Path(file_name).parent.absolute()))
+            except Exception as ex:
+                self.show_error(str(ex))
+
+    def import_project(self):
+        last_used_dir = self.persistence.state.get_value("last_used_dir", str(Path.home().absolute()))
+        file_name, _ = QFileDialog.getOpenFileName(
+            self.main_window, caption="Import project from file", dir=last_used_dir, filter="*.gz"
+        )
+        if file_name != "":
+            try:
+                project_name = self.projects.import_project_from_file(file_name, self)
+                if project_name is not None:
+                    self.open_project(project_name)
+                self.persistence.state.set_value("last_used_dir", str(Path(file_name).parent.absolute()))
+            except Exception as ex:
+                self.show_error(str(ex))

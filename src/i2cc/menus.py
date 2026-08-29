@@ -14,12 +14,6 @@ class FileMenu(QMenu):
         def show_settings_window():
             pass
 
-        def export_project():
-            pass
-
-        def import_project():
-            pass
-
         def delete_project():
             if app.project.name == "default":
                 app.show_error(f"Project [{app.project.name}] cannot be deleted.")
@@ -32,8 +26,8 @@ class FileMenu(QMenu):
         self.addAction("&Open Project", lambda: OpenProjectDialog(app).exec())
         self.addAction("&Delete Project", delete_project)
         self.addSeparator()
-        self.addAction("&Export Project", export_project)
-        self.addAction("&Import Project", import_project)
+        self.addAction("E&xport Project", app.export_project)
+        self.addAction("&Import Project", app.import_project)
         self.addSeparator()
         self.addAction("S&ettings", show_settings_window)
         self.addSeparator()

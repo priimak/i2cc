@@ -34,7 +34,6 @@ class Action:
 
 
 ACTIONS = [
-    Action("Add new variable to watch list", None),
     Action("Create new project", lambda app: NewProjectDialog(app).exec()),
     Action("Define new register", lambda app: NewRegDefDialog(app).exec()),
     Action("Define new custom action/command", lambda app: CustomCommandsEditor(app, cmd=None).exec()),
@@ -44,8 +43,8 @@ ACTIONS = [
     ),
     Action("Exit/Quit application", lambda app: app.exit_application[0]()),
     Action("Execute custom action/command", None),
-    Action("Export project into file", None),
-    Action("Import project from file", None),
+    Action("Export project into file", lambda app: app.export_project()),
+    Action("Import project from file", lambda app: app.import_project()),
     Action("Open project", lambda app: OpenProjectDialog(app).exec()),
     Action("Read register", None),
     Action(

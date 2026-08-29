@@ -1,4 +1,5 @@
 import base64
+import gzip
 import json
 import marshal
 import re
@@ -29,8 +30,8 @@ class CommandsContext:
         else:
             try:
                 return self.__context_attributes[name]
-            except KeyError:
-                raise AttributeError(f"Context does not have variable [{name}]")
+            except KeyError as ex:
+                raise AttributeError(f"Context does not have variable [{name}]") from ex
 
 
 @dataclass
@@ -114,6 +115,20 @@ class Project:
         self.results: list[RawResult] = []
         self.commands: list[CustomCommand] = []
         self.commands_by_label: dict[str, CustomCommand] = dict()
+
+    def export_to_file(self, file_out: Path | str, override_if_exists: bool):
+        file_out_path = Path(file_out)
+        if file_out_path.exists() and not override_if_exists:
+            raise ValueError(f"File {file_out_path.absolute()} already exists")
+
+        data_to_export = {
+            "project_name": self.name,
+            "version": json.loads(self.version_json_path.read_text()),
+            "regList": json.loads(self.reg_list_path.read_text()),
+            "commands": json.loads(self.commands_path.read_text()),
+        }
+        with gzip.open(file_out_path, "wb") as f:
+            f.write(json.dumps(data_to_export).encode())
 
     def get_raw_result_for_address(self, register_address: int) -> RawResult | None:
         for row in self.results:
@@ -222,6 +237,27 @@ class Projects:
         if not self.projects_file_path.exists():
             projects_dirs = [d.name for d in self.projects_dir.iterdir() if d.is_dir()]
             self.projects_file_path.write_text(json.dumps(projects_dirs))
+
+    def import_project_from_file(self, file_in: Path | str, app) -> str | None:
+        def name_picker(name: str) -> str | None:
+            from i2cc.projects_gui import ImportNameProjectDialog
+
+            dialog = ImportNameProjectDialog(app, name)
+            dialog.exec()
+            return None if dialog.project_name.value.strip() == "" else dialog.project_name.value
+
+        with gzip.open(Path(file_in)) as f:
+            data = json.loads(f.read().decode())
+            project_name = data["project_name"]
+            name_to_save_under = name_picker(project_name) if project_name in self.list_projects() else project_name
+            if name_to_save_under is not None:
+                project = self.new_project(name_to_save_under)
+                project.version_json_path.write_text(json.dumps(data["version"]))
+                project.reg_list_path.write_text(json.dumps(data["regList"]))
+                project.commands_path.write_text(json.dumps(data["commands"]))
+                return project.name
+            else:
+                return None
 
     def list_projects(self) -> list[str]:
         return json.loads(self.projects_file_path.read_text())

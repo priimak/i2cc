@@ -68,7 +68,7 @@ class CommandsPanel(VBoxPanel):
                     Label("Speed"),
                     self.speed_selector,
                     Label("  |  "),
-                    Label("Pullups"),
+                    Label("Pullup"),
                     self.pullup_selector,
                     W(Label(""), stretch=1),
                 ]
