@@ -25,7 +25,7 @@ You will see three main parts.
 * _Output Console_ - printouts and error messages that would normally be written into a terminal will appear here.
 * _Code Preview_ - here you will see the code as you click/select commands in the _Commands/Actions_ list.
 
-Now click on "_Define new command_" button. New window will open where are can enter following
+Now click on "_Define new command_" button. New window will open where you can enter following
 
 ![](images/init-custom-command.png)
 
@@ -63,8 +63,8 @@ Let's go over this code to see what they are.
 
 First we are going to access variable `ctx.init_done` and see if it not `None`. Object `ctx` is global session 
 persistent context. You can read and place any variable in it, and it will survive from one invocation of the command 
-to the next one. Context (`ctx`) is also shared between commands, which is how you can pass messages from one command to 
-another. When you access context variable that is not defined yet it returns `None`. Variable becomes defined and 
+to the next. Context `ctx` is also shared between commands, which is how you can pass messages from one command to 
+another. When you access context variable that is not defined yet, it returns `None`. Variable becomes defined and 
 populated by some value when you assign some value to it. At the bottom you can see such 
 assignment `ctx.init_done = True`. Thus, the check at the top ensures that init sequence will be run more than once.
 
@@ -79,5 +79,5 @@ Now lets click "_Ok_" button. This command should now appear in the list.
 ![](images/commands-1.png)
 
 Now if you double-click (or click on "_Run command_" button or simply press _Enter_ on the keyboard) on this action,
-its code will execute and will print `Init success` in _Output Console_. Subsequent calls to this command prints out
+its code will execute and print `Init success` in _Output Console_. Subsequent calls to this command prints out
 `Power-on init sequence was already done once`.
