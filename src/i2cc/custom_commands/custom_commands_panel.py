@@ -327,3 +327,5 @@ class CustomCommandsPanel(VBoxPanel):
         self.commands_table.table_model.endResetModel()
         if keep_selection:
             self.commands_table.selectRow(selected_row)
+
+# TODO: Code previe does not clear when last command is deleted. Fix it.
