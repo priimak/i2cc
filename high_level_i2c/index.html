@@ -421,7 +421,7 @@ persistent context. You can read and place any variable in it, and it will survi
 to the next. Context <code>ctx</code> is also shared between commands, which is how you can pass messages from one command to 
 another. When you access context variable that is not defined yet, it returns <code>None</code>. Variable becomes defined and 
 populated by some value when you assign some value to it. At the bottom you can see such 
-assignment <code>ctx.init_done = True</code>. Thus, the check at the top ensures that init sequence will be run more than once.</p>
+assignment <code>ctx.init_done = True</code>. Thus, the check at the top ensures that init sequence will not be run more than once.</p>
 <p>Following three lines have form similar to <code>read(dut.CHIP_ID)</code>. Object <code>dut</code> is implicitly available to the user, 
 and it represents access to the <em>device under test</em> (aka <em>DUT</em>) and its registers.</p>
 <p>Function <code>read(...)</code> takes register as an argument and reads that register from the connected chip. After registers are 
