@@ -19,8 +19,8 @@ Let's create function that performs these checks. First lets switch to the "_Use
 You will see three main parts. 
 
 * _Commands/Actions_ - this is a list of custom commands defined by the user.
-* _Output Console_ - printout and error message that would normally be written into a terminal will appear here.
-* _Code Preview_ - here you will see the code as you click/selection commands in the _Commands/Actions_ list.
+* _Output Console_ - printouts and error messages that would normally be written into a terminal will appear here.
+* _Code Preview_ - here you will see the code as you click/select commands in the _Commands/Actions_ list.
 
 Now click on "_Define new command_" button. New window will open where are can enter following
 
