@@ -161,6 +161,9 @@ class I2CDriverWindow(MainWindow):
             self.reg_list_panel.splitter.restoreState(QByteArray.fromBase64(spl_state.encode("utf-8")))
         self.custom_commands_panel.restore()
 
+        # following will trigger execution of __start__ command in the opened project if such command is present.
+        self.app.request_commands_reload(False)
+
 
 def main():
     app = QApplication(sys.argv)
