@@ -386,7 +386,7 @@ can only be run once on freshly powered on BPM581 chip.</p>
 <li><em>Output Console</em> - printouts and error messages that would normally be written into a terminal will appear here.</li>
 <li><em>Code Preview</em> - here you will see the code as you click/select commands in the <em>Commands/Actions</em> list.</li>
 </ul>
-<p>Now click on "<em>Define new command</em>" button. New window will open where are can enter following</p>
+<p>Now click on "<em>Define new command</em>" button. New window will open where you can enter following</p>
 <p><img alt="" src="../images/init-custom-command.png" /></p>
 <p>Line above, "Init" is a name of custom command as it will appear in the list of commands.
 And bellow is the code</p>
@@ -418,8 +418,8 @@ And bellow is the code</p>
 Let's go over this code to see what they are.</p>
 <p>First we are going to access variable <code>ctx.init_done</code> and see if it not <code>None</code>. Object <code>ctx</code> is global session 
 persistent context. You can read and place any variable in it, and it will survive from one invocation of the command 
-to the next one. Context (<code>ctx</code>) is also shared between commands, which is how you can pass messages from one command to 
-another. When you access context variable that is not defined yet it returns <code>None</code>. Variable becomes defined and 
+to the next. Context <code>ctx</code> is also shared between commands, which is how you can pass messages from one command to 
+another. When you access context variable that is not defined yet, it returns <code>None</code>. Variable becomes defined and 
 populated by some value when you assign some value to it. At the bottom you can see such 
 assignment <code>ctx.init_done = True</code>. Thus, the check at the top ensures that init sequence will be run more than once.</p>
 <p>Following three lines have form similar to <code>read(dut.CHIP_ID)</code>. Object <code>dut</code> is implicitly available to the user, 
@@ -429,7 +429,7 @@ read we can access their fields. For example, we can check that <code>dut.CHIP_I
 <p>Now lets click "<em>Ok</em>" button. This command should now appear in the list.</p>
 <p><img alt="" src="../images/commands-1.png" /></p>
 <p>Now if you double-click (or click on "<em>Run command</em>" button or simply press <em>Enter</em> on the keyboard) on this action,
-its code will execute and will print <code>Init success</code> in <em>Output Console</em>. Subsequent calls to this command prints out
+its code will execute and print <code>Init success</code> in <em>Output Console</em>. Subsequent calls to this command prints out
 <code>Power-on init sequence was already done once</code>.</p>
 
 
