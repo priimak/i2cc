@@ -366,14 +366,16 @@
 
 
 <h1 id="programing-devices-over-i2c">Programing devices over I2C<a class="headerlink" href="#programing-devices-over-i2c" title="Permanent link">&para;</a></h1>
-<p>Now that we know how to read and write individual registers we are ready to move up one level and provide Python 
-environment for programming devices using these lower level primitives directly inside <em>I2C Commander</em>. </p>
+<p>Now that we know how to read and write individual registers we are ready to move up one level and use Python 
+language for programming devices using these lower level primitives directly inside <em>I2C Commander</em>. </p>
 <p>As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.</p>
 <p>According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific 
-values. If those values are as per specification, then proceed with temperature and pressure measurements.
-* Read <code>CHIP_ID</code> register and check that its value is not 0.
-* Confirm that in <code>STATUS</code> register fields <code>status_nvm_rdy</code> and <code>status_nvm_err</code> have values 1 and 0 respectively.
-* Confirm that in register <code>INT_STATUS</code> field <code>por</code> is set to 1.</p>
+values. If those values are as per specification, then proceed with temperature and pressure measurements.</p>
+<ul>
+<li>Read <code>CHIP_ID</code> register and check that its value is not 0.</li>
+<li>Confirm that in <code>STATUS</code> register fields <code>status_nvm_rdy</code> and <code>status_nvm_err</code> have values 1 and 0 respectively.</li>
+<li>Confirm that in register <code>INT_STATUS</code> field <code>por</code> is set to 1.</li>
+</ul>
 <p>Let's create function that performs these checks. First lets switch to the "<em>User defined commands</em>" tab.</p>
 <p><img alt="" src="../images/user-commands-tab.png" /></p>
 <p>You will see three main parts. </p>
