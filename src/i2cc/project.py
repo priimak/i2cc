@@ -30,8 +30,8 @@ class CommandsContext:
         else:
             try:
                 return self.__context_attributes[name]
-            except KeyError as ex:
-                raise AttributeError(f"Context does not have variable [{name}]") from ex
+            except KeyError:
+                return None
 
 
 @dataclass

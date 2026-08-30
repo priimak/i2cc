@@ -12,6 +12,9 @@ values. If those values are as per specification, then proceed with temperature 
 * Confirm that in `STATUS` register fields `status_nvm_rdy` and `status_nvm_err` have values 1 and 0 respectively.
 * Confirm that in register `INT_STATUS` field `por` is set to 1.
 
+Note that reading `INIT_STATUS` register resets all of its fields to 0. This means that init sequence as outlined above 
+can only be run once on freshly powered on BPM581 chip.
+
 Let's create function that performs these checks. First lets switch to the "_User defined commands_" tab.
 
 ![](images/user-commands-tab.png)
@@ -26,10 +29,14 @@ Now click on "_Define new command_" button. New window will open where are can e
 
 ![](images/init-custom-command.png)
 
-Line above "Init" is a name of custom command as it will appear in the list of commands.
+Line above, "Init" is a name of custom command as it will appear in the list of commands.
 And bellow is the code
 
 ```python
+if ctx.init_done is not None:
+    print("Power-on init sequence was already done once")
+    exit()
+
 read(dut.CHIP_ID)
 read(dut.STATUS)
 read(dut.INT_STATUS)
@@ -48,13 +55,21 @@ elif dut.INT_STATUS.por != 1:
 
 else:
     print("Init success")
+    ctx.init_done = True
 ```
 
 This code is plain python but implicitly in it several special functions and objects are available to the user.
 Let's go over this code to see what they are.
 
-First three lines have form `read(dut.CHIP_ID)`. Object `dut` is implicitly available to the user, and it represents 
-access to the _device under test_ (aka _DUT_) and its registers.
+First we are going to access variable `ctx.init_done` and see if it not `None`. Object `ctx` is global session 
+persistent context. You can read and place any variable in it, and it will survive from one invocation of the command 
+to the next one. Context (`ctx`) is also shared between commands, which is how you can pass messages from one command to 
+another. When you access context variable that is not defined yet it returns `None`. Variable becomes defined and 
+populated by some value when you assign some value to it. At the bottom you can see such 
+assignment `ctx.init_done = True`.
+
+Following three lines have form similar to `read(dut.CHIP_ID)`. Object `dut` is implicitly available to the user, 
+and it represents access to the _device under test_ (aka _DUT_) and its registers.
 
 Function `read(...)` takes register as an argument and reads that register from the connected chip. After registers are 
 read we can access their fields. For example, we can check that `dut.CHIP_ID.chip_id == 0` and so on. 
@@ -63,5 +78,6 @@ Now lets click "_Ok_" button. This command should now appear in the list.
 
 ![](images/commands-1.png)
 
-Now if you double-click (or click on "_Run command_" button or simply press _Enter_ on the keyboard) on this action 
-code will execute. It should print out `Init success` in _Output Console_.
+Now if you double-click (or click on "_Run command_" button or simply press _Enter_ on the keyboard) on this action,
+its code will execute and will print `Init success` in _Output Console_. Subsequent calls to this command prints out
+`Power-on init sequence was already done once`.
