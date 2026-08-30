@@ -44,8 +44,6 @@ class App:
         # TODO: make write work with 0 bytes of payload
         self.write_register_num_bytes = Variable[int](1, valid_values=[0, 1, 2, 3, 4])
 
-        self.show_error: Callable[[str], None] = lambda _: None
-
         self.show_read_register_results: Callable[[str, str, str, bool], None] = lambda a, b, c, d: None
         self.exit_application: list[Callable[[], None]] = [lambda: None]
         self.re_read_all_period_millis: int = -1
@@ -64,6 +62,7 @@ class App:
         self.request_commands_reload: Callable[[bool], None] = lambda _: None
 
         self.op_thread = I2COpThread()
+        self.op_thread.show_error.connect(self.show_error)
         self.op_thread.start()
 
         last_open_project_name = persistence.config.get_value("last_open_project", str)
@@ -83,9 +82,6 @@ class App:
 
     def append_i2c_log_message(self, log_message: list[I2CTransactionElement]):
         self.show_last_i2c_log_message(log_message)
-
-    def connect_show_error(self, show_error: Callable[[str], None]):
-        self.op_thread.show_error.connect(show_error)
 
     def connect_show_register_value(self, show_register_value: Callable[[ShowRegSignalData], None]):
         self.op_thread.show_register_value.connect(show_register_value)
@@ -300,3 +296,6 @@ class App:
                 self.persistence.state.set_value("last_used_dir", str(Path(file_name).parent.absolute()))
             except Exception as ex:
                 self.show_error(str(ex))
+
+    def show_error(self, message) -> None:
+        QMessageBox.critical(self.main_window, "Error", message)

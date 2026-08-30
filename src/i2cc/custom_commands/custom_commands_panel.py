@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from PySide6 import QtCore
-from PySide6.QtCore import QModelIndex, QPersistentModelIndex, Qt
+from PySide6.QtCore import QByteArray, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLabel, QMessageBox, QTextEdit
 from pytide6 import HBoxPanel, Label, Menu, PushButton, Splitter, VBoxPanel, W
@@ -113,8 +113,8 @@ class CustomCommandsPanel(VBoxPanel):
         self.app = app
         self.app.request_commands_reload = self.request_commands_reload
 
-        code_preview_widget = CodePreviewWidget()
-        commands_table_model = CommandsListModel(app, code_preview_widget)
+        self.code_preview_widget = CodePreviewWidget()
+        commands_table_model = CommandsListModel(app, self.code_preview_widget)
         self.commands_table = ListTableView(
             table_model=commands_table_model,
             pass_key_press_event=self.pass_key_press_event,
@@ -147,7 +147,7 @@ class CustomCommandsPanel(VBoxPanel):
             close_action=lambda: None,
         )
 
-        results_and_preview_splitter = Splitter(
+        self.results_and_preview_splitter = Splitter(
             Qt.Orientation.Vertical,
             childrenCollapsible=False,
             handleWidth=3,
@@ -169,7 +169,7 @@ class CustomCommandsPanel(VBoxPanel):
                             [(Label(" Code Preview ", css=title_labels_css)), W(stretch=1)],
                             margins=0,
                         ),
-                        code_preview_widget,
+                        self.code_preview_widget,
                     ],
                     margins=(0, 10, 0, 0),
                     spacing=0,
@@ -177,7 +177,7 @@ class CustomCommandsPanel(VBoxPanel):
             ],
             margins=0,
         )
-        self.splitter = Splitter(
+        self.custom_commands_main_splitter = Splitter(
             Qt.Orientation.Horizontal,
             childrenCollapsible=False,
             handleWidth=8,
@@ -193,7 +193,7 @@ class CustomCommandsPanel(VBoxPanel):
                     margins=0,
                     spacing=0,
                 ),
-                results_and_preview_splitter,
+                self.results_and_preview_splitter,
             ],
         )
 
@@ -210,7 +210,7 @@ class CustomCommandsPanel(VBoxPanel):
                 margins=0,
             ),
             self.search_field,
-            W(self.splitter, stretch=2),
+            W(self.custom_commands_main_splitter, stretch=2),
         )
 
     def pass_key_press_event(self) -> Callable[[QKeyEvent], None]:
@@ -321,6 +321,7 @@ class CustomCommandsPanel(VBoxPanel):
             return selected_indexes[0].row()
 
     def request_commands_reload(self, keep_selection: bool):
+        self.code_preview_widget.clear()
         selected_row = self.get_selected_row()
         self.commands_table.table_model.beginResetModel()
         self.commands_table.table_model.regenerate_commands_to_display()
@@ -328,4 +329,28 @@ class CustomCommandsPanel(VBoxPanel):
         if keep_selection:
             self.commands_table.selectRow(selected_row)
 
-# TODO: Code previe does not clear when last command is deleted. Fix it.
+    def save_state(self):
+        self.app.persistence.state.set_value(
+            "custom_commands_main_splitter_state",
+            self.custom_commands_main_splitter.saveState()
+            .toBase64(QByteArray.Base64Option.Base64Encoding)
+            .data()
+            .decode("utf-8"),
+        )
+
+        self.app.persistence.state.set_value(
+            "results_and_preview_splitter_state",
+            self.results_and_preview_splitter.saveState()
+            .toBase64(QByteArray.Base64Option.Base64Encoding)
+            .data()
+            .decode("utf-8"),
+        )
+
+    def restore(self):
+        spl_state = self.app.persistence.state.get_value("custom_commands_main_splitter_state")
+        if spl_state is not None:
+            self.custom_commands_main_splitter.restoreState(QByteArray.fromBase64(spl_state.encode("utf-8")))
+
+        spl_state = self.app.persistence.state.get_value("results_and_preview_splitter_state")
+        if spl_state is not None:
+            self.results_and_preview_splitter.restoreState(QByteArray.fromBase64(spl_state.encode("utf-8")))

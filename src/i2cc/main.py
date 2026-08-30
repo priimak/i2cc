@@ -113,8 +113,6 @@ class I2CDriverWindow(MainWindow):
             )
         )
 
-        app.show_error = self.show_error
-        app.connect_show_error(self.show_error)
         app.connect_show_register_value(self.res_table.show_register_value)
 
         self.main_menu_bar = self.setMenuBar(MainMenuBar(self.app, dialogs_parent=self))
@@ -136,17 +134,20 @@ class I2CDriverWindow(MainWindow):
         self.app.op_thread.commands.put(Quit())
         self.app.persistence.state.save_geometry(self.objectName(), self.saveGeometry())
 
-        state: QByteArray = self.hsplitter.saveState()
         self.app.persistence.state.set_value(
             "main_splitter_state",
-            state.toBase64(QByteArray.Base64Option.Base64Encoding).data().decode("utf-8"),
+            self.hsplitter.saveState().toBase64(QByteArray.Base64Option.Base64Encoding).data().decode("utf-8"),
         )
 
-        state: QByteArray = self.reg_list_panel.splitter.saveState()
         self.app.persistence.state.set_value(
             "reg_list_splitter_state",
-            state.toBase64(QByteArray.Base64Option.Base64Encoding).data().decode("utf-8"),
+            self.reg_list_panel.splitter.saveState()
+            .toBase64(QByteArray.Base64Option.Base64Encoding)
+            .data()
+            .decode("utf-8"),
         )
+
+        self.custom_commands_panel.save_state()
 
         self.app.project.save()
         event.accept()
@@ -158,9 +159,7 @@ class I2CDriverWindow(MainWindow):
         spl_state = self.app.persistence.state.get_value("reg_list_splitter_state")
         if spl_state is not None:
             self.reg_list_panel.splitter.restoreState(QByteArray.fromBase64(spl_state.encode("utf-8")))
-
-    def show_error(self, message: str) -> None:
-        QMessageBox.critical(self, "Error", message)
+        self.custom_commands_panel.restore()
 
 
 def main():
