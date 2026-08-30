@@ -376,6 +376,8 @@ values. If those values are as per specification, then proceed with temperature 
 <li>Confirm that in <code>STATUS</code> register fields <code>status_nvm_rdy</code> and <code>status_nvm_err</code> have values 1 and 0 respectively.</li>
 <li>Confirm that in register <code>INT_STATUS</code> field <code>por</code> is set to 1.</li>
 </ul>
+<p>Note that reading <code>INIT_STATUS</code> register resets all of its fields to 0. This means that init sequence as outlined above 
+can only be run once on freshly powered on BPM581 chip.</p>
 <p>Let's create function that performs these checks. First lets switch to the "<em>User defined commands</em>" tab.</p>
 <p><img alt="" src="../images/user-commands-tab.png" /></p>
 <p>You will see three main parts. </p>
@@ -386,9 +388,13 @@ values. If those values are as per specification, then proceed with temperature 
 </ul>
 <p>Now click on "<em>Define new command</em>" button. New window will open where are can enter following</p>
 <p><img alt="" src="../images/init-custom-command.png" /></p>
-<p>Line above "Init" is a name of custom command as it will appear in the list of commands.
+<p>Line above, "Init" is a name of custom command as it will appear in the list of commands.
 And bellow is the code</p>
-<div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">CHIP_ID</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">init_done</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Power-on init sequence was already done once"</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
+
+<span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">CHIP_ID</span><span class="p">)</span>
 <span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">STATUS</span><span class="p">)</span>
 <span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">INT_STATUS</span><span class="p">)</span>
 
@@ -406,17 +412,25 @@ And bellow is the code</p>
 
 <span class="k">else</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Init success"</span><span class="p">)</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">init_done</span> <span class="o">=</span> <span class="kc">True</span>
 </code></pre></div>
 <p>This code is plain python but implicitly in it several special functions and objects are available to the user.
 Let's go over this code to see what they are.</p>
-<p>First three lines have form <code>read(dut.CHIP_ID)</code>. Object <code>dut</code> is implicitly available to the user, and it represents 
-access to the <em>device under test</em> (aka <em>DUT</em>) and its registers.</p>
+<p>First we are going to access variable <code>ctx.init_done</code> and see if it not <code>None</code>. Object <code>ctx</code> is global session 
+persistent context. You can read and place any variable in it, and it will survive from one invocation of the command 
+to the next one. Context (<code>ctx</code>) is also shared between commands, which is how you can pass messages from one command to 
+another. When you access context variable that is not defined yet it returns <code>None</code>. Variable becomes defined and 
+populated by some value when you assign some value to it. At the bottom you can see such 
+assignment <code>ctx.init_done = True</code>.</p>
+<p>Following three lines have form similar to <code>read(dut.CHIP_ID)</code>. Object <code>dut</code> is implicitly available to the user, 
+and it represents access to the <em>device under test</em> (aka <em>DUT</em>) and its registers.</p>
 <p>Function <code>read(...)</code> takes register as an argument and reads that register from the connected chip. After registers are 
 read we can access their fields. For example, we can check that <code>dut.CHIP_ID.chip_id == 0</code> and so on. </p>
 <p>Now lets click "<em>Ok</em>" button. This command should now appear in the list.</p>
 <p><img alt="" src="../images/commands-1.png" /></p>
-<p>Now if you double-click (or click on "<em>Run command</em>" button or simply press <em>Enter</em> on the keyboard) on this action 
-code will execute. It should print out <code>Init success</code> in <em>Output Console</em>.</p>
+<p>Now if you double-click (or click on "<em>Run command</em>" button or simply press <em>Enter</em> on the keyboard) on this action,
+its code will execute and will print <code>Init success</code> in <em>Output Console</em>. Subsequent calls to this command prints out
+<code>Power-on init sequence was already done once</code>.</p>
 
 
 
