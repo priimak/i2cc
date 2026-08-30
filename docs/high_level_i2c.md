@@ -1,12 +1,13 @@
 # Programing devices over I2C
 
-Now that we know how to read and write individual registers we are ready to move up one level and provide Python 
-environment for programming devices using these lower level primitives directly inside _I2C Commander_. 
+Now that we know how to read and write individual registers we are ready to move up one level and use Python 
+language for programming devices using these lower level primitives directly inside _I2C Commander_. 
 
 As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.
 
 According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific 
 values. If those values are as per specification, then proceed with temperature and pressure measurements.
+
 * Read `CHIP_ID` register and check that its value is not 0.
 * Confirm that in `STATUS` register fields `status_nvm_rdy` and `status_nvm_err` have values 1 and 0 respectively.
 * Confirm that in register `INT_STATUS` field `por` is set to 1.
