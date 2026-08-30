@@ -309,6 +309,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    High level programming
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -325,6 +343,58 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bmp581-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BMP581 initialization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapping-odr-to-human-readable-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapping ODR to human-readable values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-odr_config-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring ODR_CONFIG register
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -350,6 +420,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bmp581-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BMP581 initialization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapping-odr-to-human-readable-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapping ODR to human-readable values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-odr_config-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring ODR_CONFIG register
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -367,8 +478,9 @@
 
 <h1 id="programing-devices-over-i2c">Programing devices over I2C<a class="headerlink" href="#programing-devices-over-i2c" title="Permanent link">&para;</a></h1>
 <p>Now that we know how to read and write individual registers we are ready to move up one level and use Python 
-language for programming devices using these lower level primitives directly inside <em>I2C Commander</em>. </p>
+language for programming devices directly inside <em>I2C Commander</em>. </p>
 <p>As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.</p>
+<h2 id="bmp581-initialization">BMP581 initialization<a class="headerlink" href="#bmp581-initialization" title="Permanent link">&para;</a></h2>
 <p>According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific 
 values. If those values are as per specification, then proceed with temperature and pressure measurements.</p>
 <ul>
@@ -431,6 +543,10 @@ read we can access their fields. For example, we can check that <code>dut.CHIP_I
 <p>Now if you double-click (or click on "<em>Run command</em>" button or simply press <em>Enter</em> on the keyboard) on this action,
 its code will execute and print <code>Init success</code> in <em>Output Console</em>. Subsequent calls to this command prints out
 <code>Power-on init sequence was already done once</code>.</p>
+<h2 id="mapping-odr-to-human-readable-values">Mapping ODR to human-readable values<a class="headerlink" href="#mapping-odr-to-human-readable-values" title="Permanent link">&para;</a></h2>
+<p>Fixed point number numerical format is often not enough to express content of the registers in human-readable form.</p>
+<h2 id="configuring-odr_config-register">Configuring ODR_CONFIG register<a class="headerlink" href="#configuring-odr_config-register" title="Permanent link">&para;</a></h2>
+<p>Now that we know how to read and display <em>output data rate</em> values we define graphical UI for changing these values. </p>
 
 
 
