@@ -66,7 +66,7 @@ persistent context. You can read and place any variable in it, and it will survi
 to the next. Context `ctx` is also shared between commands, which is how you can pass messages from one command to 
 another. When you access context variable that is not defined yet, it returns `None`. Variable becomes defined and 
 populated by some value when you assign some value to it. At the bottom you can see such 
-assignment `ctx.init_done = True`. Thus, the check at the top ensures that init sequence will be run more than once.
+assignment `ctx.init_done = True`. Thus, the check at the top ensures that init sequence will not be run more than once.
 
 Following three lines have form similar to `read(dut.CHIP_ID)`. Object `dut` is implicitly available to the user, 
 and it represents access to the _device under test_ (aka _DUT_) and its registers.
