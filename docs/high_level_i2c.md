@@ -1,10 +1,11 @@
 # Programing devices over I2C
 
 Now that we know how to read and write individual registers we are ready to move up one level and use Python 
-language for programming devices using these lower level primitives directly inside _I2C Commander_. 
+language for programming devices directly inside _I2C Commander_. 
 
 As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.
 
+## BMP581 initialization
 According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific 
 values. If those values are as per specification, then proceed with temperature and pressure measurements.
 
@@ -81,3 +82,12 @@ Now lets click "_Ok_" button. This command should now appear in the list.
 Now if you double-click (or click on "_Run command_" button or simply press _Enter_ on the keyboard) on this action,
 its code will execute and print `Init success` in _Output Console_. Subsequent calls to this command prints out
 `Power-on init sequence was already done once`.
+
+## Mapping ODR to human-readable values
+
+Fixed point number numerical format is often not enough to express content of the registers in human-readable form.
+
+## Configuring ODR_CONFIG register
+
+Now that we know how to read and display _output data rate_ values we define graphical UI for changing these values. 
+
