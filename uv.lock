@@ -64,16 +64,16 @@ wheels = [
 
 [[package]]
 name = "i2c-api"
-version = "0.9.0.post0+git.f50ab2bc.dirty"
-source = { git = "https://github.com/priimak/i2c_api.git?rev=v0.9.0#f50ab2bc662beed6352807b12bea1016e004a519" }
+version = "0.10.0.post0+git.90828140.dirty"
+source = { git = "https://github.com/priimak/i2c_api.git?rev=v0.10.0#908281403a45dc3da9765b6be033d360de96225c" }
 dependencies = [
     { name = "bitstring" },
 ]
 
 [[package]]
 name = "i2capi-i2cdriver"
-version = "0.5.0.post0+git.cbc7052e.dirty"
-source = { git = "https://github.com/priimak/i2capi_i2cdriver.git?rev=v0.5.0#cbc7052e412f8a8727f8148742c9dfb1404cdcd5" }
+version = "0.5.1.post0+git.4f127242.dirty"
+source = { git = "https://github.com/priimak/i2capi_i2cdriver.git?rev=v0.5.1#4f1272425af4d1510a74c9c5266a84f17d0c21b9" }
 dependencies = [
     { name = "i2c-api" },
     { name = "i2cdriver" },
@@ -100,12 +100,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "i2c-api", git = "https://github.com/priimak/i2c_api.git?rev=v0.9.0" },
-    { name = "i2capi-i2cdriver", git = "https://github.com/priimak/i2capi_i2cdriver.git?rev=v0.5.0" },
+    { name = "i2c-api", git = "https://github.com/priimak/i2c_api.git?rev=v0.10.0" },
+    { name = "i2capi-i2cdriver", git = "https://github.com/priimak/i2capi_i2cdriver.git?rev=v0.5.1" },
     { name = "i2cdriver", specifier = "==1.0.6" },
     { name = "pyside6", specifier = "==6.11.1" },
     { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.20.0" },
-    { name = "rgscore", git = "https://github.com/priimak/rgscore.git?rev=v0.11.1" },
+    { name = "rgscore", git = "https://github.com/priimak/rgscore.git?rev=v0.11.2" },
     { name = "usb-monitor" },
 ]
 
@@ -217,8 +217,8 @@ wheels = [
 
 [[package]]
 name = "rgscore"
-version = "0.11.1.post0+git.8f752f0a.dirty"
-source = { git = "https://github.com/priimak/rgscore.git?rev=v0.11.1#8f752f0a8e183f7ef023e298c6d4690192b783e4" }
+version = "0.11.2.post0+git.6804233b.dirty"
+source = { git = "https://github.com/priimak/rgscore.git?rev=v0.11.2#6804233b19be95ae20bc1ea9dd87a0996b76ac94" }
 dependencies = [
     { name = "bitstring" },
     { name = "i2c-api" },
