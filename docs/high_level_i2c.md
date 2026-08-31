@@ -251,6 +251,13 @@ First variable is a boolean and thus will be presented to the user as checkbox. 
 
 ![](images/p_control.png)
 
+## Reading temperature
+
+In BPM581 chip measured temperature and pressure values occupy 24 bits and thus stored in three bytes each.
+Thus, to read these values we need to read all three registers, combine them into one and re-interpret their values.
+Here we will create a command for triggering single shot temperature measurement, reading measured value and presenting 
+it to the user.
+
 
 ## Special I2CC Python methods and variables
 
