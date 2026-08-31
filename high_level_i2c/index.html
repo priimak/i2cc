@@ -12,6 +12,8 @@
         <link rel="prev" href="../register_i2c/">
       
       
+        <link rel="next" href="../prog_ref/">
+      
       
         
       
@@ -411,6 +413,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prog_ref/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming language reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -573,7 +602,7 @@ this list into context <code>ctx</code> and initialize it in special command <co
 <p>Command named <code>__start__</code> is executed automatically when project is loaded including when <em>I2C Commander</em> starts and
 loads last opened project. Thus, this makes it an ideal place to initialize constants that can be used by other
 commands. To that end, we create command named <code>__start__</code> with following content.</p>
-<p><div class="highlight"><pre><span></span><code><span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span> <span class="o">=</span> <span class="p">[</span>
+<div class="highlight"><pre><span></span><code><span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"240"</span><span class="p">,</span> <span class="s2">"218.537"</span><span class="p">,</span> <span class="s2">"199.111"</span><span class="p">,</span> <span class="s2">"179.2"</span><span class="p">,</span> <span class="s2">"160"</span><span class="p">,</span>
     <span class="s2">"149.333"</span><span class="p">,</span> <span class="s2">"140"</span><span class="p">,</span> <span class="s2">"129.855"</span><span class="p">,</span> <span class="s2">"120"</span><span class="p">,</span> <span class="s2">"110.164"</span><span class="p">,</span>
     <span class="s2">"100.299"</span><span class="p">,</span> <span class="s2">"89.6"</span><span class="p">,</span> <span class="s2">"80"</span><span class="p">,</span> <span class="s2">"70"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"50.056"</span><span class="p">,</span>
@@ -581,7 +610,7 @@ commands. To that end, we create command named <code>__start__</code> with follo
     <span class="s2">"10"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">,</span> <span class="s2">"4"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"0.5"</span><span class="p">,</span> <span class="s2">"0.25"</span><span class="p">,</span> <span class="s2">"0.125"</span>
 <span class="p">]</span>
 </code></pre></div>
-Index within this table corresponds to <code>ODR_CONFIG.odr</code> field value which we can simply use as index into this array.</p>
+<p>Index within this table corresponds to <code>ODR_CONFIG.odr</code> field value which we can simply use as index into this array.</p>
 <p>Now let's create custom command named "<em>Read ODR (output data rate)</em>" with following content.</p>
 <div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
 
@@ -603,7 +632,8 @@ Index within this table corresponds to <code>ODR_CONFIG.odr</code> field value w
 <li><code>Variable(...)</code> - ...</li>
 <li><code>U(...)</code> - function that reads and interprets bitarray as unsigned fixed point number.</li>
 <li><code>S(...)</code> - function reads and interprets bitarray as signed fixed point number.</li>
-<li><code>__command_name__</code> - variable that holds name of executing custom command. </li>
+<li><code>__command_name__</code> - variable that holds name of executing custom command.</li>
+<li><code>__device_address__</code> - variable that i2c device address as selected in the GUI. </li>
 </ul>
 
 
