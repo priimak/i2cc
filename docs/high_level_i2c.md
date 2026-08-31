@@ -123,12 +123,16 @@ Output data rate is 1 Hz.
 
 ## Configuring ODR_CONFIG register
 
-Now that we know how to read and display _output data rate_ values we define graphical UI for changing these values.
+Now that we know how to read and display _output data rate_ values we will define graphical UI for `odr` field.
 
 ## Special I2CC Python methods and variables
 
 * `read(...)` - reads register from the target slave device.
+* `write(...)` - writes register into the target slave device.
 * `dut` - "_device under test_" variable used to access registers.
-* `ctx` - global context object that lives within a project session of `I2C Commander`
-* ...
-
+* `ctx` - global context object that lives within a project session of _I2C Commander_.
+* `prompt_user(...)` - shows GUI for user to input data.
+* `Variable` - ...
+* `U` - reads and interprets bitarray as unsigned fixed point number.
+* `S` - reads and interprets bitarray as signed fixed point number.
+* `__command_name__` - variable that holds name of executing custom command. 
