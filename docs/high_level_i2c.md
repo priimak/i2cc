@@ -104,6 +104,7 @@ ctx.ODR_HZ = [
     "10", "5", "4", "3", "2", "1", "0.5", "0.25", "0.125"
 ]
 ```
+Index within this table corresponds to `ODR_CONFIG.odr` field value which we can simply use as index into this array.
 
 Now let's create custom command named "_Read ODR (output data rate)_" with following content.
 
