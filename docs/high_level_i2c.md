@@ -128,7 +128,7 @@ Now that we know how to read and display _output data rate_ values we define gra
 ## Special I2CC Python methods and variables
 
 * `read(...)` - reads register from the target slave device.
-* `dut` - "device under test" variable used to access registers.
-* `ctx` - global context object that lives within a session of `I2C Commander`
+* `dut` - "_device under test_" variable used to access registers.
+* `ctx` - global context object that lives within a project session of `I2C Commander`
 * ...
 
