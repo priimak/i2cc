@@ -124,7 +124,39 @@ Output data rate is 1 Hz.
 
 ## Configuring ODR_CONFIG register
 
-Now that we know how to read and display _output data rate_ values we will define graphical UI for `odr` field.
+Now that we know how to read and display _output data rate_ values in human-readable format we will define 
+graphical UI for the `odr` field in `ODR_CONFIG` register. To that end we create custom command called
+
+`Configure output data rate (ODR)`
+
+with following code
+
+```python
+read(dut.ODR_CONFIG)
+current_odr_value = ctx.ODR_HZ[dut.ODR_CONFIG.odr]
+
+odr = prompt_user(
+    Variable(
+        current_odr_value, valid_values=ctx.ODR_HZ, name="Output Data Rate [Hz]"
+    )
+)
+new_odr_field_value = ctx.ODR_HZ.index(odr)
+
+dut.ODR_CONFIG.odr = new_odr_field_value
+write(dut.ODR_CONFIG)
+
+read(dut.ODR_CONFIG)
+current_odr_value = ctx.ODR_HZ[dut.ODR_CONFIG.odr]
+print(f"Output data rate is configured to {current_odr_value} Hz")
+```
+
+When you run this command it should look like so:
+
+![](images/change-odr.gif)
+
+Let us go over this code line by line to understand how it works.
+First, let's note that there are two new functions in here, `prompt_user(...)` and `write(...)`. We will get to them 
+shortly.
 
 ## Special I2CC Python methods and variables
 
@@ -133,7 +165,7 @@ Now that we know how to read and display _output data rate_ values we will defin
 * `dut` - "_device under test_" object used to access registers.
 * `ctx` - global context object that lives within a project session of _I2C Commander_.
 * `prompt_user(...)` - function that shows GUI for user to input data.
-* `Variable(...)` - ...
+* `Variable(...)` - variable wrapper that can be passed to `prompt_user(...)` needed to construct the GUI.
 * `U(...)` - function that reads and interprets bitarray as unsigned fixed point number.
 * `S(...)` - function reads and interprets bitarray as signed fixed point number.
 * `__command_name__` - variable that holds name of executing custom command.
