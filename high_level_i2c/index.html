@@ -392,6 +392,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#special-i2cc-python-methods-and-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special I2CC Python methods and variables
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -459,6 +470,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#special-i2cc-python-methods-and-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special I2CC Python methods and variables
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -477,22 +499,22 @@
 
 
 <h1 id="programing-devices-over-i2c">Programing devices over I2C<a class="headerlink" href="#programing-devices-over-i2c" title="Permanent link">&para;</a></h1>
-<p>Now that we know how to read and write individual registers we are ready to move up one level and use Python 
-language for programming devices directly inside <em>I2C Commander</em>. </p>
+<p>Now that we know how to read and write individual registers we are ready to move up one level and use Python language
+for programming devices directly inside <em>I2C Commander</em>.</p>
 <p>As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.</p>
 <h2 id="bmp581-initialization">BMP581 initialization<a class="headerlink" href="#bmp581-initialization" title="Permanent link">&para;</a></h2>
-<p>According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific 
+<p>According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific
 values. If those values are as per specification, then proceed with temperature and pressure measurements.</p>
 <ul>
 <li>Read <code>CHIP_ID</code> register and check that its value is not 0.</li>
 <li>Confirm that in <code>STATUS</code> register fields <code>status_nvm_rdy</code> and <code>status_nvm_err</code> have values 1 and 0 respectively.</li>
 <li>Confirm that in register <code>INT_STATUS</code> field <code>por</code> is set to 1.</li>
 </ul>
-<p>Note that reading <code>INIT_STATUS</code> register resets all of its fields to 0. This means that init sequence as outlined above 
+<p>Note that reading <code>INIT_STATUS</code> register resets all of its fields to 0. This means that init sequence as outlined above
 can only be run once on freshly powered on BPM581 chip.</p>
 <p>Let's create function that performs these checks. First lets switch to the "<em>User defined commands</em>" tab.</p>
 <p><img alt="" src="../images/user-commands-tab.png" /></p>
-<p>You will see three main parts. </p>
+<p>You will see three main parts.</p>
 <ul>
 <li><em>Commands/Actions</em> - this is a list of custom commands defined by the user.</li>
 <li><em>Output Console</em> - printouts and error messages that would normally be written into a terminal will appear here.</li>
@@ -500,8 +522,7 @@ can only be run once on freshly powered on BPM581 chip.</p>
 </ul>
 <p>Now click on "<em>Define new command</em>" button. New window will open where you can enter following</p>
 <p><img alt="" src="../images/init-custom-command.png" /></p>
-<p>Line above, "Init" is a name of custom command as it will appear in the list of commands.
-And bellow is the code</p>
+<p>Line above, "Init" is a name of custom command as it will appear in the list of commands. And bellow is the code</p>
 <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">init_done</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Power-on init sequence was already done once"</span><span class="p">)</span>
     <span class="n">exit</span><span class="p">()</span>
@@ -526,27 +547,58 @@ And bellow is the code</p>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Init success"</span><span class="p">)</span>
     <span class="n">ctx</span><span class="o">.</span><span class="n">init_done</span> <span class="o">=</span> <span class="kc">True</span>
 </code></pre></div>
-<p>This code is plain python but implicitly in it several special functions and objects are available to the user.
-Let's go over this code to see what they are.</p>
-<p>First we are going to access variable <code>ctx.init_done</code> and see if it not <code>None</code>. Object <code>ctx</code> is global session 
-persistent context. You can read and place any variable in it, and it will survive from one invocation of the command 
-to the next. Context <code>ctx</code> is also shared between commands, which is how you can pass messages from one command to 
-another. When you access context variable that is not defined yet, it returns <code>None</code>. Variable becomes defined and 
-populated by some value when you assign some value to it. At the bottom you can see such 
-assignment <code>ctx.init_done = True</code>. Thus, the check at the top ensures that init sequence will not be run more than once.</p>
-<p>Following three lines have form similar to <code>read(dut.CHIP_ID)</code>. Object <code>dut</code> is implicitly available to the user, 
-and it represents access to the <em>device under test</em> (aka <em>DUT</em>) and its registers.</p>
-<p>Function <code>read(...)</code> takes register as an argument and reads that register from the connected chip. After registers are 
-read we can access their fields. For example, we can check that <code>dut.CHIP_ID.chip_id == 0</code> and so on. </p>
+<p>This code is plain python but implicitly in it several special functions and objects are available to the user. Let's go
+over this code to see what they are.</p>
+<p>First we are going to access variable <code>ctx.init_done</code> and see if it not <code>None</code>. Object <code>ctx</code> is global session
+persistent context. You can read and place any variable in it, and it will survive from one invocation of the command to
+the next. Context <code>ctx</code> is also shared between commands, which is how you can pass messages from one command to another.
+When you access context variable that is not defined yet, it returns <code>None</code>. Variable becomes defined and populated by
+some value when you assign some value to it. At the bottom you can see such assignment <code>ctx.init_done = True</code>. Thus, the
+check at the top ensures that init sequence will not be run more than once.</p>
+<p>Following three lines have form similar to <code>read(dut.CHIP_ID)</code>. Object <code>dut</code> is implicitly available to the user, and it
+represents access to the <em>device under test</em> (aka <em>DUT</em>) and its registers.</p>
+<p>Function <code>read(...)</code> takes register as an argument and reads that register from the connected chip. After registers are
+read we can access their fields. For example, we can check that <code>dut.CHIP_ID.chip_id == 0</code> and so on.</p>
 <p>Now lets click "<em>Ok</em>" button. This command should now appear in the list.</p>
 <p><img alt="" src="../images/commands-1.png" /></p>
-<p>Now if you double-click (or click on "<em>Run command</em>" button or simply press <em>Enter</em> on the keyboard) on this action,
-its code will execute and print <code>Init success</code> in <em>Output Console</em>. Subsequent calls to this command prints out
+<p>Now if you double-click (or click on "<em>Run command</em>" button or simply press <em>Enter</em> on the keyboard) on this action, its
+code will execute and print <code>Init success</code> in <em>Output Console</em>. Subsequent calls to this command prints out
 <code>Power-on init sequence was already done once</code>.</p>
 <h2 id="mapping-odr-to-human-readable-values">Mapping ODR to human-readable values<a class="headerlink" href="#mapping-odr-to-human-readable-values" title="Permanent link">&para;</a></h2>
-<p>Fixed point number numerical format is often not enough to express content of the registers in human-readable form.</p>
+<p>Fixed point number numerical format is often not enough to express content of the registers in human-readable form. For
+example <code>ODR_CONFIG</code> register has field called <code>odr</code>. It holds a value which maps to the actual output data rate in
+Hertz using lookup table. For example value <code>0x0</code> maps to <code>240</code> Hz, <code>0x1</code> to <code>218.537</code> Hz and so on. Thus, we need to
+create a list where value and index is a string that holds representation of output data rate in Hertz. We wiil place
+this list into context <code>ctx</code> and initialize it in special command <code>__start__</code>.</p>
+<p>Command named <code>__start__</code> is executed automatically when project is loaded including when <em>I2C Commander</em> starts and
+loads last opened project. Thus, this makes it an ideal place to initialize constants that can be used by other
+commands. To that end, we create command named <code>__start__</code> with following content.</p>
+<div class="highlight"><pre><span></span><code><span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"240"</span><span class="p">,</span> <span class="s2">"218.537"</span><span class="p">,</span> <span class="s2">"199.111"</span><span class="p">,</span> <span class="s2">"179.2"</span><span class="p">,</span> <span class="s2">"160"</span><span class="p">,</span>
+    <span class="s2">"149.333"</span><span class="p">,</span> <span class="s2">"140"</span><span class="p">,</span> <span class="s2">"129.855"</span><span class="p">,</span> <span class="s2">"120"</span><span class="p">,</span> <span class="s2">"110.164"</span><span class="p">,</span>
+    <span class="s2">"100.299"</span><span class="p">,</span> <span class="s2">"89.6"</span><span class="p">,</span> <span class="s2">"80"</span><span class="p">,</span> <span class="s2">"70"</span><span class="p">,</span> <span class="s2">"60"</span><span class="p">,</span> <span class="s2">"50.056"</span><span class="p">,</span>
+    <span class="s2">"45.025"</span><span class="p">,</span> <span class="s2">"40"</span><span class="p">,</span> <span class="s2">"35"</span><span class="p">,</span> <span class="s2">"30"</span><span class="p">,</span> <span class="s2">"25.005"</span><span class="p">,</span> <span class="s2">"20"</span><span class="p">,</span> <span class="s2">"15"</span><span class="p">,</span>
+    <span class="s2">"10"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">,</span> <span class="s2">"4"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"0.5"</span><span class="p">,</span> <span class="s2">"0.25"</span><span class="p">,</span> <span class="s2">"0.125"</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Now let's create custom command named "<em>Read ODR (output data rate)</em>" with following content.</p>
+<div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+
+<span class="n">output_data_rate</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Output data rate is </span><span class="si">{</span><span class="n">output_data_rate</span><span class="si">}</span><span class="s2"> Hz."</span><span class="p">)</span>
+</code></pre></div>
+<p>When this command is executed it should print something like this</p>
+<div class="highlight"><pre><span></span><code>Output data rate is 1 Hz.
+</code></pre></div>
 <h2 id="configuring-odr_config-register">Configuring ODR_CONFIG register<a class="headerlink" href="#configuring-odr_config-register" title="Permanent link">&para;</a></h2>
-<p>Now that we know how to read and display <em>output data rate</em> values we define graphical UI for changing these values. </p>
+<p>Now that we know how to read and display <em>output data rate</em> values we define graphical UI for changing these values.</p>
+<h2 id="special-i2cc-python-methods-and-variables">Special I2CC Python methods and variables<a class="headerlink" href="#special-i2cc-python-methods-and-variables" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>read(...)</code> - reads register from the target slave device.</li>
+<li><code>dut</code> - "device under test" variable used to access registers.</li>
+<li><code>ctx</code> - global context object that lives within a session of <code>I2C Commander</code></li>
+<li>...</li>
+</ul>
 
 
 
