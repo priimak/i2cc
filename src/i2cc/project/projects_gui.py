@@ -21,7 +21,7 @@ from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.gui_tools import Txt2HTMLDelegate
-from i2cc.project import PROJECT_VALID_CHAR_RE
+from i2cc.project.project import PROJECT_VALID_CHAR_RE
 
 
 class ProjectDialog(Dialog):
@@ -289,6 +289,41 @@ class SaveAsProjectDialog(SimpleProjectDialogBase):
                 self.app.create_copy_of_project(self.app.project.name, self.new_project_name.value)
                 self.close()
                 self.app.update_project_selector_current_project(self.app.project.name)
+        except Exception as ex:
+            self.app.show_error(f"{ex}")
+
+
+class RenameProjectDialog(SimpleProjectDialogBase):
+    def __init__(self, app: App):
+        super().__init__(app, window_title="Rename Project")
+        self.new_project_name = Variable[str]("")
+        self.setLayout(
+            VBoxLayout(
+                [
+                    Label("Rename current project to"),
+                    LineEdit("", min_width=100, reactive_variable=self.new_project_name),
+                    self.actions_widgets("Ok"),
+                ]
+            )
+        )
+
+    def ok_action(self):
+        try:
+            new_project_name = self.new_project_name.value.strip()
+            if new_project_name == self.app.project.name:
+                # project name did not change
+                self.close()
+
+            elif new_project_name in self.app.projects.list_projects():
+                self.app.show_error(f"Project under name [{new_project_name}] already exist. Please pick another name.")
+
+            else:
+                self.app.project.save()
+                old_project_name = self.app.project.rename(new_project_name)
+                self.app.projects.rename_project(old_project_name, new_project_name)
+                self.app.persistence.config.set_value("last_open_project", self.app.project.name)
+                self.app.update_project_selector_current_project(self.app.project.name)
+                self.close()
         except Exception as ex:
             self.app.show_error(f"{ex}")
 

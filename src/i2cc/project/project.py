@@ -101,10 +101,6 @@ class Project:
         self.dir = dir
         self.commands_context = CommandsContext()
 
-        self.version_json_path = self.dir / "version.json"
-        self.reg_list_path = self.dir / "regList.json"
-        self.results_path = self.dir / "results.json"
-        self.commands_path = self.dir / "commands.json"
         if not self.commands_path.exists():
             self.commands_path.write_text("[]")
 
@@ -115,6 +111,35 @@ class Project:
         self.results: list[RawResult] = []
         self.commands: list[CustomCommand] = []
         self.commands_by_label: dict[str, CustomCommand] = dict()
+
+    @property
+    def version_json_path(self) -> Path:
+        return self.dir / "version.json"
+
+    @property
+    def reg_list_path(self) -> Path:
+        return self.dir / "regList.json"
+
+    @property
+    def results_path(self) -> Path:
+        return self.dir / "results.json"
+
+    @property
+    def commands_path(self) -> Path:
+        return self.dir / "commands.json"
+
+    def rename(self, name: str) -> str:
+        """
+        Rename this project with new name. If rename succeeds, then return old/original project name, otherwise
+        error is raised.
+        """
+        if not PROJECT_RE.match(name):
+            raise ValueError("Project name must consist of only letters, numbers and underscore characters.")
+        old_name = self.name
+        self.name = name
+        new_dir = (self.dir.parent / name).absolute()
+        self.dir = self.dir.rename(new_dir)
+        return old_name
 
     def export_to_file(self, file_out: Path | str, override_if_exists: bool):
         file_out_path = Path(file_out)
@@ -165,6 +190,7 @@ class Project:
         target_project.version_json_path.write_bytes(self.version_json_path.read_bytes())
         target_project.reg_list_path.write_bytes(self.reg_list_path.read_bytes())
         target_project.results_path.write_bytes(self.results_path.read_bytes())
+        target_project.commands_path.write_bytes(self.commands_path.read_bytes())
 
     def load(self) -> Self:
         version = json.loads(self.version_json_path.read_text())["version"]
@@ -240,7 +266,7 @@ class Projects:
 
     def import_project_from_file(self, file_in: Path | str, app) -> str | None:
         def name_picker(name: str) -> str | None:
-            from i2cc.projects_gui import ImportNameProjectDialog
+            from i2cc.project.projects_gui import ImportNameProjectDialog
 
             dialog = ImportNameProjectDialog(app, name)
             dialog.exec()
@@ -275,6 +301,13 @@ class Projects:
             else:
                 Project(name, dir).save()
                 return self.open_project(name)
+
+    def rename_project(self, old_name: str, new_name: str):
+        open_projects_history = json.loads(self.projects_file_path.read_text())
+        if old_name in open_projects_history:
+            open_projects_history.remove(old_name)
+        open_projects_history = [new_name] + open_projects_history
+        self.projects_file_path.write_text(json.dumps(open_projects_history))
 
     def open_project(self, name: str) -> Project:
         dir = self.projects_dir / name

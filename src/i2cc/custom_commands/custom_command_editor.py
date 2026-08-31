@@ -12,7 +12,7 @@ from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.custom_commands.find_register_dialog import FindRegisterDialog
-from i2cc.project import CustomCommand
+from i2cc.project.project import CustomCommand
 
 
 class CodeEditor(QTextEdit):

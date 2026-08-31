@@ -13,7 +13,7 @@ from sprats.config import AppPersistence
 
 from i2cc.dummy_i2cmaster import DummyI2CMaster
 from i2cc.i2c_op_thread import HighlightOff, I2COpThread, ReadRegister, WriteRegister
-from i2cc.project import Projects
+from i2cc.project.project import Projects
 from i2cc.reg_read_results import ShowRegSignalData
 
 

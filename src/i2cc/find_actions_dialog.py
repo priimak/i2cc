@@ -23,7 +23,13 @@ from i2cc.gui_tools import (
     TableModelWithoutHeader,
     apply_filter_to_text,
 )
-from i2cc.projects_gui import DeleteProjectDialog, NewProjectDialog, OpenProjectDialog, SaveAsProjectDialog
+from i2cc.project.projects_gui import (
+    DeleteProjectDialog,
+    NewProjectDialog,
+    OpenProjectDialog,
+    RenameProjectDialog,
+    SaveAsProjectDialog,
+)
 from i2cc.reg_def_editor import NewRegDefDialog
 
 
@@ -35,22 +41,19 @@ class Action:
 
 ACTIONS = [
     Action("Create new project", lambda app: NewProjectDialog(app).exec()),
-    Action("Define new register", lambda app: NewRegDefDialog(app).exec()),
     Action("Define new custom action/command", lambda app: CustomCommandsEditor(app, cmd=None).exec()),
-    Action(
-        "Delete currently active project",
-        lambda app: DeleteProjectDialog(app, app.project.name).exec(),
-    ),
-    Action("Exit/Quit application", lambda app: app.exit_application[0]()),
+    Action("Define new register", lambda app: NewRegDefDialog(app).exec()),
+    Action("Delete currently active project", lambda app: DeleteProjectDialog(app, app.project.name).exec()),
+    Action("Delete custom action/command", None),
+    Action("Edit custom action/command", None),
     Action("Execute custom action/command", None),
+    Action("Exit/Quit application", lambda app: app.exit_application[0]()),
     Action("Export project into file", lambda app: app.export_project()),
     Action("Import project from file", lambda app: app.import_project()),
     Action("Open project", lambda app: OpenProjectDialog(app).exec()),
     Action("Read register", None),
-    Action(
-        "Save currently open project under a different name",
-        lambda app: SaveAsProjectDialog(app).exec(),
-    ),
+    Action("Rename project", lambda app: RenameProjectDialog(app).exec()),
+    Action("Save currently open project under a different name", lambda app: SaveAsProjectDialog(app).exec()),
     Action("Write register", None),
 ]
 

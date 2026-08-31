@@ -8,7 +8,7 @@ from pytide6 import HBoxPanel, Label, Menu, PushButton, VBoxPanel, W
 
 from i2cc.app import App
 from i2cc.i2c_op_thread import HighlightOff, ReadRegister, RequestReadAllRegisters
-from i2cc.project import RawResult, Project
+from i2cc.project.project import Project, RawResult
 from i2cc.reg_def_editor import open_create_or_edit_register_from_template
 from i2cc.reg_read_results import ShowRegSignalData
 

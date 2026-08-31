@@ -28,7 +28,7 @@ from i2cc.find_actions_dialog import FindActionDialog
 from i2cc.i2c_op_thread import Quit
 from i2cc.log_line_label import LogLineLabel
 from i2cc.menus import MainMenuBar
-from i2cc.opened_project_label import OpenedProjectLabel
+from i2cc.project.opened_project_label import OpenedProjectLabel
 from i2cc.reglist_panel import RegListPanel
 from i2cc.results_panel import ResultsPanel
 

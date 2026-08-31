@@ -25,7 +25,7 @@ from i2cc.gui_tools import (
     TableModelWithOneColumn,
     apply_filter_to_text,
 )
-from i2cc.project import CustomCommand
+from i2cc.project.project import CustomCommand
 
 title_labels_css = "background-color: #404040; color: white; font-weight: bold;"
 

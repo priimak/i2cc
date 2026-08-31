@@ -4,7 +4,13 @@ from pytide6 import Menu
 from i2cc import __version__
 from i2cc.app import App
 from i2cc.find_actions_dialog import FindActionDialog
-from i2cc.projects_gui import DeleteProjectDialog, NewProjectDialog, OpenProjectDialog, SaveAsProjectDialog
+from i2cc.project.projects_gui import (
+    DeleteProjectDialog,
+    NewProjectDialog,
+    OpenProjectDialog,
+    RenameProjectDialog,
+    SaveAsProjectDialog,
+)
 
 
 class FileMenu(QMenu):
@@ -23,6 +29,7 @@ class FileMenu(QMenu):
 
         self.addAction("&New Project", lambda: NewProjectDialog(app).exec())
         self.addAction("&Save Project As", lambda: SaveAsProjectDialog(app).exec())
+        self.addAction("&Rename Project", lambda: RenameProjectDialog(app).exec())
         self.addAction("&Open Project", lambda: OpenProjectDialog(app).exec())
         self.addAction("&Delete Project", delete_project)
         self.addSeparator()
