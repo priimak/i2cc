@@ -127,12 +127,12 @@ Now that we know how to read and display _output data rate_ values we will defin
 
 ## Special I2CC Python methods and variables
 
-* `read(...)` - reads register from the target slave device.
-* `write(...)` - writes register into the target slave device.
-* `dut` - "_device under test_" variable used to access registers.
+* `read(...)` - function that reads register from the target slave device.
+* `write(...)` - function that writes register into the target slave device.
+* `dut` - "_device under test_" object used to access registers.
 * `ctx` - global context object that lives within a project session of _I2C Commander_.
-* `prompt_user(...)` - shows GUI for user to input data.
-* `Variable` - ...
-* `U` - reads and interprets bitarray as unsigned fixed point number.
-* `S` - reads and interprets bitarray as signed fixed point number.
+* `prompt_user(...)` - function that shows GUI for user to input data.
+* `Variable(...)` - ...
+* `U(...)` - function that reads and interprets bitarray as unsigned fixed point number.
+* `S(...)` - function reads and interprets bitarray as signed fixed point number.
 * `__command_name__` - variable that holds name of executing custom command. 
