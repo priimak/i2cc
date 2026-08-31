@@ -1,7 +1,9 @@
 # Programing devices over I2C
 
 Now that we know how to read and write individual registers we are ready to move up one level and use Python language
-for programming devices directly inside _I2C Commander_.
+for programming devices directly inside _I2C Commander_. We use Python version 3.13 and inject into default environment
+several variables, methods and classes useful for working with I2C devices. Below we will walk through several examples
+to showcase how to write such programms/commands.
 
 As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.
 
@@ -199,6 +201,55 @@ read(dut.ODR_CONFIG)
 current_odr_value = ctx.ODR_HZ[dut.ODR_CONFIG.odr]
 print(f"Output data rate is configured to {current_odr_value} Hz")
 ```
+
+## Configuring pressure measurements
+
+Now let's create a new command that has more than one GUI inputs. This will involve `OSR_CONFIG` register that holds
+boolean field that enables or disables pressure measurements and another field that defines oversampling rate for 
+pressure measurements. Similarly, to output data rate above we need to create a lookup table/array in `__start__` 
+command.
+
+```python
+ctx.OSR = [1, 2, 4, 8, 16, 32, 64]
+```
+
+Then let's create a command named
+
+`Pressure measurments control`
+
+with the following code:
+
+```python
+read(dut.OSR_CONFIG)
+
+pressure_enable, p_oversampling_rate = prompt_user(
+    Variable(
+        bool(dut.OSR_CONFIG.press_en), name="Enable pressure measurements"
+    ),
+    Variable(
+        ctx.OSR[dut.OSR_CONFIG.osr_p], 
+        valid_values=ctx.OSR, 
+        name = "Pressure oversampling rate"
+    )
+)
+
+dut.OSR_CONFIG.press_en = bool(pressure_enable)
+dut.OSR_CONFIG.osr_p = ctx.OSR.index(p_oversampling_rate)
+write(dut.OSR_CONFIG)
+
+# read back register and printout actrually set values
+read(dut.OSR_CONFIG)
+if bool(dut.OSR_CONFIG.press_en):
+    print("Pressure measurements enabled")
+else:
+    print("Pressure measurements disabled")
+
+print(f"Pressure oversampling rate =", ctx.OSR[dut.OSR_CONFIG.osr_p])
+```
+
+First variable is a boolean and thus will be presented to the user as checkbox. Like so
+
+![](images/p_control.png)
 
 
 ## Special I2CC Python methods and variables
