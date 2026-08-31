@@ -621,7 +621,32 @@ commands. To that end, we create command named <code>__start__</code> with follo
 <div class="highlight"><pre><span></span><code>Output data rate is 1 Hz.
 </code></pre></div>
 <h2 id="configuring-odr_config-register">Configuring ODR_CONFIG register<a class="headerlink" href="#configuring-odr_config-register" title="Permanent link">&para;</a></h2>
-<p>Now that we know how to read and display <em>output data rate</em> values we will define graphical UI for <code>odr</code> field.</p>
+<p>Now that we know how to read and display <em>output data rate</em> values in human-readable format we will define 
+graphical UI for the <code>odr</code> field in <code>ODR_CONFIG</code> register. To that end we create custom command called</p>
+<p><code>Configure output data rate (ODR)</code></p>
+<p>with following code</p>
+<div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+<span class="n">current_odr_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span><span class="p">]</span>
+
+<span class="n">odr</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
+    <span class="n">Variable</span><span class="p">(</span>
+        <span class="n">current_odr_value</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Output Data Rate [Hz]"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">new_odr_field_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">odr</span><span class="p">)</span>
+
+<span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span> <span class="o">=</span> <span class="n">new_odr_field_value</span>
+<span class="n">write</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+
+<span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+<span class="n">current_odr_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Output data rate is configured to </span><span class="si">{</span><span class="n">current_odr_value</span><span class="si">}</span><span class="s2"> Hz"</span><span class="p">)</span>
+</code></pre></div>
+<p>When you run this command it should look like so:</p>
+<p><img alt="" src="../images/change-odr.gif" /></p>
+<p>Let us go over this code line by line to understand how it works.
+First, let's note that there are two new functions in here, <code>prompt_user(...)</code> and <code>write(...)</code>. We will get to them 
+shortly.</p>
 <h2 id="special-i2cc-python-methods-and-variables">Special I2CC Python methods and variables<a class="headerlink" href="#special-i2cc-python-methods-and-variables" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>read(...)</code> - function that reads register from the target slave device.</li>
@@ -629,7 +654,7 @@ commands. To that end, we create command named <code>__start__</code> with follo
 <li><code>dut</code> - "<em>device under test</em>" object used to access registers.</li>
 <li><code>ctx</code> - global context object that lives within a project session of <em>I2C Commander</em>.</li>
 <li><code>prompt_user(...)</code> - function that shows GUI for user to input data.</li>
-<li><code>Variable(...)</code> - ...</li>
+<li><code>Variable(...)</code> - variable wrapper that can be passed to <code>prompt_user(...)</code> needed to construct the GUI.</li>
 <li><code>U(...)</code> - function that reads and interprets bitarray as unsigned fixed point number.</li>
 <li><code>S(...)</code> - function reads and interprets bitarray as signed fixed point number.</li>
 <li><code>__command_name__</code> - variable that holds name of executing custom command.</li>
