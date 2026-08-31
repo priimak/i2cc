@@ -262,6 +262,7 @@ class CustomCommandsPanel(VBoxPanel):
                         "S": S,
                         "__command_name__": str(command_label),
                         "__device_address__": self.app.device_address,
+                        "__project_name__": self.app.project.name,
                     }
                     out_buffer = io.StringIO()
                     try:

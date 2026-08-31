@@ -93,7 +93,7 @@ this list into context `ctx` and initialize it in special command `__start__`.
 
 Command named `__start__` is executed automatically when project is loaded including when _I2C Commander_ starts and
 loads last opened project. Thus, this makes it an ideal place to initialize constants that can be used by other
-commands. To that end, we create command named `__start__` with following content.
+commands. To that end, we create command named `__start__` with the following content.
 
 ```python
 ctx.ODR_HZ = [
@@ -107,7 +107,7 @@ ctx.ODR_HZ = [
 
 Index within this table corresponds to `ODR_CONFIG.odr` field value which we can simply use as index into this array.
 
-Now let's create custom command named "_Read ODR (output data rate)_" with following content.
+Now let's create custom command named "_Read ODR (output data rate)_" with the following content.
 
 ```python
 read(dut.ODR_CONFIG)
@@ -129,7 +129,7 @@ graphical UI for the `odr` field in `ODR_CONFIG` register. To that end we create
 
 `Configure output data rate (ODR)`
 
-with following code
+with the following code
 
 ```python
 read(dut.ODR_CONFIG)
@@ -158,6 +158,49 @@ Let us go over this code line by line to understand how it works.
 First, let's note that there are two new functions in here, `prompt_user(...)` and `write(...)`. We will get to them 
 shortly.
 
+First we read `ODR_CONFIG` register and then obtain string human-readable representation of output data rate by 
+accessing `ctx.ODR_HZ` array at position of `ODR_CONFIG.odr` field value. We then call this:
+
+```python
+odr = prompt_user(
+    Variable(
+        current_odr_value, valid_values=ctx.ODR_HZ, name="Output Data Rate [Hz]"
+    )
+)
+```
+
+Function `prompt_user(...)` builds a GUI dialog window using drop down boxes, check boxes or string input fields and
+presents it to the user. This GUI will always have `Ok` and `Cancel` buttons. If user clicks on `Cancel` or simply 
+closes this dialog, then at that point our command terminates. If, however, user clicks on `Ok` button, then this 
+function returns values selected by the user in that dialog window. This function takes one or more instances of 
+class `Variable`, which is a wrapper over simple variables that encapsulates data necessary for constructing user 
+dialog. In the example above it has `valid_values` set to an array of values `ctx.ODR_HZ`. This means that it will be 
+shown as drop down box with fixed choice selection. Initially it will be shown with value held in variable 
+`current_odr_value`. To the left of label "`Output Data Rate [Hz]`" will appear. Since `current_odr_value` is a string
+returned value writen into `odr` variable will also be a string.
+
+In a next few lines:
+
+```python
+new_odr_field_value = ctx.ODR_HZ.index(odr)
+dut.ODR_CONFIG.odr = new_odr_field_value
+write(dut.ODR_CONFIG)
+```
+
+First we find position of text in `odr` in `ctx.ODR_HZ` array and place it in `new_odr_field_value` variable.
+This position is exactly the value that we write into `ODR_CONFIG.odr` field in the next line, and finally
+we write register `dut.ODR_CONFIG` onto the device.
+
+To confirm what was written we read back `dut.ODR_CONFIG` register again, obtain human-readable representation for
+`odr` field and print it out.
+
+```python
+read(dut.ODR_CONFIG)
+current_odr_value = ctx.ODR_HZ[dut.ODR_CONFIG.odr]
+print(f"Output data rate is configured to {current_odr_value} Hz")
+```
+
+
 ## Special I2CC Python methods and variables
 
 * `read(...)` - function that reads register from the target slave device.
@@ -168,5 +211,6 @@ shortly.
 * `Variable(...)` - variable wrapper that can be passed to `prompt_user(...)` needed to construct the GUI.
 * `U(...)` - function that reads and interprets bitarray as unsigned fixed point number.
 * `S(...)` - function reads and interprets bitarray as signed fixed point number.
-* `__command_name__` - variable that holds name of executing custom command.
-* `__device_address__` - variable that i2c device address as selected in the GUI. 
+* `__command_name__` - string variable that holds name of executing custom command.
+* `__device_address__` - integer variable that holds i2c device address as selected in the GUI. 
+* `__project_name__` - string variable that holds name of the current project. 
