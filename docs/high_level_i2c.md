@@ -104,6 +104,7 @@ ctx.ODR_HZ = [
     "10", "5", "4", "3", "2", "1", "0.5", "0.25", "0.125"
 ]
 ```
+
 Index within this table corresponds to `ODR_CONFIG.odr` field value which we can simply use as index into this array.
 
 Now let's create custom command named "_Read ODR (output data rate)_" with following content.
@@ -135,4 +136,5 @@ Now that we know how to read and display _output data rate_ values we will defin
 * `Variable(...)` - ...
 * `U(...)` - function that reads and interprets bitarray as unsigned fixed point number.
 * `S(...)` - function reads and interprets bitarray as signed fixed point number.
-* `__command_name__` - variable that holds name of executing custom command. 
+* `__command_name__` - variable that holds name of executing custom command.
+* `__device_address__` - variable that i2c device address as selected in the GUI. 
