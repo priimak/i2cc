@@ -260,6 +260,7 @@ class CustomCommandsPanel(VBoxPanel):
                         "exit": exit_eval,
                         "U": U,
                         "S": S,
+                        "__command_name__": str(command_label),
                     }
                     out_buffer = io.StringIO()
                     try:

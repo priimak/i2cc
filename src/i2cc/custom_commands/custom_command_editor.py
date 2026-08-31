@@ -96,8 +96,11 @@ class CustomCommandsEditor(Dialog):
                 self.app.show_error("Command must have a label.")
                 return
 
-            if self.original_cmd is None and command_label in self.app.project.commands_by_label:
-                self.app.show_error("Command with this label already exist. Please pick another label.")
+            if (
+                self.original_cmd is None
+                or (self.original_cmd is not None and command_label != self.original_cmd.label)
+            ) and command_label in self.app.project.commands_by_label:
+                self.app.show_error("Command with this name already exist. Please pick another name.")
                 return
 
             new_cmd = CustomCommand(
