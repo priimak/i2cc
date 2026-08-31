@@ -601,7 +601,7 @@ create a list where value and index is a string that holds representation of out
 this list into context <code>ctx</code> and initialize it in special command <code>__start__</code>.</p>
 <p>Command named <code>__start__</code> is executed automatically when project is loaded including when <em>I2C Commander</em> starts and
 loads last opened project. Thus, this makes it an ideal place to initialize constants that can be used by other
-commands. To that end, we create command named <code>__start__</code> with following content.</p>
+commands. To that end, we create command named <code>__start__</code> with the following content.</p>
 <div class="highlight"><pre><span></span><code><span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"240"</span><span class="p">,</span> <span class="s2">"218.537"</span><span class="p">,</span> <span class="s2">"199.111"</span><span class="p">,</span> <span class="s2">"179.2"</span><span class="p">,</span> <span class="s2">"160"</span><span class="p">,</span>
     <span class="s2">"149.333"</span><span class="p">,</span> <span class="s2">"140"</span><span class="p">,</span> <span class="s2">"129.855"</span><span class="p">,</span> <span class="s2">"120"</span><span class="p">,</span> <span class="s2">"110.164"</span><span class="p">,</span>
@@ -611,7 +611,7 @@ commands. To that end, we create command named <code>__start__</code> with follo
 <span class="p">]</span>
 </code></pre></div>
 <p>Index within this table corresponds to <code>ODR_CONFIG.odr</code> field value which we can simply use as index into this array.</p>
-<p>Now let's create custom command named "<em>Read ODR (output data rate)</em>" with following content.</p>
+<p>Now let's create custom command named "<em>Read ODR (output data rate)</em>" with the following content.</p>
 <div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
 
 <span class="n">output_data_rate</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span><span class="p">]</span>
@@ -624,7 +624,7 @@ commands. To that end, we create command named <code>__start__</code> with follo
 <p>Now that we know how to read and display <em>output data rate</em> values in human-readable format we will define 
 graphical UI for the <code>odr</code> field in <code>ODR_CONFIG</code> register. To that end we create custom command called</p>
 <p><code>Configure output data rate (ODR)</code></p>
-<p>with following code</p>
+<p>with the following code</p>
 <div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
 <span class="n">current_odr_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span><span class="p">]</span>
 
@@ -647,6 +647,37 @@ graphical UI for the <code>odr</code> field in <code>ODR_CONFIG</code> register.
 <p>Let us go over this code line by line to understand how it works.
 First, let's note that there are two new functions in here, <code>prompt_user(...)</code> and <code>write(...)</code>. We will get to them 
 shortly.</p>
+<p>First we read <code>ODR_CONFIG</code> register and then obtain string human-readable representation of output data rate by 
+accessing <code>ctx.ODR_HZ</code> array at position of <code>ODR_CONFIG.odr</code> field value. We then call this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">odr</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
+    <span class="n">Variable</span><span class="p">(</span>
+        <span class="n">current_odr_value</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Output Data Rate [Hz]"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Function <code>prompt_user(...)</code> builds a GUI dialog window using drop down boxes, check boxes or string input fields and
+presents it to the user. This GUI will always have <code>Ok</code> and <code>Cancel</code> buttons. If user clicks on <code>Cancel</code> or simply 
+closes this dialog, then at that point our command terminates. If, however, user clicks on <code>Ok</code> button, then this 
+function returns values selected by the user in that dialog window. This function takes one or more instances of 
+class <code>Variable</code>, which is a wrapper over simple variables that encapsulates data necessary for constructing user 
+dialog. In the example above it has <code>valid_values</code> set to an array of values <code>ctx.ODR_HZ</code>. This means that it will be 
+shown as drop down box with fixed choice selection. Initially it will be shown with value held in variable 
+<code>current_odr_value</code>. To the left of label "<code>Output Data Rate [Hz]</code>" will appear. Since <code>current_odr_value</code> is a string
+returned value writen into <code>odr</code> variable will also be a string.</p>
+<p>In a next few lines:</p>
+<div class="highlight"><pre><span></span><code><span class="n">new_odr_field_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">odr</span><span class="p">)</span>
+<span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span> <span class="o">=</span> <span class="n">new_odr_field_value</span>
+<span class="n">write</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+</code></pre></div>
+<p>First we find position of text in <code>odr</code> in <code>ctx.ODR_HZ</code> array and place it in <code>new_odr_field_value</code> variable.
+This position is exactly the value that we write into <code>ODR_CONFIG.odr</code> field in the next line, and finally
+we write register <code>dut.ODR_CONFIG</code> onto the device.</p>
+<p>To confirm what was written we read back <code>dut.ODR_CONFIG</code> register again, obtain human-readable representation for
+<code>odr</code> field and print it out.</p>
+<div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+<span class="n">current_odr_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Output data rate is configured to </span><span class="si">{</span><span class="n">current_odr_value</span><span class="si">}</span><span class="s2"> Hz"</span><span class="p">)</span>
+</code></pre></div>
 <h2 id="special-i2cc-python-methods-and-variables">Special I2CC Python methods and variables<a class="headerlink" href="#special-i2cc-python-methods-and-variables" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>read(...)</code> - function that reads register from the target slave device.</li>
@@ -657,8 +688,9 @@ shortly.</p>
 <li><code>Variable(...)</code> - variable wrapper that can be passed to <code>prompt_user(...)</code> needed to construct the GUI.</li>
 <li><code>U(...)</code> - function that reads and interprets bitarray as unsigned fixed point number.</li>
 <li><code>S(...)</code> - function reads and interprets bitarray as signed fixed point number.</li>
-<li><code>__command_name__</code> - variable that holds name of executing custom command.</li>
-<li><code>__device_address__</code> - variable that i2c device address as selected in the GUI. </li>
+<li><code>__command_name__</code> - string variable that holds name of executing custom command.</li>
+<li><code>__device_address__</code> - integer variable that holds i2c device address as selected in the GUI. </li>
+<li><code>__project_name__</code> - string variable that holds name of the current project. </li>
 </ul>
 
 
