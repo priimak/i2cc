@@ -406,6 +406,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reading-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading temperature
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#special-i2cc-python-methods-and-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -515,6 +526,17 @@
     <span class="md-ellipsis">
       
         Configuring pressure measurements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading temperature
       
     </span>
   </a>
@@ -740,6 +762,11 @@ command.</p>
 </code></pre></div>
 <p>First variable is a boolean and thus will be presented to the user as checkbox. Like so</p>
 <p><img alt="" src="../images/p_control.png" /></p>
+<h2 id="reading-temperature">Reading temperature<a class="headerlink" href="#reading-temperature" title="Permanent link">&para;</a></h2>
+<p>In BPM581 chip measured temperature and pressure values occupy 24 bits and thus stored in three bytes each.
+Thus, to read these values we need to read all three registers, combine them into one and re-interpret their values.
+Here we will create a command for triggering single shot temperature measurement, reading measured value and presenting 
+it to the user.</p>
 <h2 id="special-i2cc-python-methods-and-variables">Special I2CC Python methods and variables<a class="headerlink" href="#special-i2cc-python-methods-and-variables" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>read(...)</code> - function that reads register from the target slave device.</li>
