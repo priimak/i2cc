@@ -48,6 +48,7 @@ class CodeEditor(QTextEdit):
         if key == Qt.Key.Key_Period and self.textCursor().block().text()[0 : self.textCursor().columnNumber()].endswith(
             "dut."
         ):
+            # show popup selector for registers and fields
             pos = self.cursorRect().topLeft()
             pos = self.viewport().mapToGlobal(pos)
             dialog = FindRegisterDialog(self, self.app, self.insertPlainText)
