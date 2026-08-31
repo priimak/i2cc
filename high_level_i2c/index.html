@@ -395,6 +395,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuring-pressure-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring pressure measurements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#special-i2cc-python-methods-and-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -500,6 +511,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#configuring-pressure-measurements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring pressure measurements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#special-i2cc-python-methods-and-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -529,7 +551,9 @@
 
 <h1 id="programing-devices-over-i2c">Programing devices over I2C<a class="headerlink" href="#programing-devices-over-i2c" title="Permanent link">&para;</a></h1>
 <p>Now that we know how to read and write individual registers we are ready to move up one level and use Python language
-for programming devices directly inside <em>I2C Commander</em>.</p>
+for programming devices directly inside <em>I2C Commander</em>. We use Python version 3.13 and inject into default environment
+several variables, methods and classes useful for working with I2C devices. Below we will walk through several examples
+to showcase how to write such programms/commands.</p>
 <p>As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.</p>
 <h2 id="bmp581-initialization">BMP581 initialization<a class="headerlink" href="#bmp581-initialization" title="Permanent link">&para;</a></h2>
 <p>According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific
@@ -678,6 +702,44 @@ we write register <code>dut.ODR_CONFIG</code> onto the device.</p>
 <span class="n">current_odr_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Output data rate is configured to </span><span class="si">{</span><span class="n">current_odr_value</span><span class="si">}</span><span class="s2"> Hz"</span><span class="p">)</span>
 </code></pre></div>
+<h2 id="configuring-pressure-measurements">Configuring pressure measurements<a class="headerlink" href="#configuring-pressure-measurements" title="Permanent link">&para;</a></h2>
+<p>Now let's create a new command that has more than one GUI inputs. This will involve <code>OSR_CONFIG</code> register that holds
+boolean field that enables or disables pressure measurements and another field that defines oversampling rate for 
+pressure measurements. Similarly, to output data rate above we need to create a lookup table/array in <code>__start__</code> 
+command.</p>
+<div class="highlight"><pre><span></span><code><span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+</code></pre></div>
+<p>Then let's create a command named</p>
+<p><code>Pressure measurments control</code></p>
+<p>with the following code:</p>
+<div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="p">)</span>
+
+<span class="n">pressure_enable</span><span class="p">,</span> <span class="n">p_oversampling_rate</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
+    <span class="n">Variable</span><span class="p">(</span>
+        <span class="nb">bool</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">press_en</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Enable pressure measurements"</span>
+    <span class="p">),</span>
+    <span class="n">Variable</span><span class="p">(</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p</span><span class="p">],</span> 
+        <span class="n">valid_values</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="p">,</span> 
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"Pressure oversampling rate"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">press_en</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">pressure_enable</span><span class="p">)</span>
+<span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p_oversampling_rate</span><span class="p">)</span>
+<span class="n">write</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="p">)</span>
+
+<span class="c1"># read back register and printout actrually set values</span>
+<span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">press_en</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Pressure measurements enabled"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Pressure measurements disabled"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pressure oversampling rate ="</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p</span><span class="p">])</span>
+</code></pre></div>
+<p>First variable is a boolean and thus will be presented to the user as checkbox. Like so</p>
+<p><img alt="" src="../images/p_control.png" /></p>
 <h2 id="special-i2cc-python-methods-and-variables">Special I2CC Python methods and variables<a class="headerlink" href="#special-i2cc-python-methods-and-variables" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>read(...)</code> - function that reads register from the target slave device.</li>
