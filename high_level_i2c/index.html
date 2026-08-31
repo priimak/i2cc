@@ -595,14 +595,14 @@ Index within this table corresponds to <code>ODR_CONFIG.odr</code> field value w
 <p>Now that we know how to read and display <em>output data rate</em> values we will define graphical UI for <code>odr</code> field.</p>
 <h2 id="special-i2cc-python-methods-and-variables">Special I2CC Python methods and variables<a class="headerlink" href="#special-i2cc-python-methods-and-variables" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>read(...)</code> - reads register from the target slave device.</li>
-<li><code>write(...)</code> - writes register into the target slave device.</li>
-<li><code>dut</code> - "<em>device under test</em>" variable used to access registers.</li>
+<li><code>read(...)</code> - function that reads register from the target slave device.</li>
+<li><code>write(...)</code> - function that writes register into the target slave device.</li>
+<li><code>dut</code> - "<em>device under test</em>" object used to access registers.</li>
 <li><code>ctx</code> - global context object that lives within a project session of <em>I2C Commander</em>.</li>
-<li><code>prompt_user(...)</code> - shows GUI for user to input data.</li>
-<li><code>Variable</code> - ...</li>
-<li><code>U</code> - reads and interprets bitarray as unsigned fixed point number.</li>
-<li><code>S</code> - reads and interprets bitarray as signed fixed point number.</li>
+<li><code>prompt_user(...)</code> - function that shows GUI for user to input data.</li>
+<li><code>Variable(...)</code> - ...</li>
+<li><code>U(...)</code> - function that reads and interprets bitarray as unsigned fixed point number.</li>
+<li><code>S(...)</code> - function reads and interprets bitarray as signed fixed point number.</li>
 <li><code>__command_name__</code> - variable that holds name of executing custom command. </li>
 </ul>
 
