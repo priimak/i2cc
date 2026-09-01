@@ -300,3 +300,12 @@ Function `S(...)` interprets supplied bitarrays as a signed number. It takes two
 the fractional part in the fixed point number definition (in case above that is 16 as in `U24.16`) and second, array of
 bitarrays. Companion function `U(...)` is similar, but interprets combined bitarrays as unsigned number. Both functions
 `U(...)` and `S(...)` return floating point number after interpretation.
+
+## Code auto-completion
+
+Some limited code autocompletion is present in the code edit window. When you type `dut.` the moment you enter the 
+dot `.` popup dialog with table of registers and fields opens where you can select register or register 
+and one of its fields as they are defined in the RegList. Like in many other tables in the I2C Commander you can start 
+typing to perform fuzzy search for entry that you need. 
+
+![](images/register-autocomplete.gif)
