@@ -96,13 +96,54 @@ returns n-tuple of values selected by the user in the order in which `Variable` 
 were passed to this function.
 
 ```python
-a, b, c = prompt_user(
+a, b, c, d = prompt_user(
     Variable(1.0, name="Offset"),
     Variable(1, valid_values=[1, 2, 4, 8], name="Scale factor"),
-    Variable(True, name="Enable scaling")
+    Variable(True, name="Enable scaling"),
+    Variable(False, valid_values=[True, False], name="Enable measurments")
 )
 ```
 
 Example above build GUI dialog that looks like so
 
 ![](images/prompt-user-example.png)
+
+These GUI controls are formed according to the following logic.
+
+```shell
+if wrapped variable is boolean
+    if valid_array is given
+       show drop down box with `True` and `False` choices
+    else
+        show checkbox
+        
+else if valid_values is given
+    show drop down box with choices from value_values agument
+
+else if wrapped variable is integer
+    show text input field and validate and constrain its content to be integer 
+
+else if wrapped variable is float
+    show text input field and validate and constrain its content to be float 
+    
+else
+    show text input field with no validation and no contrains on its content 
+```
+
+## **U(n, [BitArray])**
+
+This function converts list of BitArray objects as one large BitArray into floating point 
+number according fixed point interpretation `U{w}.{n}` where `{w}` width of sum of all 
+BitArray objects and `{n}` is $1/2^n$ scaling factor.
+
+```python
+temp_C = S(16, [
+    dut.TEMP_DATA_MSB.temp_23_16_raw, 
+    dut.TEMP_DATA_LSB.temp_15_8_raw, 
+    dut.TEMP_DATA_XLSB.temp_7_0_raw
+])
+```
+
+## **S(n, [BitArray])**
+
+Same as function `U(...)` but it interprets combined BitArray as signed number.
