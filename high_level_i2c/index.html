@@ -416,17 +416,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#special-i2cc-python-methods-and-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Special I2CC Python methods and variables
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -543,17 +532,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#special-i2cc-python-methods-and-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Special I2CC Python methods and variables
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -643,7 +621,7 @@ code will execute and print <code>Init success</code> in <em>Output Console</em>
 <p>Fixed point number numerical format is often not enough to express content of the registers in human-readable form. For
 example <code>ODR_CONFIG</code> register has field called <code>odr</code>. It holds a value which maps to the actual output data rate in
 Hertz using lookup table. For example value <code>0x0</code> maps to <code>240</code> Hz, <code>0x1</code> to <code>218.537</code> Hz and so on. Thus, we need to
-create a list where value and index is a string that holds representation of output data rate in Hertz. We wiil place
+create a list where value and index is a string that holds representation of output data rate in Hertz. We will place
 this list into context <code>ctx</code> and initialize it in special command <code>__start__</code>.</p>
 <p>Command named <code>__start__</code> is executed automatically when project is loaded including when <em>I2C Commander</em> starts and
 loads last opened project. Thus, this makes it an ideal place to initialize constants that can be used by other
@@ -667,8 +645,8 @@ commands. To that end, we create command named <code>__start__</code> with the f
 <div class="highlight"><pre><span></span><code>Output data rate is 1 Hz.
 </code></pre></div>
 <h2 id="configuring-odr_config-register">Configuring ODR_CONFIG register<a class="headerlink" href="#configuring-odr_config-register" title="Permanent link">&para;</a></h2>
-<p>Now that we know how to read and display <em>output data rate</em> values in human-readable format we will define 
-graphical UI for the <code>odr</code> field in <code>ODR_CONFIG</code> register. To that end we create custom command called</p>
+<p>Now that we know how to read and display <em>output data rate</em> values in human-readable format we will define graphical UI
+for the <code>odr</code> field in <code>ODR_CONFIG</code> register. To that end we create custom command called</p>
 <p><code>Configure output data rate (ODR)</code></p>
 <p>with the following code</p>
 <div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
@@ -690,10 +668,9 @@ graphical UI for the <code>odr</code> field in <code>ODR_CONFIG</code> register.
 </code></pre></div>
 <p>When you run this command it should look like so:</p>
 <p><img alt="" src="../images/change-odr.gif" /></p>
-<p>Let us go over this code line by line to understand how it works.
-First, let's note that there are two new functions in here, <code>prompt_user(...)</code> and <code>write(...)</code>. We will get to them 
-shortly.</p>
-<p>First we read <code>ODR_CONFIG</code> register and then obtain string human-readable representation of output data rate by 
+<p>Let us go over this code line by line to understand how it works. First, let's note that there are two new functions in
+here, <code>prompt_user(...)</code> and <code>write(...)</code>. We will get to them shortly.</p>
+<p>First we read <code>ODR_CONFIG</code> register and then obtain string human-readable representation of output data rate by
 accessing <code>ctx.ODR_HZ</code> array at position of <code>ODR_CONFIG.odr</code> field value. We then call this:</p>
 <div class="highlight"><pre><span></span><code><span class="n">odr</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
     <span class="n">Variable</span><span class="p">(</span>
@@ -702,12 +679,12 @@ accessing <code>ctx.ODR_HZ</code> array at position of <code>ODR_CONFIG.odr</cod
 <span class="p">)</span>
 </code></pre></div>
 <p>Function <code>prompt_user(...)</code> builds a GUI dialog window using drop down boxes, check boxes or string input fields and
-presents it to the user. This GUI will always have <code>Ok</code> and <code>Cancel</code> buttons. If user clicks on <code>Cancel</code> or simply 
-closes this dialog, then at that point our command terminates. If, however, user clicks on <code>Ok</code> button, then this 
-function returns values selected by the user in that dialog window. This function takes one or more instances of 
-class <code>Variable</code>, which is a wrapper over simple variables that encapsulates data necessary for constructing user 
-dialog. In the example above it has <code>valid_values</code> set to an array of values <code>ctx.ODR_HZ</code>. This means that it will be 
-shown as drop down box with fixed choice selection. Initially it will be shown with value held in variable 
+presents it to the user. This GUI will always have <code>Ok</code> and <code>Cancel</code> buttons. If user clicks on <code>Cancel</code> or simply
+closes this dialog, then at that point our command terminates. If, however, user clicks on <code>Ok</code> button, then this
+function returns values selected by the user in that dialog window. This function takes one or more instances of class
+<code>Variable</code>, which is a wrapper over simple variables that encapsulates data necessary for constructing user dialog. In
+the example above it has <code>valid_values</code> set to an array of values <code>ctx.ODR_HZ</code>. This means that it will be shown as drop
+down box with fixed choice selection. Initially it will be shown with value held in variable
 <code>current_odr_value</code>. To the left of label "<code>Output Data Rate [Hz]</code>" will appear. Since <code>current_odr_value</code> is a string
 returned value writen into <code>odr</code> variable will also be a string.</p>
 <p>In a next few lines:</p>
@@ -715,9 +692,9 @@ returned value writen into <code>odr</code> variable will also be a string.</p>
 <span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span> <span class="o">=</span> <span class="n">new_odr_field_value</span>
 <span class="n">write</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
 </code></pre></div>
-<p>First we find position of text in <code>odr</code> in <code>ctx.ODR_HZ</code> array and place it in <code>new_odr_field_value</code> variable.
-This position is exactly the value that we write into <code>ODR_CONFIG.odr</code> field in the next line, and finally
-we write register <code>dut.ODR_CONFIG</code> onto the device.</p>
+<p>First we find position of text in <code>odr</code> in <code>ctx.ODR_HZ</code> array and place it in <code>new_odr_field_value</code> variable. This
+position is exactly the value that we write into <code>ODR_CONFIG.odr</code> field in the next line, and finally we write register
+<code>dut.ODR_CONFIG</code> onto the device.</p>
 <p>To confirm what was written we read back <code>dut.ODR_CONFIG</code> register again, obtain human-readable representation for
 <code>odr</code> field and print it out.</p>
 <div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
@@ -726,8 +703,8 @@ we write register <code>dut.ODR_CONFIG</code> onto the device.</p>
 </code></pre></div>
 <h2 id="configuring-pressure-measurements">Configuring pressure measurements<a class="headerlink" href="#configuring-pressure-measurements" title="Permanent link">&para;</a></h2>
 <p>Now let's create a new command that has more than one GUI inputs. This will involve <code>OSR_CONFIG</code> register that holds
-boolean field that enables or disables pressure measurements and another field that defines oversampling rate for 
-pressure measurements. Similarly, to output data rate above we need to create a lookup table/array in <code>__start__</code> 
+boolean field that enables or disables pressure measurements and another field that defines oversampling rate for
+pressure measurements. Similarly, to output data rate above we need to create a lookup table/array in <code>__start__</code>
 command.</p>
 <div class="highlight"><pre><span></span><code><span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
 </code></pre></div>
@@ -741,9 +718,9 @@ command.</p>
         <span class="nb">bool</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">press_en</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Enable pressure measurements"</span>
     <span class="p">),</span>
     <span class="n">Variable</span><span class="p">(</span>
-        <span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p</span><span class="p">],</span> 
-        <span class="n">valid_values</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="p">,</span> 
-        <span class="n">name</span> <span class="o">=</span> <span class="s2">"Pressure oversampling rate"</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p</span><span class="p">],</span>
+        <span class="n">valid_values</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"Pressure oversampling rate"</span>
     <span class="p">)</span>
 <span class="p">)</span>
 
@@ -763,24 +740,44 @@ command.</p>
 <p>First variable is a boolean and thus will be presented to the user as checkbox. Like so</p>
 <p><img alt="" src="../images/p_control.png" /></p>
 <h2 id="reading-temperature">Reading temperature<a class="headerlink" href="#reading-temperature" title="Permanent link">&para;</a></h2>
-<p>In BPM581 chip measured temperature and pressure values occupy 24 bits and thus stored in three bytes each.
-Thus, to read these values we need to read all three registers, combine them into one and re-interpret their values.
-Here we will create a command for triggering single shot temperature measurement, reading measured value and presenting 
-it to the user.</p>
-<h2 id="special-i2cc-python-methods-and-variables">Special I2CC Python methods and variables<a class="headerlink" href="#special-i2cc-python-methods-and-variables" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>read(...)</code> - function that reads register from the target slave device.</li>
-<li><code>write(...)</code> - function that writes register into the target slave device.</li>
-<li><code>dut</code> - "<em>device under test</em>" object used to access registers.</li>
-<li><code>ctx</code> - global context object that lives within a project session of <em>I2C Commander</em>.</li>
-<li><code>prompt_user(...)</code> - function that shows GUI for user to input data.</li>
-<li><code>Variable(...)</code> - variable wrapper that can be passed to <code>prompt_user(...)</code> needed to construct the GUI.</li>
-<li><code>U(...)</code> - function that reads and interprets bitarray as unsigned fixed point number.</li>
-<li><code>S(...)</code> - function reads and interprets bitarray as signed fixed point number.</li>
-<li><code>__command_name__</code> - string variable that holds name of executing custom command.</li>
-<li><code>__device_address__</code> - integer variable that holds i2c device address as selected in the GUI. </li>
-<li><code>__project_name__</code> - string variable that holds name of the current project. </li>
-</ul>
+<p>In BPM581 chip measured temperature and pressure values occupy 24 bits and thus stored in three bytes each. Thus, to
+read these values we need to read all three registers, combine them into one and re-interpret their values. Here we will
+create a command for triggering single shot temperature measurement, reading measured value and presenting it to the
+user. Let's call it</p>
+<p><code>One-shot temperature read</code></p>
+<p>and code:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+<span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">pwr_mode</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># forced one time measurement</span>
+<span class="n">write</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="p">)</span>
+
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.005</span><span class="p">)</span>  <span class="c1"># 5 ms. delay for measurement to complete</span>
+
+<span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="p">)</span>
+<span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="p">)</span>
+<span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="p">)</span>
+
+<span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16_raw</span><span class="p">,</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8_raw</span><span class="p">,</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0_raw</span>
+<span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Temperature </span><span class="si">{</span><span class="n">temp_C</span><span class="si">}</span><span class="s2"> C"</span><span class="p">)</span>
+</code></pre></div>
+<p>According to the datasheet temperature is obtained using this formula:</p>
+<p><img alt="" src="../images/temp-spec-eq.png" /></p>
+<p>In other words we need to take three bitarrays from <code>TEMP_DATA_XLSB.temp_7_0</code>, <code>TEMP_DATA_LSB.temp_15_8</code> and
+<code>TEMP_DATA_MSB.temp_23_16</code> fields, combine them into one bitarray and interpret it as <code>U24.16</code> fixed point number.
+However, according to the definition for these registers fields are always interpreted as some numeric value, not raw
+bitarrays. To access field values as raw bitarrays you can append <code>_raw</code> suffix, which is what you see in this code</p>
+<div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16_raw</span><span class="p">,</span> <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8_raw</span><span class="p">,</span> <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0_raw</span><span class="p">])</span>
+</code></pre></div>
+<p>Function <code>S(...)</code> interprets supplied bitarrays as a signed number. It takes two arguments. First argument is value of
+the fractional part in the fixed point number definition (in case above that is 16 as in <code>U24.16</code>) and second, array of
+bitarrays. Companion function <code>U(...)</code> is similar, but interprets combined bitarrays as unsigned number. Both functions
+<code>U(...)</code> and <code>S(...)</code> return floating point number after interpretation.</p>
 
 
 
