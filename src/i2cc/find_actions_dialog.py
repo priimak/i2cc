@@ -50,6 +50,7 @@ ACTIONS = [
     Action("Exit/Quit application", lambda app: app.exit_application[0]()),
     Action("Export project into file", lambda app: app.export_project()),
     Action("Import project from file", lambda app: app.import_project()),
+    Action("Import official project from the internet", None),
     Action("Open project", lambda app: OpenProjectDialog(app).exec()),
     Action("Read register", None),
     Action("Rename project", lambda app: RenameProjectDialog(app).exec()),
