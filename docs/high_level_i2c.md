@@ -90,7 +90,7 @@ code will execute and print `Init success` in _Output Console_. Subsequent calls
 Fixed point number numerical format is often not enough to express content of the registers in human-readable form. For
 example `ODR_CONFIG` register has field called `odr`. It holds a value which maps to the actual output data rate in
 Hertz using lookup table. For example value `0x0` maps to `240` Hz, `0x1` to `218.537` Hz and so on. Thus, we need to
-create a list where value and index is a string that holds representation of output data rate in Hertz. We wiil place
+create a list where value and index is a string that holds representation of output data rate in Hertz. We will place
 this list into context `ctx` and initialize it in special command `__start__`.
 
 Command named `__start__` is executed automatically when project is loaded including when _I2C Commander_ starts and
@@ -126,8 +126,8 @@ Output data rate is 1 Hz.
 
 ## Configuring ODR_CONFIG register
 
-Now that we know how to read and display _output data rate_ values in human-readable format we will define 
-graphical UI for the `odr` field in `ODR_CONFIG` register. To that end we create custom command called
+Now that we know how to read and display _output data rate_ values in human-readable format we will define graphical UI
+for the `odr` field in `ODR_CONFIG` register. To that end we create custom command called
 
 `Configure output data rate (ODR)`
 
@@ -156,11 +156,10 @@ When you run this command it should look like so:
 
 ![](images/change-odr.gif)
 
-Let us go over this code line by line to understand how it works.
-First, let's note that there are two new functions in here, `prompt_user(...)` and `write(...)`. We will get to them 
-shortly.
+Let us go over this code line by line to understand how it works. First, let's note that there are two new functions in
+here, `prompt_user(...)` and `write(...)`. We will get to them shortly.
 
-First we read `ODR_CONFIG` register and then obtain string human-readable representation of output data rate by 
+First we read `ODR_CONFIG` register and then obtain string human-readable representation of output data rate by
 accessing `ctx.ODR_HZ` array at position of `ODR_CONFIG.odr` field value. We then call this:
 
 ```python
@@ -172,12 +171,12 @@ odr = prompt_user(
 ```
 
 Function `prompt_user(...)` builds a GUI dialog window using drop down boxes, check boxes or string input fields and
-presents it to the user. This GUI will always have `Ok` and `Cancel` buttons. If user clicks on `Cancel` or simply 
-closes this dialog, then at that point our command terminates. If, however, user clicks on `Ok` button, then this 
-function returns values selected by the user in that dialog window. This function takes one or more instances of 
-class `Variable`, which is a wrapper over simple variables that encapsulates data necessary for constructing user 
-dialog. In the example above it has `valid_values` set to an array of values `ctx.ODR_HZ`. This means that it will be 
-shown as drop down box with fixed choice selection. Initially it will be shown with value held in variable 
+presents it to the user. This GUI will always have `Ok` and `Cancel` buttons. If user clicks on `Cancel` or simply
+closes this dialog, then at that point our command terminates. If, however, user clicks on `Ok` button, then this
+function returns values selected by the user in that dialog window. This function takes one or more instances of class
+`Variable`, which is a wrapper over simple variables that encapsulates data necessary for constructing user dialog. In
+the example above it has `valid_values` set to an array of values `ctx.ODR_HZ`. This means that it will be shown as drop
+down box with fixed choice selection. Initially it will be shown with value held in variable
 `current_odr_value`. To the left of label "`Output Data Rate [Hz]`" will appear. Since `current_odr_value` is a string
 returned value writen into `odr` variable will also be a string.
 
@@ -189,9 +188,9 @@ dut.ODR_CONFIG.odr = new_odr_field_value
 write(dut.ODR_CONFIG)
 ```
 
-First we find position of text in `odr` in `ctx.ODR_HZ` array and place it in `new_odr_field_value` variable.
-This position is exactly the value that we write into `ODR_CONFIG.odr` field in the next line, and finally
-we write register `dut.ODR_CONFIG` onto the device.
+First we find position of text in `odr` in `ctx.ODR_HZ` array and place it in `new_odr_field_value` variable. This
+position is exactly the value that we write into `ODR_CONFIG.odr` field in the next line, and finally we write register
+`dut.ODR_CONFIG` onto the device.
 
 To confirm what was written we read back `dut.ODR_CONFIG` register again, obtain human-readable representation for
 `odr` field and print it out.
@@ -205,8 +204,8 @@ print(f"Output data rate is configured to {current_odr_value} Hz")
 ## Configuring pressure measurements
 
 Now let's create a new command that has more than one GUI inputs. This will involve `OSR_CONFIG` register that holds
-boolean field that enables or disables pressure measurements and another field that defines oversampling rate for 
-pressure measurements. Similarly, to output data rate above we need to create a lookup table/array in `__start__` 
+boolean field that enables or disables pressure measurements and another field that defines oversampling rate for
+pressure measurements. Similarly, to output data rate above we need to create a lookup table/array in `__start__`
 command.
 
 ```python
@@ -227,9 +226,9 @@ pressure_enable, p_oversampling_rate = prompt_user(
         bool(dut.OSR_CONFIG.press_en), name="Enable pressure measurements"
     ),
     Variable(
-        ctx.OSR[dut.OSR_CONFIG.osr_p], 
-        valid_values=ctx.OSR, 
-        name = "Pressure oversampling rate"
+        ctx.OSR[dut.OSR_CONFIG.osr_p],
+        valid_values=ctx.OSR,
+        name="Pressure oversampling rate"
     )
 )
 
@@ -253,22 +252,51 @@ First variable is a boolean and thus will be presented to the user as checkbox. 
 
 ## Reading temperature
 
-In BPM581 chip measured temperature and pressure values occupy 24 bits and thus stored in three bytes each.
-Thus, to read these values we need to read all three registers, combine them into one and re-interpret their values.
-Here we will create a command for triggering single shot temperature measurement, reading measured value and presenting 
-it to the user.
+In BPM581 chip measured temperature and pressure values occupy 24 bits and thus stored in three bytes each. Thus, to
+read these values we need to read all three registers, combine them into one and re-interpret their values. Here we will
+create a command for triggering single shot temperature measurement, reading measured value and presenting it to the
+user. Let's call it
 
+`One-shot temperature read`
 
-## Special I2CC Python methods and variables
+and code:
 
-* `read(...)` - function that reads register from the target slave device.
-* `write(...)` - function that writes register into the target slave device.
-* `dut` - "_device under test_" object used to access registers.
-* `ctx` - global context object that lives within a project session of _I2C Commander_.
-* `prompt_user(...)` - function that shows GUI for user to input data.
-* `Variable(...)` - variable wrapper that can be passed to `prompt_user(...)` needed to construct the GUI.
-* `U(...)` - function that reads and interprets bitarray as unsigned fixed point number.
-* `S(...)` - function reads and interprets bitarray as signed fixed point number.
-* `__command_name__` - string variable that holds name of executing custom command.
-* `__device_address__` - integer variable that holds i2c device address as selected in the GUI. 
-* `__project_name__` - string variable that holds name of the current project. 
+```python
+import time
+
+read(dut.ODR_CONFIG)
+dut.ODR_CONFIG.pwr_mode = 2  # forced one time measurement
+write(dut.ODR_CONFIG)
+
+time.sleep(0.005)  # 5 ms. delay for measurement to complete
+
+read(dut.TEMP_DATA_XLSB)
+read(dut.TEMP_DATA_LSB)
+read(dut.TEMP_DATA_MSB)
+
+temp_C = S(16, [
+    dut.TEMP_DATA_MSB.temp_23_16_raw,
+    dut.TEMP_DATA_LSB.temp_15_8_raw,
+    dut.TEMP_DATA_XLSB.temp_7_0_raw
+])
+
+print(f"Temperature {temp_C} C")
+```
+
+According to the datasheet temperature is obtained using this formula:
+
+![](images/temp-spec-eq.png)
+
+In other words we need to take three bitarrays from `TEMP_DATA_XLSB.temp_7_0`, `TEMP_DATA_LSB.temp_15_8` and
+`TEMP_DATA_MSB.temp_23_16` fields, combine them into one bitarray and interpret it as `U24.16` fixed point number.
+However, according to the definition for these registers fields are always interpreted as some numeric value, not raw
+bitarrays. To access field values as raw bitarrays you can append `_raw` suffix, which is what you see in this code
+
+```python
+temp_C = S(16, [dut.TEMP_DATA_MSB.temp_23_16_raw, dut.TEMP_DATA_LSB.temp_15_8_raw, dut.TEMP_DATA_XLSB.temp_7_0_raw])
+```
+
+Function `S(...)` interprets supplied bitarrays as a signed number. It takes two arguments. First argument is value of
+the fractional part in the fixed point number definition (in case above that is 16 as in `U24.16`) and second, array of
+bitarrays. Companion function `U(...)` is similar, but interprets combined bitarrays as unsigned number. Both functions
+`U(...)` and `S(...)` return floating point number after interpretation.
