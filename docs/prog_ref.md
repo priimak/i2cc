@@ -1,5 +1,3 @@
-from tkinter import Variablefrom tkinter import Variablefrom tkinter import Variablefrom tkinter import Variable
-
 # Programming language reference
 
 Language used in the code for custom commands is Python 3.13. Below we describe in 
