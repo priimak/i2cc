@@ -1,3 +1,5 @@
+from tkinter import Variablefrom tkinter import Variablefrom tkinter import Variablefrom tkinter import Variable
+
 # Programming language reference
 
 Language used in the code for custom commands is Python 3.13. Below we describe in 
@@ -53,8 +55,56 @@ dut.OSR_CONFIG.osr_p_raw # returns raw BitArray object for a field osr_p
 
 ### **read(...)**
 
+This function takes register as an argument, reads register value from the connected device
+and updates register with read value. The reason we want to do that is because any register 
+in the `dut` object are in memory objects that hold last read or a default value. Calling this 
+function allows us to update register object in memory with register value as it is present
+in the I2C device. This function returns None.
+
+```python
+read(dut.OSR_CONFIG)
+```
+
+
 ### **write(...)**
+
+This function take register as an argument and writes its in-memory content into the 
+corresponding register on connected I2C device. This function returns None.
+
+```python
+write(dut.OSR_CONFIG)
+```
 
 ### **Variable**
 
+Class `Variable` is a wrapper over any regular python variable that adds various metadata
+that is used to build GUI dialog when method `prompt_user(...)` is called. Its first 
+agument is value that is to be wrapped inside of this class. Other two arguments
+are optional 
+
+* `valid_values` - array of possible values which can be assigned to the value contained 
+    inside. If not given, then any value can later be assigned to variable inside.
+* `name` - user-friendly name associated with this variable.
+
+```python
+Variable(1, valid_values=[1, 2, 4, 8, 16], name="Sampling rate")
+```
+
 ### **prompt_user(...)**
+
+Given its arguments, which are one or more instances of `Variable` (see above) constructs
+and presents GUI input dialog to the user. If user clicks `Ok` button in the dialog, then it
+returns n-tuple of values selected by the user in the order in which `Variable` objects 
+were passed to this function.
+
+```python
+a, b, c = prompt_user(
+    Variable(1.0, name="Offset"),
+    Variable(1, valid_values=[1, 2, 4, 8], name="Scale factor"),
+    Variable(True, name="Enable scaling")
+)
+```
+
+Example above build GUI dialog that looks like so
+
+![](images/prompt-user-example.png)
