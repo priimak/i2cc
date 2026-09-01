@@ -416,6 +416,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#code-auto-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code auto-completion
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -526,6 +537,17 @@
     <span class="md-ellipsis">
       
         Reading temperature
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-auto-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code auto-completion
       
     </span>
   </a>
@@ -778,6 +800,12 @@ bitarrays. To access field values as raw bitarrays you can append <code>_raw</co
 the fractional part in the fixed point number definition (in case above that is 16 as in <code>U24.16</code>) and second, array of
 bitarrays. Companion function <code>U(...)</code> is similar, but interprets combined bitarrays as unsigned number. Both functions
 <code>U(...)</code> and <code>S(...)</code> return floating point number after interpretation.</p>
+<h2 id="code-auto-completion">Code auto-completion<a class="headerlink" href="#code-auto-completion" title="Permanent link">&para;</a></h2>
+<p>Some limited code autocompletion is present in the code edit window. When you type <code>dut.</code> the moment you enter the 
+dot <code>.</code> popup dialog with table of registers and fields opens where you can select register or register 
+and one of its fields as they are defined in the RegList. Like in many other tables in the I2C Commander you can start 
+typing to perform fuzzy search for entry that you need. </p>
+<p><img alt="" src="../images/register-autocomplete.gif" /></p>
 
 
 
