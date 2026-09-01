@@ -536,6 +536,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#un-bitarray" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        U(n, [BitArray])
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sn-bitarray" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S(n, [BitArray])
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -720,6 +742,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#un-bitarray" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        U(n, [BitArray])
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sn-bitarray" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S(n, [BitArray])
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -801,14 +845,46 @@ are optional </p>
 and presents GUI input dialog to the user. If user clicks <code>Ok</code> button in the dialog, then it
 returns n-tuple of values selected by the user in the order in which <code>Variable</code> objects 
 were passed to this function.</p>
-<div class="highlight"><pre><span></span><code><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
+<div class="highlight"><pre><span></span><code><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
     <span class="n">Variable</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Offset"</span><span class="p">),</span>
     <span class="n">Variable</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Scale factor"</span><span class="p">),</span>
-    <span class="n">Variable</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Enable scaling"</span><span class="p">)</span>
+    <span class="n">Variable</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Enable scaling"</span><span class="p">),</span>
+    <span class="n">Variable</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Enable measurments"</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
 <p>Example above build GUI dialog that looks like so</p>
 <p><img alt="" src="../images/prompt-user-example.png" /></p>
+<p>These GUI controls are formed according to the following logic.</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span>wrapped<span class="w"> </span>variable<span class="w"> </span>is<span class="w"> </span>boolean
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>valid_array<span class="w"> </span>is<span class="w"> </span>given
+<span class="w">       </span>show<span class="w"> </span>drop<span class="w"> </span>down<span class="w"> </span>box<span class="w"> </span>with<span class="w"> </span><span class="sb">`</span>True<span class="sb">`</span><span class="w"> </span>and<span class="w"> </span><span class="sb">`</span>False<span class="sb">`</span><span class="w"> </span>choices
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span>show<span class="w"> </span>checkbox
+
+<span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>valid_values<span class="w"> </span>is<span class="w"> </span>given
+<span class="w">    </span>show<span class="w"> </span>drop<span class="w"> </span>down<span class="w"> </span>box<span class="w"> </span>with<span class="w"> </span>choices<span class="w"> </span>from<span class="w"> </span>value_values<span class="w"> </span>agument
+
+<span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>wrapped<span class="w"> </span>variable<span class="w"> </span>is<span class="w"> </span>integer
+<span class="w">    </span>show<span class="w"> </span>text<span class="w"> </span>input<span class="w"> </span>field<span class="w"> </span>and<span class="w"> </span>validate<span class="w"> </span>and<span class="w"> </span>constrain<span class="w"> </span>its<span class="w"> </span>content<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>integer<span class="w"> </span>
+
+<span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span>wrapped<span class="w"> </span>variable<span class="w"> </span>is<span class="w"> </span>float
+<span class="w">    </span>show<span class="w"> </span>text<span class="w"> </span>input<span class="w"> </span>field<span class="w"> </span>and<span class="w"> </span>validate<span class="w"> </span>and<span class="w"> </span>constrain<span class="w"> </span>its<span class="w"> </span>content<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>float<span class="w"> </span>
+
+<span class="k">else</span>
+<span class="w">    </span>show<span class="w"> </span>text<span class="w"> </span>input<span class="w"> </span>field<span class="w"> </span>with<span class="w"> </span>no<span class="w"> </span>validation<span class="w"> </span>and<span class="w"> </span>no<span class="w"> </span>contrains<span class="w"> </span>on<span class="w"> </span>its<span class="w"> </span>content<span class="w"> </span>
+</code></pre></div>
+<h2 id="un-bitarray"><strong>U(n, [BitArray])</strong><a class="headerlink" href="#un-bitarray" title="Permanent link">&para;</a></h2>
+<p>This function converts list of BitArray objects as one large BitArray into floating point 
+number according fixed point interpretation <code>U{w}.{n}</code> where <code>{w}</code> width of sum of all 
+BitArray objects and <code>{n}</code> is $1/2^n$ scaling factor.</p>
+<div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16_raw</span><span class="p">,</span> 
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8_raw</span><span class="p">,</span> 
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0_raw</span>
+<span class="p">])</span>
+</code></pre></div>
+<h2 id="sn-bitarray"><strong>S(n, [BitArray])</strong><a class="headerlink" href="#sn-bitarray" title="Permanent link">&para;</a></h2>
+<p>Same as function <code>U(...)</code> but it interprets combined BitArray as signed number.</p>
 
 
 
