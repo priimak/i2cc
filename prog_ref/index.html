@@ -737,6 +737,7 @@
 
 
 
+<p>from tkinter import Variablefrom tkinter import Variablefrom tkinter import Variablefrom tkinter import Variable</p>
 <h1 id="programming-language-reference">Programming language reference<a class="headerlink" href="#programming-language-reference" title="Permanent link">&para;</a></h1>
 <p>Language used in the code for custom commands is Python 3.13. Below we describe in 
 details additional variables, functions and objects available to developer of the 
@@ -772,9 +773,43 @@ append <code>_raw</code> prefix.</p>
 </code></pre></div>
 <h2 id="functions-classes">Functions &amp; Classes<a class="headerlink" href="#functions-classes" title="Permanent link">&para;</a></h2>
 <h3 id="read"><strong>read(...)</strong><a class="headerlink" href="#read" title="Permanent link">&para;</a></h3>
+<p>This function takes register as an argument, reads register value from the connected device
+and updates register with read value. The reason we want to do that is because any register 
+in the <code>dut</code> object are in memory objects that hold last read or a default value. Calling this 
+function allows us to update register object in memory with register value as it is present
+in the I2C device. This function returns None.</p>
+<div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="write"><strong>write(...)</strong><a class="headerlink" href="#write" title="Permanent link">&para;</a></h3>
+<p>This function take register as an argument and writes its in-memory content into the 
+corresponding register on connected I2C device. This function returns None.</p>
+<div class="highlight"><pre><span></span><code><span class="n">write</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="variable"><strong>Variable</strong><a class="headerlink" href="#variable" title="Permanent link">&para;</a></h3>
+<p>Class <code>Variable</code> is a wrapper over any regular python variable that adds various metadata
+that is used to build GUI dialog when method <code>prompt_user(...)</code> is called. Its first 
+agument is value that is to be wrapped inside of this class. Other two arguments
+are optional </p>
+<ul>
+<li><code>valid_values</code> - array of possible values which can be assigned to the value contained 
+    inside. If not given, then any value can later be assigned to variable inside.</li>
+<li><code>name</code> - user-friendly name associated with this variable.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">Variable</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Sampling rate"</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="prompt_user"><strong>prompt_user(...)</strong><a class="headerlink" href="#prompt_user" title="Permanent link">&para;</a></h3>
+<p>Given its arguments, which are one or more instances of <code>Variable</code> (see above) constructs
+and presents GUI input dialog to the user. If user clicks <code>Ok</code> button in the dialog, then it
+returns n-tuple of values selected by the user in the order in which <code>Variable</code> objects 
+were passed to this function.</p>
+<div class="highlight"><pre><span></span><code><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
+    <span class="n">Variable</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Offset"</span><span class="p">),</span>
+    <span class="n">Variable</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Scale factor"</span><span class="p">),</span>
+    <span class="n">Variable</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Enable scaling"</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Example above build GUI dialog that looks like so</p>
+<p><img alt="" src="../images/prompt-user-example.png" /></p>
 
 
 
