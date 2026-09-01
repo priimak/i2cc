@@ -19,10 +19,7 @@ class UserPromptDialog(Dialog):
         self.is_canceled = True
 
         def get_input_widget(variable: Variable) -> tuple[QWidget, Variable[str]]:
-            if variable.type is bool:
-                return CheckBox(reactive_variable=variable), Variable("")
-
-            elif variable.valid_values is None:
+            if variable.valid_values is None:
                 line_edit = LineEdit(reactive_variable=variable)
                 line_edit_success = Variable[str]("")
 
@@ -38,7 +35,10 @@ class UserPromptDialog(Dialog):
 
                     return str_to_val
 
-                if variable.type is float:
+                if variable.type is bool:
+                    return CheckBox(reactive_variable=variable), Variable("")
+
+                elif variable.type is float:
 
                     def val_to_str(value: float) -> str:
                         current_text = line_edit.text()
@@ -69,7 +69,7 @@ class UserPromptDialog(Dialog):
         for variable in vars:
             widget, input_success_status = get_input_widget(variable)
             self.inputs_success_status.append(input_success_status)
-            widgets.append(HBoxPanel([Label(f"{variable.name}"), widget, W(stretch=1)]))
+            widgets.append(HBoxPanel([Label(f"{variable.name}"), W(stretch=1), widget]))
 
         self.setLayout(
             VBoxLayout(

@@ -90,6 +90,7 @@ dependencies = [
     { name = "pyside6" },
     { name = "pytide6" },
     { name = "rgscore" },
+    { name = "sprats" },
     { name = "usb-monitor" },
 ]
 
@@ -104,8 +105,9 @@ requires-dist = [
     { name = "i2capi-i2cdriver", git = "https://github.com/priimak/i2capi_i2cdriver.git?rev=v0.5.1" },
     { name = "i2cdriver", specifier = "==1.0.6" },
     { name = "pyside6", specifier = "==6.11.1" },
-    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.20.0" },
+    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.20.1" },
     { name = "rgscore", git = "https://github.com/priimak/rgscore.git?rev=v0.11.2" },
+    { name = "sprats", git = "https://github.com/priimak/sprats.git?rev=v0.6.1" },
     { name = "usb-monitor" },
 ]
 
@@ -183,8 +185,8 @@ wheels = [
 
 [[package]]
 name = "pytide6"
-version = "0.20.0.post0+git.8170351e.dirty"
-source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.20.0#8170351ea270e431b674958137c3a315d07a2fc9" }
+version = "0.20.1.post0+git.485b9f88.dirty"
+source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.20.1#485b9f88c54ad62e9562ec499d3c6b29b95726ac" }
 dependencies = [
     { name = "pyside6" },
     { name = "sprats" },
@@ -263,8 +265,8 @@ wheels = [
 
 [[package]]
 name = "sprats"
-version = "0.6.0.post0+git.7865b38e.dirty"
-source = { git = "https://github.com/priimak/sprats.git?rev=v0.6.0#7865b38e9a3bd3b25df8bff57fc7f6bac6fd3208" }
+version = "0.6.1.post0+git.f20198ff.dirty"
+source = { git = "https://github.com/priimak/sprats.git?rev=v0.6.1#f20198ff53407e367499065f01e8ac2f84fe4351" }
 
 [[package]]
 name = "tibs"
