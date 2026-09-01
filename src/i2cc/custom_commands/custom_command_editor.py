@@ -1,10 +1,11 @@
 import dataclasses
+import re
 import traceback
 from collections.abc import Callable
 
 from PySide6 import QtCore
-from PySide6.QtGui import QKeyEvent, Qt
-from PySide6.QtWidgets import QTextEdit
+from PySide6.QtGui import QKeyEvent, Qt, QTextCursor
+from PySide6.QtWidgets import QPlainTextEdit
 from pytide6 import Dialog, HBoxPanel, PushButton, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
@@ -15,7 +16,7 @@ from i2cc.custom_commands.find_register_dialog import FindRegisterDialog
 from i2cc.project.project import CustomCommand
 
 
-class CodeEditor(QTextEdit):
+class CodeEditor(QPlainTextEdit):
     space_key_event = QKeyEvent(QtCore.QEvent.Type.KeyPress, Qt.Key.Key_A, QtCore.Qt.KeyboardModifier.NoModifier, " ")
 
     def __init__(self, app: App, save_command: Callable[[], None]):
@@ -35,6 +36,29 @@ class CodeEditor(QTextEdit):
                 super().keyPressEvent(CodeEditor.space_key_event)
                 super().keyPressEvent(CodeEditor.space_key_event)
                 return
+
+            if key == Qt.Key.Key_Y and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
+                # delete line on Ctrl-y
+                c = self.textCursor()
+                c.select(QTextCursor.SelectionType.LineUnderCursor)
+                c.removeSelectedText()
+                c.deleteChar()
+                self.setTextCursor(c)
+
+            if key == Qt.Key.Key_Slash and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
+                # (Un)Comment out line on Ctrl-/
+                c = self.textCursor()
+                c.select(QTextCursor.SelectionType.LineUnderCursor)
+                line_str = c.selection().toPlainText()
+                new_line = re.sub(r"^(\s*)#", r"\1", line_str)
+                if new_line != line_str:
+                    c.removeSelectedText()
+                    c.insertText(new_line)
+                else:
+                    c.movePosition(QTextCursor.MoveOperation.StartOfLine)
+                    c.insertText("#")
+                c.movePosition(QTextCursor.MoveOperation.Down)
+                self.setTextCursor(c)
 
             if (
                 key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]
@@ -65,7 +89,7 @@ class CustomCommandsEditor(Dialog):
         self.command_label = Variable("" if cmd is None else cmd.label)
         self.code_editor = CodeEditor(app, self.save_command)
         if cmd is not None:
-            self.code_editor.append(cmd.source_code)
+            self.code_editor.appendPlainText(cmd.source_code)
 
         self.setLayout(
             VBoxLayout(
@@ -120,3 +144,46 @@ class CustomCommandsEditor(Dialog):
             tb_lines = traceback.format_exception(type(ex), ex, ex.__traceback__)
             x = "".join(tb_lines[2:])
             self.app.show_error(str(x))
+
+
+# if __name__ == '__main__':
+#     import tree_sitter_python as tspython
+#     from tree_sitter import Language, Parser
+#
+#     PY_LANGUAGE = Language(tspython.language())
+#     parser = Parser(PY_LANGUAGE)
+#     tree = parser.parse(
+#         bytes(
+#             """
+# if ctx.init_done is not None:
+#     print("Power-on init sequence was already done once")
+#     exit()
+#
+# read(dut.CHIP_ID)
+# read(dut.STATUS)
+# read(dut.INT_STATUS)
+#
+# if dut.CHIP_ID.chip_id == 0:
+#     print("Init failed. CHIP_ID is 0")
+#
+# elif dut.STATUS.status_nvm_rdy != 1:
+#     print(f"Init failed. STATUS.status_nvm_rdy is {dut.STATUS.status_nvm_rdy}")
+#
+# elif dut.STATUS.status_nvm_err != 0:
+#     print(f"Init failed. STATUS.status_nvm_err is {dut.STATUS.status_nvm_err}")
+#
+# elif dut.INT_STATUS.por != 1:
+#     print(f"Init failed. INT_STATUS.por is {dut.INT_STATUS.por}")
+#
+# else:
+#     print("Init success")
+#     ctx.init_done = True
+#     """,
+#             "utf8",
+#         )
+#     )
+#     root_node = tree.root_node
+#     print(root_node)
+#     cursor = root_node.walk()
+#     print(cursor)
+#

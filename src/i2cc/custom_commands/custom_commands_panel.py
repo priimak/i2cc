@@ -5,6 +5,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from typing import Any
 
+from i2c_api import I2CError
 from PySide6 import QtCore
 from PySide6.QtCore import QByteArray, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
@@ -276,9 +277,12 @@ class CustomCommandsPanel(VBoxPanel):
         except EvalExit:
             pass
         except Exception as ex:
-            tb_lines = traceback.format_exception(type(ex), ex, ex.__traceback__)
-            x = "".join(tb_lines[2:])
-            self.app.show_error(str(x))
+            if isinstance(ex, I2CError):
+                self.app.show_error(str(ex))
+            else:
+                tb_lines = traceback.format_exception(type(ex), ex, ex.__traceback__)
+                x = "".join(tb_lines[2:])
+                self.app.show_error(str(x))
 
     def on_commands_table_double_clicked(self, index: QModelIndex):
         self.eval_selected_command()
