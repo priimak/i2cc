@@ -22,7 +22,7 @@ Integer variable that holds i2c device address as selected in the GUI.
 Context object that persists across the project session. Project session refers to a 
 time duration when a given project is active. That is for example from the moment
 application starts and previously loaded project is loaded again until either application
-closes or use opens another project. Context object can be used to store arbitrary 
+closes or user opens another project. Context object can be used to store arbitrary 
 variables and functions which become available to all defined custom commands. Assigning
 arbitrary variable in the context `ctx` creates it and attempts to access variable before it is being 
 assigned return `None`.
