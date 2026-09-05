@@ -1,11 +1,14 @@
-from bitstring import Bits
-from i2c_api import I2CLogger, I2CMaster, RegisterAddress
+from bitstring import BitArray, Bits
+from i2c_api import I2CLogger, I2CMaster, I2CTransaction, RegisterAddress
 from i2capi_i2cdriver.i2cdriver_api import DummyI2CLogger
 
 
 class DummyI2CMaster(I2CMaster):
     def __init__(self):
         self.__logger = DummyI2CLogger()
+
+    def _exec(self, transaction: I2CTransaction) -> tuple[list[list[BitArray]], bool]:
+        return [], True
 
     def logger(self) -> I2CLogger:
         return self.__logger
