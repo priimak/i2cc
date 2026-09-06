@@ -42,10 +42,18 @@ class FileMenu(QMenu):
         self.addAction("&Quit", lambda: app.exit_application[0]())
 
 
+class DongleMenu(QMenu):
+    def __init__(self, parent: QMenuBar, app: App):
+        super().__init__("&Dongle", parent)
+        self.addAction("&Connect")
+        self.addAction("&Reset Dongle")
+
+
 class MainMenuBar(QMenuBar):
     def __init__(self, app: App, dialogs_parent: QWidget) -> None:
         super().__init__(dialogs_parent)
         self.addMenu(FileMenu(self, app))
+        self.addMenu(DongleMenu(self, app))
         self.addMenu(
             Menu(
                 "&Help",
