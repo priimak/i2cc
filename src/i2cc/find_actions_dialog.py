@@ -30,7 +30,7 @@ from i2cc.project.projects_gui import (
     RenameProjectDialog,
     SaveAsProjectDialog,
 )
-from i2cc.reg_def_editor import NewRegDefDialog
+from i2cc.registers.reg_def_editor import NewRegDefDialog
 
 
 @dataclass(slots=True, frozen=True)

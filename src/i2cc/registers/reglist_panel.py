@@ -20,8 +20,8 @@ from i2cc.gui_tools import (
     TableModelWithThreeColumns,
     apply_filter_to_text,
 )
-from i2cc.reg_def_editor import DefRegEditor, NewRegDefDialog, RegisterPrototype
-from i2cc.reg_write_dialog import RegisterWriteDialog
+from i2cc.registers.reg_def_editor import DefRegEditor, NewRegDefDialog, RegisterPrototype
+from i2cc.registers.reg_write_dialog import RegisterWriteDialog
 
 
 @dataclass

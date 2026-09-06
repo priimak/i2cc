@@ -5,7 +5,7 @@ from bitstring import BitArray
 from i2c_api import I2CMaster, RegisterAddress
 from PySide6.QtCore import QThread, Signal
 
-from i2cc.reg_read_results import ShowRegSignalData
+from i2cc.registers.reg_read_results import ShowRegSignalData
 
 
 class Command:
