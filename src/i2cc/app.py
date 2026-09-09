@@ -62,6 +62,7 @@ class App:
         self.update_project_selector_current_project: Callable[[str], None] = lambda _: None
         self.request_results_reload: Callable[[], None] = lambda: None
         self.request_reglist_reload: Callable[[], None] = lambda: None
+        self.request_notes_reload: Callable[[], None] = lambda: None
         self.request_reglist_select_register: Callable[[Register], None] = lambda _: None
         self.show_last_i2c_log_message: Callable[[list], None] = lambda _: None
 
@@ -234,6 +235,7 @@ class App:
         self.project = self.projects.open_project(name)
         self.request_results_reload()
         self.request_reglist_reload()
+        self.request_notes_reload()
         self.request_commands_reload(False)  # False requests that we do not keep original selection
         self.update_project_selector_current_project(self.project.name)
         self.persistence.config.set_value("last_open_project", name)

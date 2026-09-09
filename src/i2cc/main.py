@@ -30,6 +30,7 @@ from i2cc.i2c_log import LogLineLabel
 from i2cc.i2c_op_thread import Quit
 from i2cc.menus import MainMenuBar
 from i2cc.project.opened_project_label import OpenedProjectLabel
+from i2cc.project.project_nodes_panel import ProjectNotes
 from i2cc.registers.reglist_panel import RegListPanel
 from i2cc.results_panel import ResultsPanel
 
@@ -88,6 +89,7 @@ class I2CDriverWindow(MainWindow):
 
         self.custom_commands_panel = CustomCommandsPanel(app)
         right_bottom_panel.addTab(self.custom_commands_panel, "User defined commands")
+        right_bottom_panel.addTab(ProjectNotes(app), "Project notes")
 
         right_panel = VBoxPanel(
             widgets=[
@@ -203,7 +205,7 @@ def main():
     app = QApplication(sys.argv)
 
     persistence = AppPersistence(
-        app_name="i2cdgui",
+        app_name="i2cc",
         override_config_if_different_version=True,
         init_config_data={
             "speed": "100",

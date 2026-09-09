@@ -108,9 +108,17 @@ class Project:
         if not self.reg_list_path.exists():
             self.save_reglist()
 
+        self.notes = ""
+        if not self.notes_markdown_path.exists():
+            self.save_notes()
+
         self.results: list[RawResult] = []
         self.commands: list[CustomCommand] = []
         self.commands_by_label: dict[str, CustomCommand] = dict()
+
+    @property
+    def notes_markdown_path(self) -> Path:
+        return self.dir / "notes.md"
 
     @property
     def version_json_path(self) -> Path:
@@ -151,6 +159,7 @@ class Project:
             "version": json.loads(self.version_json_path.read_text()),
             "regList": json.loads(self.reg_list_path.read_text()),
             "commands": json.loads(self.commands_path.read_text()),
+            "notes": self.notes_markdown_path.read_text(),
         }
         with gzip.open(file_out_path, "wb") as f:
             f.write(json.dumps(data_to_export).encode())
@@ -191,12 +200,14 @@ class Project:
         target_project.reg_list_path.write_bytes(self.reg_list_path.read_bytes())
         target_project.results_path.write_bytes(self.results_path.read_bytes())
         target_project.commands_path.write_bytes(self.commands_path.read_bytes())
+        target_project.notes_markdown_path.write_bytes(self.notes_markdown_path.read_bytes())
 
     def load(self) -> Self:
         version = json.loads(self.version_json_path.read_text())["version"]
         if version != 1:
             raise RuntimeError(f"Unable to load project version {version}")
         self.reg_list = RegList.from_json_def(self.reg_list_path.read_text())
+        self.notes = self.notes_markdown_path.read_text()
 
         self.results = [RawResult(**row) for row in json.loads(self.results_path.read_text())]
         self.commands.clear()
@@ -217,6 +228,9 @@ class Project:
 
     def save_results(self):
         self.results_path.write_text(json.dumps([asdict(row) for row in self.results]))
+
+    def save_notes(self):
+        self.notes_markdown_path.write_text(self.notes)
 
     def save_reglist(self):
         self.reg_list_path.write_text(self.reg_list.to_json_def())
@@ -281,6 +295,7 @@ class Projects:
                 project.version_json_path.write_text(json.dumps(data["version"]))
                 project.reg_list_path.write_text(json.dumps(data["regList"]))
                 project.commands_path.write_text(json.dumps(data["commands"]))
+                project.notes_markdown_path.write_text(data["notes"])
                 return project.name
             else:
                 return None
