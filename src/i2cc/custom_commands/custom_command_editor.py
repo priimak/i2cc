@@ -44,6 +44,60 @@ class CodeEditor(QPlainTextEdit):
                 c.removeSelectedText()
                 c.deleteChar()
                 self.setTextCursor(c)
+                return
+
+            if (
+                key == Qt.Key.Key_Up
+                and event.modifiers()
+                == QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.KeyboardModifier.ShiftModifier
+            ):
+                c = self.textCursor()
+                at_column = c.columnNumber()
+                c.select(QTextCursor.SelectionType.LineUnderCursor)
+                line_to_move = c.selection().toPlainText()
+                c.removeSelectedText()
+                c.deleteChar()
+                c.movePosition(QTextCursor.MoveOperation.Up)
+                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
+                c.insertText(line_to_move + "\n")
+                c.movePosition(QTextCursor.MoveOperation.Up)
+                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
+                c.movePosition(QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.MoveAnchor, at_column)
+                self.setTextCursor(c)
+                return
+
+            if (
+                key == Qt.Key.Key_Down
+                and event.modifiers()
+                == QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.KeyboardModifier.ShiftModifier
+            ):
+                c = self.textCursor()
+                at_column = c.columnNumber()
+                c.select(QTextCursor.SelectionType.LineUnderCursor)
+                line_to_move = c.selection().toPlainText()
+                c.removeSelectedText()
+                c.deleteChar()
+                c.movePosition(QTextCursor.MoveOperation.Down)
+                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
+                c.insertText(line_to_move + "\n")
+                c.movePosition(QTextCursor.MoveOperation.Up)
+                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
+                c.movePosition(QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.MoveAnchor, at_column)
+                self.setTextCursor(c)
+                return
+
+            if key == Qt.Key.Key_D and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
+                # duplicate line
+                c = self.textCursor()
+                at_column = c.columnNumber()
+                c.select(QTextCursor.SelectionType.LineUnderCursor)
+                line_str = c.selection().toPlainText()
+                c.movePosition(QTextCursor.MoveOperation.EndOfLine)
+                c.insertText(f"\n{line_str}")
+                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
+                c.movePosition(QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.MoveAnchor, at_column)
+                self.setTextCursor(c)
+                return
 
             if key == Qt.Key.Key_Slash and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
                 # (Un)Comment out line on Ctrl-/
@@ -59,6 +113,7 @@ class CodeEditor(QPlainTextEdit):
                     c.insertText("#")
                 c.movePosition(QTextCursor.MoveOperation.Down)
                 self.setTextCursor(c)
+                return
 
             if (
                 key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]
