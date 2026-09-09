@@ -14,6 +14,7 @@ from pytide6 import Dialog, Label, VBoxLayout
 
 from i2cc.app import App
 from i2cc.custom_commands.custom_command_editor import CustomCommandsEditor
+from i2cc.dongles.dongle_selector_dialog import select_dongle
 from i2cc.gui_tools import (
     InTableSearchField,
     ListTableView,
@@ -49,6 +50,7 @@ ACTIONS = [
     Action("Execute custom action/command", None),
     Action("Exit/Quit application", lambda app: app.exit_application[0]()),
     Action("Export project into file", lambda app: app.export_project()),
+    Action("Connect to a new/different dongle", select_dongle),
     Action("Import project from file", lambda app: app.import_project()),
     Action("Import official project from the internet", None),
     Action("Open project", lambda app: OpenProjectDialog(app).exec()),

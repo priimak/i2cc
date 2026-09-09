@@ -1,18 +1,17 @@
 import sys
 from typing import override
 
-import serial.tools.list_ports as slp
 from PySide6 import QtGui
 from PySide6.QtCore import QByteArray, QLockFile, QSize, Qt
-from PySide6.QtGui import QCloseEvent, Qt
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QApplication,
     QMessageBox,
     QTabWidget,
 )
 from pytide6 import (
-    ComboBox,
     HBoxPanel,
+    Label,
     MainWindow,
     Splitter,
     VBoxPanel,
@@ -24,6 +23,8 @@ from sprats.config import AppPersistence
 from i2cc.app import App
 from i2cc.commands_panel import CommandsPanel
 from i2cc.custom_commands.custom_commands_panel import CustomCommandsPanel
+from i2cc.dongles.dongle_selector_dialog import select_dongle
+from i2cc.dongles.dongles import SUPPORTED_DONGLES_DICT, mk_DummyI2CMaster
 from i2cc.find_actions_dialog import FindActionDialog
 from i2cc.i2c_log import LogLineLabel
 from i2cc.i2c_op_thread import Quit
@@ -33,24 +34,20 @@ from i2cc.registers.reglist_panel import RegListPanel
 from i2cc.results_panel import ResultsPanel
 
 
-def get_ports() -> list[str]:
-    return [p.device for p in slp.comports() if p.product == "FT230X Basic UART"]
-
-
-class COMPortSelector(ComboBox):
-    def __init__(self, app: App):
-        super().__init__(items=get_ports())
-        self.app = app
-
-        self.currentTextChanged.connect(self.app.set_port)
-        self.currentTextChanged.emit(self.currentText())
-
-
 class InfoPanel(HBoxPanel):
     def __init__(self, app: App):
         super().__init__(background_color="#f1f1f1")
 
-        self.com_port_selector = COMPortSelector(app)
+        i2c_master_container = app.i2c_master.value
+        self.selected_dongle_label = Label(
+            ""
+            if i2c_master_container is None
+            else (i2c_master_container.display_name + " :: " + i2c_master_container.port),
+            css="border: 1px solid black;",
+        )
+        app.i2c_master.register_value_change_callback(
+            lambda m: self.selected_dongle_label.setText(m.display_name + " :: " + m.port)
+        )
         self.log_line = LogLineLabel()
         app.show_last_i2c_log_message = self.log_line.set_i2c_log_message
 
@@ -58,7 +55,7 @@ class InfoPanel(HBoxPanel):
             [
                 OpenedProjectLabel(app),
                 W(self.log_line, stretch=1),
-                self.com_port_selector,
+                self.selected_dongle_label,
             ]
         )
 
@@ -81,8 +78,8 @@ class I2CDriverWindow(MainWindow):
         self.res_table = ResultsPanel(self.app)
         left_panel = VBoxPanel(widgets=[self.res_table], background_color="gray", margins=1)
 
-        cpanel = CommandsPanel(app)
-        cpanel.setBackgroundColor("lightgreen")
+        self.cpanel = CommandsPanel(app)
+        self.cpanel.setBackgroundColor("lightgreen")
 
         right_bottom_panel = QTabWidget()
         right_bottom_panel.setDocumentMode(True)
@@ -94,7 +91,7 @@ class I2CDriverWindow(MainWindow):
 
         right_panel = VBoxPanel(
             widgets=[
-                VBoxPanel([cpanel], background_color="black", margins=1),
+                VBoxPanel([self.cpanel], background_color="black", margins=1),
                 W(right_bottom_panel, stretch=2),
             ],
             margins=0,
@@ -164,6 +161,43 @@ class I2CDriverWindow(MainWindow):
         # following will trigger execution of __start__ command in the opened project if such command is present.
         self.app.request_commands_reload(False)
 
+        last_selected_device = self.app.persistence.config.get_value("last_selected_device", dict)
+        if last_selected_device == dict():
+            QMessageBox.information(
+                self,
+                "Info",
+                "<H3>Please select I2CDongle to use.</H3>"
+                ""
+                "Once selected you will <b>NOT</b> be prompted again on start up of "
+                'this application unless connection to the dongle fails. You can, however, go to the menu "Dongle" '
+                'and select option "Connect" to pick different dongle.',
+            )
+            if not select_dongle(self.app):
+                QMessageBox.information(
+                    self, "Info", "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
+                )
+                self.app.i2c_master.value = mk_DummyI2CMaster("COM", None)
+        else:
+            try:
+                saved_speed = self.app.persistence.config.get_by_xpath("/speed")
+                self.app.i2c_master.value = SUPPORTED_DONGLES_DICT[last_selected_device["make_and_model"]].cons(
+                    last_selected_device["port"], self.app.i2c_logger
+                )
+                self.cpanel.speed_selector.setCurrentText(saved_speed)
+            except Exception:
+                self.app.show_error(
+                    "Failed to connected to last used dongle. Please select a new one or connect previously "
+                    "used one and restart the application"
+                )
+                if not select_dongle(self.app):
+                    QMessageBox.information(
+                        self, "Info", "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
+                    )
+                    self.app.i2c_master.value = mk_DummyI2CMaster("COM", None)
+                    self.app.persistence.config.set_value(
+                        "last_selected_device", {"make_and_model": "Demo :: DummyI2CDriver", "port": "COM"}
+                    )
+
 
 def main():
     app = QApplication(sys.argv)
@@ -173,8 +207,9 @@ def main():
         override_config_if_different_version=True,
         init_config_data={
             "speed": "100",
-            "config_version": 1,
+            "config_version": 2,
             "last_open_project": "default",
+            "last_selected_device": {},
         },
     )
 
@@ -198,8 +233,6 @@ def main():
         win.activateWindow()
         win.raise_()
         win.restore()
-        if win.info_panel.com_port_selector.count() == 0:
-            win.app.show_error("I2C Master device not found. Connect device and restart application.")
         application.init()
 
         sys.exit(app.exec())

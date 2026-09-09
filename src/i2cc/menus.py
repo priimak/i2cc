@@ -1,8 +1,11 @@
+from functools import partial
+
 from PySide6.QtWidgets import QMenu, QMenuBar, QMessageBox, QWidget
 from pytide6 import Menu
 
 from i2cc import __version__
 from i2cc.app import App
+from i2cc.dongles.dongle_selector_dialog import select_dongle
 from i2cc.find_actions_dialog import FindActionDialog
 from i2cc.project.projects_gui import (
     DeleteProjectDialog,
@@ -45,7 +48,7 @@ class FileMenu(QMenu):
 class DongleMenu(QMenu):
     def __init__(self, parent: QMenuBar, app: App):
         super().__init__("&Dongle", parent)
-        self.addAction("&Connect")
+        self.addAction("&Connect", partial(select_dongle, app))
         self.addAction("&Reset Dongle")
 
 

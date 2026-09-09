@@ -1,5 +1,6 @@
 import time
 from queue import Queue
+from typing import Callable
 
 from bitstring import BitArray
 from i2c_api import I2CMaster, RegisterAddress
@@ -97,14 +98,14 @@ class I2COpThread(QThread):
     request_re_read_all_registers = Signal()
     request_highlight_off = Signal()
 
-    def __init__(self, /):
+    def __init__(self, i2c_provider: Callable[[], I2CMaster]):
         super().__init__()
         self.commands = Queue()
-        self._i2c_driver: I2CMaster | None = None
+        self.i2c_provider = i2c_provider
 
     @property
-    def i2c(self) -> I2CMaster | None:
-        return self._i2c_driver
+    def i2c(self) -> I2CMaster:
+        return self.i2c_provider()
 
     def write_register_at_addr(
         self,

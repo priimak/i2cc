@@ -1,5 +1,5 @@
-from bitstring import BitArray, Bits
-from i2c_api import I2CLogger, I2CMaster, I2CTransaction, RegisterAddress
+from bitstring import Bits
+from i2c_api import ExecResults, I2CLogger, I2CMaster, I2CTransaction, RegisterAddress
 from i2capi_i2cdriver.i2cdriver_api import DummyI2CLogger
 
 
@@ -7,8 +7,11 @@ class DummyI2CMaster(I2CMaster):
     def __init__(self):
         self.__logger = DummyI2CLogger()
 
-    def _exec(self, transaction: I2CTransaction) -> tuple[list[list[BitArray]], bool]:
-        return [], True
+    def __repr__(self) -> str:
+        return "DummyI2CDriver"
+
+    def _exec(self, transaction: I2CTransaction) -> ExecResults:
+        return ExecResults([], True)
 
     def logger(self) -> I2CLogger:
         return self.__logger
@@ -48,13 +51,13 @@ class DummyI2CMaster(I2CMaster):
         return []
 
     def list_pullups(self) -> list[str]:
-        return ["4.7K"]
+        return ["disabled"]
 
     def set_pullup(self, pullup_value: str) -> None:
         pass
 
     def get_pullup(self) -> str:
-        return ""
+        return "disabled"
 
     def list_clk_speeds(self) -> list[int]:
         return [100]

@@ -1,8 +1,8 @@
-from i2c_api import I2CMaster
 from pytide6 import ComboBox, HBoxPanel, Label, PushButton, VBoxPanel, W
 from pytide6.inputs import LineEdit
 
 from i2cc.app import App
+from i2cc.dongles.dongles import I2CMasterContainer
 
 
 class AddrSelector(ComboBox):
@@ -24,12 +24,13 @@ class SpeedSelector(ComboBox):
             current_selection=app.persistence.config.get_by_xpath("/speed"),
         )
         self.app = app
-        self.app.i2c.set_clk_speed(int(self.currentText()[0:3]))
+        self.app.i2c.set_clk_speed(int(app.persistence.config.get_by_xpath("/speed")[0:3]))
 
         def change_speed(new_speed: str) -> None:
-            self.app.i2c.set_clk_speed(int(new_speed[0:3]))
-            self.setCurrentText(f"{self.app.i2c.get_clk_speed()} KHz")
-            self.app.persistence.config.set_by_xpath("/speed", self.currentText())
+            if new_speed != "":
+                self.app.i2c.set_clk_speed(int(new_speed[0:3]))
+                self.setCurrentText(f"{self.app.i2c.get_clk_speed()} KHz")
+                self.app.persistence.config.set_by_xpath("/speed", self.currentText())
 
         self.currentTextChanged.connect(change_speed)
 
@@ -44,7 +45,8 @@ class PullUpResistorSelector(ComboBox):
         self.setCurrentText(self.app.i2c.get_pullup())
 
         def change_pullup_value(new_resistance: str) -> None:
-            self.app.i2c.set_pullup(new_resistance)
+            if new_resistance != "":
+                self.app.i2c.set_pullup(new_resistance)
 
         self.currentTextChanged.connect(change_pullup_value)
 
@@ -117,8 +119,13 @@ class CommandsPanel(VBoxPanel):
         )
         self.addWidget(HBoxPanel([W(Label(""), stretch=1), panel, W(Label(""), stretch=1)]))
 
-    def i2c_master_changed(self, i2c: I2CMaster) -> None:
+    def i2c_master_changed(self, i2c: I2CMasterContainer) -> None:
         self.pullup_selector.clear()
-        self.pullup_selector.addItems(i2c.list_pullups())
+        pullup_value_to_set = i2c.driver.get_pullup()
+        self.pullup_selector.addItems(i2c.driver.list_pullups())
+        self.pullup_selector.setCurrentText(pullup_value_to_set)
 
-        # TODO: re-read clk speed values and update UI
+        self.speed_selector.clear()
+        clock_speed_to_set = f"{i2c.driver.get_clk_speed()} KHz"
+        self.speed_selector.addItems([f"{s} KHz" for s in i2c.driver.list_clk_speeds()])
+        self.speed_selector.setCurrentText(clock_speed_to_set)

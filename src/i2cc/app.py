@@ -4,14 +4,12 @@ from pathlib import Path
 from bitstring import BitArray
 from i2c_api import I2CLogger, I2CMaster
 from i2c_api.log import I2CTransactionElement
-from i2capi_i2cdriver import I2CMasterI2CDriver
-from i2cdriver import I2CDriver
 from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox
 from rgscore import Register
 from sprats.collections import Variable
 from sprats.config import AppPersistence
 
-from i2cc.dummy_i2cmaster import DummyI2CMaster
+from i2cc.dongles.dongles import SUPPORTED_DONGLES_DICT, I2CMasterContainer, mk_DummyI2CMaster
 from i2cc.i2c_op_thread import HighlightOff, I2COpThread, ReadRegister, WriteRegister
 from i2cc.project.project import Projects
 from i2cc.registers.reg_read_results import ShowRegSignalData
@@ -27,12 +25,24 @@ class InAppI2CLogger(I2CLogger):
 
 class App:
     def __init__(self, persistence: AppPersistence, q_application: QApplication):
-        self._i2c_driver: I2CMaster | None = None
+        last_selected_device = persistence.config.get_value("last_selected_device", dict)
+        self.i2c_logger = InAppI2CLogger(self.append_i2c_log_message)
+        self.i2c_master = Variable[I2CMasterContainer](None, clazz=I2CMasterContainer)
+        if last_selected_device != dict():
+            try:
+                self.i2c_master.value = SUPPORTED_DONGLES_DICT[last_selected_device["make_and_model"]].cons(
+                    last_selected_device["port"], self.i2c_logger
+                )
+            except Exception:
+                self.i2c_master.value = mk_DummyI2CMaster("COM", None)
+        else:
+            self.i2c_master.value = mk_DummyI2CMaster("COM", None)
+
         self.port: str | None = None
         self.persistence = persistence
         self.q_application = q_application
-        self.i2c_logger = InAppI2CLogger(self.append_i2c_log_message)
-        self.i2c_master_changed: list[Callable[[I2CMaster], None]] = []
+        self.i2c_master_changed: list[Callable[[I2CMasterContainer], None]] = []
+        self.i2c_master.register_value_change_callback(lambda m: [c(m) for c in self.i2c_master_changed])
 
         self.device_address: int = -1
         self.read_register_num_bytes: Variable[int] = Variable(1, valid_values=[1, 2, 3, 4])
@@ -61,7 +71,7 @@ class App:
         self.append_custom_commands_log_stdout: Callable[[str], None] = lambda _: None
         self.request_commands_reload: Callable[[bool], None] = lambda _: None
 
-        self.op_thread = I2COpThread()
+        self.op_thread = I2COpThread(lambda: self.i2c)
         self.op_thread.show_error.connect(self.show_error)
         self.op_thread.start()
 
@@ -104,19 +114,8 @@ class App:
         return self._main_window
 
     @property
-    def i2c(self) -> I2CMaster | None:
-        return self._i2c_driver
-
-    def set_port(self, new_port: str | None) -> None:
-        if self.port != new_port:
-            self.port = new_port if len(new_port) > 0 else None
-            if self.port is None:
-                self._i2c_driver = DummyI2CMaster()
-            else:
-                self._i2c_driver = I2CMasterI2CDriver(I2CDriver(self.port), logger=self.i2c_logger)
-                self.op_thread._i2c_driver = self._i2c_driver
-                for c in self.i2c_master_changed:
-                    c(self._i2c_driver)
+    def i2c(self) -> I2CMaster:
+        return self.i2c_master.value.driver
 
     def scan(self) -> list[int]:
         return [] if self.i2c is None else self.i2c.scan()
