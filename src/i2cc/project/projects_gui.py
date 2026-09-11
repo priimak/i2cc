@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from collections.abc import Callable
+from enum import Enum, auto
 from typing import Any, override
 
 from PySide6.QtCore import (
@@ -10,9 +11,8 @@ from PySide6.QtCore import (
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QLabel,
-    QTableWidget,
 )
-from pytide6 import Dialog, HBoxPanel, Label, PushButton, RichTextLabel, VBoxLayout, W
+from pytide6 import Dialog, HBoxPanel, Label, Prompt, PushButton, RichTextLabel, VBoxLayout, W
 from pytide6.inputs import LineEdit
 from sprats.collections import Variable
 
@@ -24,15 +24,6 @@ from i2cc.gui_tools import (
     TableModelWithFilterAction,
     TableModelWithOneColumn,
 )
-
-
-class ProjectDialog(Dialog):
-    def __init__(self, parent, title: str) -> None:
-        super().__init__(parent, windowTitle=title, modal=True)
-        self.layout = VBoxLayout()
-        self.setLayout(self.layout)
-        self.layout.addWidget(Label(title))
-        self.projects = QTableWidget(self)
 
 
 class ProjectsModel(
@@ -207,6 +198,46 @@ class NewProjectDialog(SimpleProjectDialogBase):
             self.app.show_error(f"{ex}")
 
 
+class OverrideAction(Enum):
+    Override = auto()
+    EnterUnderADifferentName = auto()
+    Cancel = auto()
+
+
+class OverrideProjectDialog(Prompt[OverrideAction]):
+    def __init__(self, app: App, name: str):
+        super().__init__(
+            app.main_window, windowTitle="Override project on import?", default_value=OverrideAction.Cancel
+        )
+
+        def override():
+            self.retval = OverrideAction.Override
+            self.close()
+
+        def different_name():
+            self.retval = OverrideAction.EnterUnderADifferentName
+            self.close()
+
+        self.setLayout(
+            VBoxLayout(
+                [
+                    Label(
+                        f"Project under a name [{name}] already exits.\n"
+                        f"Do you want to override it or import under a different name?"
+                    ),
+                    HBoxPanel(
+                        [
+                            W(QLabel(), stretch=10),
+                            PushButton("Override", on_clicked=override),
+                            PushButton("Import under a different name", on_clicked=different_name),
+                            PushButton("Cancel", on_clicked=self.close),
+                        ]
+                    ),
+                ]
+            )
+        )
+
+
 class ImportNameProjectDialog(SimpleProjectDialogBase):
     def __init__(self, app: App, original_name: str):
         super().__init__(app, window_title="Import Project Under Name")
@@ -216,7 +247,7 @@ class ImportNameProjectDialog(SimpleProjectDialogBase):
                 [
                     Label(
                         f'Project under name "{original_name}" already exists.\n'
-                        "Please pick new name under which to import project"
+                        "Please pick a new name under which to import project"
                     ),
                     LineEdit("", min_width=100, reactive_variable=self.project_name),
                     self.actions_widgets("Ok"),
@@ -314,3 +345,14 @@ class DeleteProjectDialog(SimpleProjectDialogBase):
         self.app.delete_project(self.project_to_delete)
         self.close()
         self.app.update_project_selector_current_project(self.app.project.name)
+
+
+def project_name_picker(app: App, name: str) -> str | None:
+    match OverrideProjectDialog(app, name).prompt():
+        case OverrideAction.Override:
+            return name
+        case OverrideAction.EnterUnderADifferentName:
+            dialog = ImportNameProjectDialog(app, name).execute()
+            return None if dialog.project_name.value.strip() == "" else dialog.project_name.value
+        case _:  # Cancel action
+            return None

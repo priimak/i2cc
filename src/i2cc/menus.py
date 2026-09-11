@@ -71,7 +71,7 @@ class MainMenuBar(QMenuBar):
                         lambda: QMessageBox.about(
                             self,
                             "About",
-                            f"<html><H2>I2C GUI</H2><H4>Version: {__version__}</H4>"
+                            f"<html><H2>I2C Commander</H2><H4>Version: {__version__}</H4>"
                             '<p style="font-size:14px;">"While there is life there is hope. I beg to assert...that '
                             "as long as a man's heart beats, as long as a man's flesh quivers, I do not allow that "
                             'a being gifted with thought and will can allow himself to despair."</br>'
