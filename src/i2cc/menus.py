@@ -9,6 +9,7 @@ from i2cc.dongles.dongle_selector_dialog import select_dongle
 from i2cc.find_actions_dialog import FindActionDialog
 from i2cc.project.projects_gui import (
     DeleteProjectDialog,
+    DownloadProjectDialog,
     NewProjectDialog,
     OpenProjectDialog,
     RenameProjectDialog,
@@ -38,7 +39,9 @@ class FileMenu(QMenu):
         self.addSeparator()
         self.addAction("E&xport Project to File", app.export_project)
         self.addAction("&Import Project from File", app.import_project)
-        self.addAction("I&mport Official Project")
+        self.addSeparator()
+        self.addAction("Do&wnload Official Project", lambda: DownloadProjectDialog(app).exec())
+        self.addAction("Download Project from &URL", None)
         self.addSeparator()
         self.addAction("S&ettings", show_settings_window)
         self.addSeparator()

@@ -9,6 +9,7 @@ from pathlib import Path
 from types import CodeType
 from typing import Any, Self
 
+import requests
 from rgscore import RegList
 
 PROJECT_RE = re.compile("^[a-zA-Z0-9_]+$")
@@ -297,6 +298,35 @@ class Projects:
                 return project.name
             else:
                 return None
+
+    def download_project_data_from_url(self, url: str) -> str | None:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return gzip.decompress(response.content).decode()
+            else:
+                return None
+        except Exception as ex:
+            print(ex)  # TODO: Emit message to show error dialog
+            return None
+
+    def import_project_from_data(self, txt: str, app) -> str | None:
+        from i2cc.project.projects_gui import project_name_picker
+
+        data = json.loads(txt)
+        project_name = data["project_name"]
+        name_to_save_under = (
+            project_name_picker(app, project_name) if project_name in self.list_projects() else project_name
+        )
+        if name_to_save_under is not None:
+            project = self.new_project(name_to_save_under, override_existing=True)
+            project.version_json_path.write_text(json.dumps(data["version"]))
+            project.reg_list_path.write_text(json.dumps(data["regList"]))
+            project.commands_path.write_text(json.dumps(data["commands"]))
+            project.notes_markdown_path.write_text(data["notes"])
+            return project.name
+        else:
+            return None
 
     def list_projects(self) -> list[str]:
         return json.loads(self.projects_file_path.read_text())
