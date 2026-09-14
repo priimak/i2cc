@@ -1,8 +1,8 @@
-from PySide6.QtWidgets import QTextEdit
+from qppte import QPythonPlainTextEdit
 
 
-class CodePreviewWidget(QTextEdit):
-    def __init__(self):
-        super().__init__()
+class CodePreviewWidget(QPythonPlainTextEdit):
+    def __init__(self, style="default"):
+        super().__init__(style=style)
         self.setStyleSheet("QTextEdit { font-family: 'Monospace'; }")
         self.setReadOnly(True)

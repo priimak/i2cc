@@ -5,10 +5,10 @@ from collections.abc import Callable
 
 from PySide6 import QtCore
 from PySide6.QtGui import QKeyEvent, Qt, QTextCursor
-from PySide6.QtWidgets import QPlainTextEdit
 from pytide6 import Dialog, HBoxPanel, PushButton, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
+from qppte import QPythonPlainTextEdit
 from sprats.collections import Variable
 
 from i2cc.app import App
@@ -19,11 +19,11 @@ COMMENT_REGEX = re.compile(r"^(\s*)#\s?")
 NO_COMMENT_REGEX = re.compile(r"^(\s*)")
 
 
-class CodeEditor(QPlainTextEdit):
+class CodeEditor(QPythonPlainTextEdit):
     space_key_event = QKeyEvent(QtCore.QEvent.Type.KeyPress, Qt.Key.Key_A, QtCore.Qt.KeyboardModifier.NoModifier, " ")
 
     def __init__(self, app: App, save_command: Callable[[], None]):
-        super().__init__()
+        super().__init__("light_bold")
         self.app = app
         self.save_command = save_command
         self.setStyleSheet("QTextEdit { font-family: 'Monospace'; }")
@@ -179,7 +179,7 @@ class CustomCommandsEditor(Dialog):
         self.command_label = Variable("" if cmd is None else cmd.label)
         self.code_editor = CodeEditor(app, self.save_command)
         if cmd is not None:
-            self.code_editor.appendPlainText(cmd.source_code)
+            self.code_editor.setCode(cmd.source_code)
 
         self.setLayout(
             VBoxLayout(

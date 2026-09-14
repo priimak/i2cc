@@ -53,12 +53,12 @@ class CommandsListModel(
     ):
         selected_indexes = selection.indexes()
         if selected_indexes == []:
-            self.code_preview_widget.setText("")
+            self.code_preview_widget.clear()
         else:
             selected_row = selected_indexes[0].row()
             cmd = self.app.project.get_custom_command_by_label(self.commands_to_display[selected_row].id)
             if cmd is not None:
-                self.code_preview_widget.setText(cmd.source_code)
+                self.code_preview_widget.setCode(cmd.source_code)
 
     def mk_commands_to_display(self) -> list[CommandLabelAndId]:
         return [CommandLabelAndId(c.label, c.label) for c in self.app.project.commands]
@@ -114,7 +114,7 @@ class CustomCommandsPanel(VBoxPanel):
         self.app = app
         self.app.request_commands_reload = self.request_commands_reload
 
-        self.code_preview_widget = CodePreviewWidget()
+        self.code_preview_widget = CodePreviewWidget("light_bold")
         commands_table_model = CommandsListModel(app, self.code_preview_widget)
         self.commands_table = ListTableView(
             table_model=commands_table_model,
