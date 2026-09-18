@@ -2,9 +2,10 @@ import dataclasses
 import re
 import traceback
 from collections.abc import Callable
+from typing import override
 
 from PySide6 import QtCore
-from PySide6.QtGui import QKeyEvent, Qt, QTextCursor
+from PySide6.QtGui import QFont, QKeyEvent, Qt
 from pytide6 import Dialog, HBoxPanel, PushButton, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
@@ -23,139 +24,40 @@ class CodeEditor(QPythonPlainTextEdit):
     space_key_event = QKeyEvent(QtCore.QEvent.Type.KeyPress, Qt.Key.Key_A, QtCore.Qt.KeyboardModifier.NoModifier, " ")
 
     def __init__(self, app: App, save_command: Callable[[], None]):
-        super().__init__("light_bold")
+        super().__init__(highlightStyle="light_bold")
         self.app = app
         self.save_command = save_command
-        self.setStyleSheet("QTextEdit { font-family: 'Monospace'; }")
+        self.setFont(QFont("Monospace"))
         char_width = self.fontMetrics().height()
         self.setMinimumHeight(char_width * 25)
 
-    def keyPressEvent(self, event: QKeyEvent, /) -> None:
+    @override
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
+        print(event)
         if event.type() == QtCore.QEvent.Type.KeyPress:
-            if key == Qt.Key.Key_Tab:
-                super().keyPressEvent(CodeEditor.space_key_event)
-                super().keyPressEvent(CodeEditor.space_key_event)
-                super().keyPressEvent(CodeEditor.space_key_event)
-                super().keyPressEvent(CodeEditor.space_key_event)
-                return
-
-            if key == Qt.Key.Key_Y and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
-                # delete line on Ctrl-y
-                c = self.textCursor()
-                c.select(QTextCursor.SelectionType.LineUnderCursor)
-                c.removeSelectedText()
-                c.deleteChar()
-                self.setTextCursor(c)
-                return
-
-            if (
-                key == Qt.Key.Key_Up
-                and event.modifiers()
-                == QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.KeyboardModifier.ShiftModifier
-            ):
-                c = self.textCursor()
-                at_column = c.columnNumber()
-                c.select(QTextCursor.SelectionType.LineUnderCursor)
-                line_to_move = c.selection().toPlainText()
-                c.removeSelectedText()
-                c.deleteChar()
-                c.movePosition(QTextCursor.MoveOperation.Up)
-                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
-                c.insertText(line_to_move + "\n")
-                c.movePosition(QTextCursor.MoveOperation.Up)
-                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
-                c.movePosition(QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.MoveAnchor, at_column)
-                self.setTextCursor(c)
-                return
-
-            if (
-                key == Qt.Key.Key_Down
-                and event.modifiers()
-                == QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.KeyboardModifier.ShiftModifier
-            ):
-                c = self.textCursor()
-                at_column = c.columnNumber()
-                c.select(QTextCursor.SelectionType.LineUnderCursor)
-                line_to_move = c.selection().toPlainText()
-                c.removeSelectedText()
-                c.deleteChar()
-                c.movePosition(QTextCursor.MoveOperation.Down)
-                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
-                c.insertText(line_to_move + "\n")
-                c.movePosition(QTextCursor.MoveOperation.Up)
-                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
-                c.movePosition(QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.MoveAnchor, at_column)
-                self.setTextCursor(c)
-                return
-
-            if key == Qt.Key.Key_D and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
-                # duplicate line
-                c = self.textCursor()
-                at_column = c.columnNumber()
-                c.select(QTextCursor.SelectionType.LineUnderCursor)
-                line_str = c.selection().toPlainText()
-                c.movePosition(QTextCursor.MoveOperation.EndOfLine)
-                c.insertText(f"\n{line_str}")
-                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
-                c.movePosition(QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.MoveAnchor, at_column)
-                self.setTextCursor(c)
-                return
-
-            if key == Qt.Key.Key_Slash and event.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier:
-                # (Un)Comment out line or selection of lines on Ctrl-/
-                c = self.textCursor()
-                one_line_comment = False
-                if not c.hasSelection():
-                    c.select(QTextCursor.SelectionType.LineUnderCursor)
-                    one_line_comment = True
-
-                selection_start = c.selectionStart()
-                selection_end = c.selectionEnd()
-
-                c.setPosition(selection_start)
-                c.movePosition(QTextCursor.MoveOperation.StartOfLine)
-                start_position = c.position()
-                c.setPosition(selection_end)
-                c.movePosition(QTextCursor.MoveOperation.EndOfLine)
-                end_position = c.position()
-                c.setPosition(start_position)
-                c.setPosition(end_position, QTextCursor.MoveMode.KeepAnchor)
-
-                lines: list[str] = c.selectedText().splitlines()
-                new_lines = []
-                for line in lines:
-                    comment_match = COMMENT_REGEX.match(line)
-                    if comment_match:
-                        new_lines.append(re.sub(COMMENT_REGEX, r"\1", line))
-                    else:
-                        new_lines.append(re.sub(NO_COMMENT_REGEX, r"\1# ", line))
-
-                new_text_block = "\n".join(new_lines)
-                c.beginEditBlock()
-                c.removeSelectedText()
-                c.insertText(new_text_block)
-                c.endEditBlock()
-
-                if one_line_comment:
-                    c.movePosition(QTextCursor.MoveOperation.Down)
-                else:
-                    # try to keep selection; it will be distorted a bit most of the time though
-                    c.setPosition(start_position)
-                    c.setPosition(
-                        min(start_position + len(new_text_block), self.document().characterCount() - 1),
-                        QTextCursor.MoveMode.KeepAnchor,
-                    )
-
-                self.setTextCursor(c)
-                return
-
             if (
                 key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]
                 and event.modifiers() == Qt.KeyboardModifier.ControlModifier
             ):
                 self.save_command()
                 return
+
+            if (
+                key == Qt.Key.Key_Plus
+                and event.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+            ):
+                font = self.font()
+                font.setPointSize(font.pointSize() + 1)
+                self.setFont(font)
+
+            if (
+                key == Qt.Key.Key_Underscore
+                and event.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+            ):
+                font = self.font()
+                font.setPointSize(font.pointSize() - 1)
+                self.setFont(font)
 
         super().keyPressEvent(event)
 
@@ -179,7 +81,7 @@ class CustomCommandsEditor(Dialog):
         self.command_label = Variable("" if cmd is None else cmd.label)
         self.code_editor = CodeEditor(app, self.save_command)
         if cmd is not None:
-            self.code_editor.setCode(cmd.source_code)
+            self.code_editor.setPlainText(cmd.source_code)
 
         self.setLayout(
             VBoxLayout(

@@ -58,7 +58,7 @@ class CommandsListModel(
             selected_row = selected_indexes[0].row()
             cmd = self.app.project.get_custom_command_by_label(self.commands_to_display[selected_row].id)
             if cmd is not None:
-                self.code_preview_widget.setCode(cmd.source_code)
+                self.code_preview_widget.setPlainText(cmd.source_code)
 
     def mk_commands_to_display(self) -> list[CommandLabelAndId]:
         return [CommandLabelAndId(c.label, c.label) for c in self.app.project.commands]

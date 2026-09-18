@@ -204,6 +204,16 @@ class I2CDriverWindow(MainWindow):
 def main():
     app = QApplication(sys.argv)
 
+    # # Fetch all available font family names
+    # db = QtGui.QFontDatabase
+    # font_families = db.families()
+    #
+    #
+    # # Print the list of fonts
+    # for font in font_families:
+    #     if db.isFixedPitch(font):
+    #         print(font)
+
     persistence = AppPersistence(
         app_name="i2cc",
         override_config_if_different_version=True,
