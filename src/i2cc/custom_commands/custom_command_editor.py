@@ -5,7 +5,7 @@ from collections.abc import Callable
 from typing import override
 
 from PySide6 import QtCore
-from PySide6.QtGui import QFont, QKeyEvent, Qt
+from PySide6.QtGui import QKeyEvent, Qt
 from pytide6 import Dialog, HBoxPanel, PushButton, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
@@ -27,14 +27,12 @@ class CodeEditor(QPythonPlainTextEdit):
         super().__init__(highlightStyle="light_bold")
         self.app = app
         self.save_command = save_command
-        self.setFont(QFont("Monospace"))
         char_width = self.fontMetrics().height()
         self.setMinimumHeight(char_width * 25)
 
     @override
     def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
-        print(event)
         if event.type() == QtCore.QEvent.Type.KeyPress:
             if (
                 key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]
@@ -42,22 +40,6 @@ class CodeEditor(QPythonPlainTextEdit):
             ):
                 self.save_command()
                 return
-
-            if (
-                key == Qt.Key.Key_Plus
-                and event.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
-            ):
-                font = self.font()
-                font.setPointSize(font.pointSize() + 1)
-                self.setFont(font)
-
-            if (
-                key == Qt.Key.Key_Underscore
-                and event.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
-            ):
-                font = self.font()
-                font.setPointSize(font.pointSize() - 1)
-                self.setFont(font)
 
         super().keyPressEvent(event)
 
@@ -136,46 +118,3 @@ class CustomCommandsEditor(Dialog):
             tb_lines = traceback.format_exception(type(ex), ex, ex.__traceback__)
             x = "".join(tb_lines[2:])
             self.app.show_error(str(x))
-
-
-# if __name__ == '__main__':
-#     import tree_sitter_python as tspython
-#     from tree_sitter import Language, Parser
-#
-#     PY_LANGUAGE = Language(tspython.language())
-#     parser = Parser(PY_LANGUAGE)
-#     tree = parser.parse(
-#         bytes(
-#             """
-# if ctx.init_done is not None:
-#     print("Power-on init sequence was already done once")
-#     exit()
-#
-# read(dut.CHIP_ID)
-# read(dut.STATUS)
-# read(dut.INT_STATUS)
-#
-# if dut.CHIP_ID.chip_id == 0:
-#     print("Init failed. CHIP_ID is 0")
-#
-# elif dut.STATUS.status_nvm_rdy != 1:
-#     print(f"Init failed. STATUS.status_nvm_rdy is {dut.STATUS.status_nvm_rdy}")
-#
-# elif dut.STATUS.status_nvm_err != 0:
-#     print(f"Init failed. STATUS.status_nvm_err is {dut.STATUS.status_nvm_err}")
-#
-# elif dut.INT_STATUS.por != 1:
-#     print(f"Init failed. INT_STATUS.por is {dut.INT_STATUS.por}")
-#
-# else:
-#     print("Init success")
-#     ctx.init_done = True
-#     """,
-#             "utf8",
-#         )
-#     )
-#     root_node = tree.root_node
-#     print(root_node)
-#     cursor = root_node.walk()
-#     print(cursor)
-#
