@@ -472,7 +472,7 @@ for their fields and how to interpret them. Here is a definition for OSR registe
 <p>This will copy currently opened project under a new name and open it. This will be reflected in the project label in the
 lower left corner.</p>
 <p><img alt="" src="../images/new-project-label.png" /></p>
-<p>There are two ways to define a register. We will do first when we need to more informaton upfront. In the <em>RegList</em> tab
+<p>There are two ways to define a register. We will do first when we need to more information upfront. In the <em>RegList</em> tab
 click on "<em>Define new register</em>" button.</p>
 <p><img alt="" src="../images/define-new-register-main.png" /></p>
 <p>You will then be prompted to provide how wide is this register going to be, i.e. how many bits it will hold. The choices
@@ -481,10 +481,10 @@ next window "<em>Create new register</em>"</p>
 <p><img alt="" src="../images/define-new-register-dialog-1.png" /></p>
 <p>We enter register name <code>OSR_CONFIG</code> and address <code>0x36</code> and click a couple of times on
 "<em>Add New Field</em>" button. This gives us three, so far empty, fields. Now by clicking checkboxes on the left we pick bits
-assigned to each field and gieve each field a name as per manufacturer provoded documentation.</p>
+assigned to each field and gieve each field a name as per manufacturer provided documentation.</p>
 <p><img alt="" src="../images/define-new-register-dialog-2.png" /></p>
 <p>All fields above are read/write and have numeric types <code>U3.0</code>, <code>U3.0</code> and <code>U1.0</code>, i.e. they are all unsigned fixed point
-numbers with no fractional parts. This sybolic representation of fixed point numbers is know as 
+numbers with no fractional parts. This symbolic representation of fixed point numbers is know as 
 "<a href="https://en.wikipedia.org/wiki/Q_(number_format)">Q number format</a>". </p>
 <p>Let's click "<em>Ok</em>" and now in <em>RegList</em> table you will see one entry for our newly 
 defined register.</p>
@@ -492,7 +492,7 @@ defined register.</p>
 <p>In the <em>Results</em> panel on the left entry for this register has both name and an address.
 On the right of <em>RegList</em> table there is a user readable definition for this register as well 
 values stored in the raw data. The reason these values are show is that this register is present 
-in the left most <em>Results</em> table. We can re-read this register by double-clicking on <em>RegList</em> row for it or 
+in the left most <em>Results</em> table. We can reread this register by double-clicking on <em>RegList</em> row for it or 
 selecting it and clicking on "<em>Read Register</em>" button. By right mouse-clicking we can access its context menu.</p>
 <p><img alt="" src="../images/reglist-context-menu.png" /></p>
 <p>Option "<em>Read Register</em>" is first and default action for double-clicking. "<em>Delete register</em>" prompts you to confirm that you 

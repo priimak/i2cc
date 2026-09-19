@@ -574,8 +574,8 @@
 <h1 id="programing-devices-over-i2c">Programing devices over I2C<a class="headerlink" href="#programing-devices-over-i2c" title="Permanent link">&para;</a></h1>
 <p>Now that we know how to read and write individual registers we are ready to move up one level and use Python language
 for programming devices directly inside <em>I2C Commander</em>. We use Python version 3.13 and inject into default environment
-several variables, methods and classes useful for working with I2C devices. Below we will walk through several examples
-to showcase how to write such programms/commands.</p>
+several variables, methods, and classes useful for working with I2C devices. Below we will walk through several examples
+to showcase how to write such programs/commands.</p>
 <p>As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.</p>
 <h2 id="bmp581-initialization">BMP581 initialization<a class="headerlink" href="#bmp581-initialization" title="Permanent link">&para;</a></h2>
 <p>According to the datasheet after powering up the chip it is recommended to read several registers and confirm specific
@@ -641,8 +641,8 @@ code will execute and print <code>Init success</code> in <em>Output Console</em>
 <code>Power-on init sequence was already done once</code>.</p>
 <h2 id="mapping-odr-to-human-readable-values">Mapping ODR to human-readable values<a class="headerlink" href="#mapping-odr-to-human-readable-values" title="Permanent link">&para;</a></h2>
 <p>Fixed point number numerical format is often not enough to express content of the registers in human-readable form. For
-example <code>ODR_CONFIG</code> register has field called <code>odr</code>. It holds a value which maps to the actual output data rate in
-Hertz using lookup table. For example value <code>0x0</code> maps to <code>240</code> Hz, <code>0x1</code> to <code>218.537</code> Hz and so on. Thus, we need to
+example, <code>ODR_CONFIG</code> register has field called <code>odr</code>. It holds a value which maps to the actual output data rate in
+Hertz using lookup table. For example, value <code>0x0</code> maps to <code>240</code> Hz, <code>0x1</code> to <code>218.537</code> Hz and so on. Thus, we need to
 create a list where value and index is a string that holds representation of output data rate in Hertz. We will place
 this list into context <code>ctx</code> and initialize it in special command <code>__start__</code>.</p>
 <p>Command named <code>__start__</code> is executed automatically when project is loaded including when <em>I2C Commander</em> starts and
@@ -698,7 +698,7 @@ accessing <code>ctx.ODR_HZ</code> array at position of <code>ODR_CONFIG.odr</cod
     <span class="n">Variable</span><span class="p">(</span>
         <span class="n">current_odr_value</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Output Data Rate [Hz]"</span>
     <span class="p">)</span>
-<span class="p">)</span>
+<span class="p">)</span><span class="n">you</span>
 </code></pre></div>
 <p>Function <code>prompt_user(...)</code> builds a GUI dialog window using drop down boxes, check boxes or string input fields and
 presents it to the user. This GUI will always have <code>Ok</code> and <code>Cancel</code> buttons. If user clicks on <code>Cancel</code> or simply
@@ -708,7 +708,7 @@ function returns values selected by the user in that dialog window. This functio
 the example above it has <code>valid_values</code> set to an array of values <code>ctx.ODR_HZ</code>. This means that it will be shown as drop
 down box with fixed choice selection. Initially it will be shown with value held in variable
 <code>current_odr_value</code>. To the left of label "<code>Output Data Rate [Hz]</code>" will appear. Since <code>current_odr_value</code> is a string
-returned value writen into <code>odr</code> variable will also be a string.</p>
+returned value written into <code>odr</code> variable will also be a string.</p>
 <p>In a next few lines:</p>
 <div class="highlight"><pre><span></span><code><span class="n">new_odr_field_value</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">ODR_HZ</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">odr</span><span class="p">)</span>
 <span class="n">dut</span><span class="o">.</span><span class="n">ODR_CONFIG</span><span class="o">.</span><span class="n">odr</span> <span class="o">=</span> <span class="n">new_odr_field_value</span>

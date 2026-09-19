@@ -526,7 +526,7 @@ see almost exactly what you saw when you closed it. A new project can be created
 <p>Currently active project is shown in the left lower corner.</p>
 <p><img alt="" src="../images/where-is-project.png" /></p>
 <p>Clock speed by default is 100 KHz, but you can select higher value in <code>Speed</code> drop down box. Note that at higher speeds
-you may need to lower value of the pullup resitor.</p>
+you may need to lower value of the pullup resistor.</p>
 <p><img alt="" src="../images/speed-and-pullup.png" /></p>
 <p>At the device address 0x47 I have
 <a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>
@@ -557,7 +557,7 @@ and the data lines. This concludes the transaction.</p>
 <p>Indeed, you can see that value of this register is <code>0b01010000</code> as per the specification for this device.</p>
 <p>Register at 0x1, however, is read/only, and so we cannot use it show write operation. Register 0x36 is read/write. It
 controls oversampling and selection if we want to measure pressure (temperature measurements are always enabled). To set
-overampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write
+oversampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write
 <code>0b01000000</code> into this register. To that end we enter <code>0b01000000</code> into <em>Value:</em> field and <code>0x36</code> into <em>Addr:</em> and press
 <code>Write Register</code> button.</p>
 <p><img alt="" src="../images/write-register-input.png" /></p>
@@ -577,7 +577,7 @@ come to see what "<em>Define register</em>" do in the next page of this tutorial
 <p>In BMP581 all registers hold one byte and their addresses fit into one byte. If you request to read two or more bytes
 for a given register different things can happen depending on the make and model of the slave device. Sometimes it will
 simply return the same byte as many times as you have requested it. In case of BMP581 it will actually return value of
-the subsequent registers. For example register <code>0x02</code> holds ASIC revision ID which will be <code>0b00110010</code>. Let's request
+the subsequent registers. For example, register <code>0x02</code> holds ASIC revision ID which will be <code>0b00110010</code>. Let's request
 to read two bytes for register at address <code>0x01</code>.</p>
 <p><img alt="" src="../images/read-register-two-bytes-input.png" /></p>
 <p>At the bottom of application you will see following transaction log</p>

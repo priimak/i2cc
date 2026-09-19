@@ -783,7 +783,7 @@
 
 <h1 id="programming-language-reference">Programming language reference<a class="headerlink" href="#programming-language-reference" title="Permanent link">&para;</a></h1>
 <p>Language used in the code for custom commands is Python 3.13. Below we describe in 
-details additional variables, functions and objects available to developer of the 
+details additional variables, functions, and objects available to developer of the 
 custom commands that aid access to the I2C devices and their registers.</p>
 <h2 id="variables">Variables<a class="headerlink" href="#variables" title="Permanent link">&para;</a></h2>
 <h3 id="__project_name__"><strong>__project_name__</strong><a class="headerlink" href="#__project_name__" title="Permanent link">&para;</a></h3>
@@ -831,7 +831,7 @@ corresponding register on connected I2C device. This function returns None.</p>
 <h3 id="variable"><strong>Variable</strong><a class="headerlink" href="#variable" title="Permanent link">&para;</a></h3>
 <p>Class <code>Variable</code> is a wrapper over any regular python variable that adds various metadata
 that is used to build GUI dialog when method <code>prompt_user(...)</code> is called. Its first 
-agument is value that is to be wrapped inside of this class. Other two arguments
+argument is value that is to be wrapped inside of this class. Other two arguments
 are optional </p>
 <ul>
 <li><code>valid_values</code> - array of possible values which can be assigned to the value contained 
