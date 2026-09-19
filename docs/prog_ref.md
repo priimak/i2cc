@@ -1,7 +1,7 @@
 # Programming language reference
 
 Language used in the code for custom commands is Python 3.13. Below we describe in 
-details additional variables, functions and objects available to developer of the 
+details additional variables, functions, and objects available to developer of the 
 custom commands that aid access to the I2C devices and their registers.
 
 ## Variables
@@ -77,7 +77,7 @@ write(dut.OSR_CONFIG)
 
 Class `Variable` is a wrapper over any regular python variable that adds various metadata
 that is used to build GUI dialog when method `prompt_user(...)` is called. Its first 
-agument is value that is to be wrapped inside of this class. Other two arguments
+argument is value that is to be wrapped inside of this class. Other two arguments
 are optional 
 
 * `valid_values` - array of possible values which can be assigned to the value contained 

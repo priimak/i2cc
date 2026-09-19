@@ -17,7 +17,7 @@ lower left corner.
 
 ![](images/new-project-label.png)
 
-There are two ways to define a register. We will do first when we need to more informaton upfront. In the _RegList_ tab
+There are two ways to define a register. We will do first when we need to more information upfront. In the _RegList_ tab
 click on "_Define new register_" button.
 
 ![](images/define-new-register-main.png)
@@ -30,12 +30,12 @@ next window "_Create new register_"
 
 We enter register name `OSR_CONFIG` and address `0x36` and click a couple of times on
 "_Add New Field_" button. This gives us three, so far empty, fields. Now by clicking checkboxes on the left we pick bits
-assigned to each field and gieve each field a name as per manufacturer provoded documentation.
+assigned to each field and gieve each field a name as per manufacturer provided documentation.
 
 ![](images/define-new-register-dialog-2.png)
 
 All fields above are read/write and have numeric types `U3.0`, `U3.0` and `U1.0`, i.e. they are all unsigned fixed point
-numbers with no fractional parts. This sybolic representation of fixed point numbers is know as 
+numbers with no fractional parts. This symbolic representation of fixed point numbers is know as 
 "[Q number format](https://en.wikipedia.org/wiki/Q_(number_format))". 
 
 Let's click "_Ok_" and now in _RegList_ table you will see one entry for our newly 
@@ -46,7 +46,7 @@ defined register.
 In the _Results_ panel on the left entry for this register has both name and an address.
 On the right of _RegList_ table there is a user readable definition for this register as well 
 values stored in the raw data. The reason these values are show is that this register is present 
-in the left most _Results_ table. We can re-read this register by double-clicking on _RegList_ row for it or 
+in the left most _Results_ table. We can reread this register by double-clicking on _RegList_ row for it or 
 selecting it and clicking on "_Read Register_" button. By right mouse-clicking we can access its context menu.
 
 ![](images/reglist-context-menu.png)

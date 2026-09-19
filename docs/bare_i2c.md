@@ -31,7 +31,7 @@ Currently active project is shown in the left lower corner.
 ![](images/where-is-project.png)
 
 Clock speed by default is 100 KHz, but you can select higher value in `Speed` drop down box. Note that at higher speeds
-you may need to lower value of the pullup resitor.
+you may need to lower value of the pullup resistor.
 
 ![](images/speed-and-pullup.png)
 
@@ -73,7 +73,7 @@ Indeed, you can see that value of this register is `0b01010000` as per the speci
 
 Register at 0x1, however, is read/only, and so we cannot use it show write operation. Register 0x36 is read/write. It
 controls oversampling and selection if we want to measure pressure (temperature measurements are always enabled). To set
-overampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write
+oversampling rates to x1 for both pressure and temperature and enable pressure measurement we need to write
 `0b01000000` into this register. To that end we enter `0b01000000` into _Value:_ field and `0x36` into _Addr:_ and press
 `Write Register` button.
 
@@ -105,7 +105,7 @@ come to see what "_Define register_" do in the next page of this tutorial.
 In BMP581 all registers hold one byte and their addresses fit into one byte. If you request to read two or more bytes
 for a given register different things can happen depending on the make and model of the slave device. Sometimes it will
 simply return the same byte as many times as you have requested it. In case of BMP581 it will actually return value of
-the subsequent registers. For example register `0x02` holds ASIC revision ID which will be `0b00110010`. Let's request
+the subsequent registers. For example, register `0x02` holds ASIC revision ID which will be `0b00110010`. Let's request
 to read two bytes for register at address `0x01`.
 
 ![](images/read-register-two-bytes-input.png)

@@ -2,8 +2,8 @@
 
 Now that we know how to read and write individual registers we are ready to move up one level and use Python language
 for programming devices directly inside _I2C Commander_. We use Python version 3.13 and inject into default environment
-several variables, methods and classes useful for working with I2C devices. Below we will walk through several examples
-to showcase how to write such programms/commands.
+several variables, methods, and classes useful for working with I2C devices. Below we will walk through several examples
+to showcase how to write such programs/commands.
 
 As before we are working with BMP581 chip. We assume that all registers from the datasheet have already being defined.
 
@@ -88,8 +88,8 @@ code will execute and print `Init success` in _Output Console_. Subsequent calls
 ## Mapping ODR to human-readable values
 
 Fixed point number numerical format is often not enough to express content of the registers in human-readable form. For
-example `ODR_CONFIG` register has field called `odr`. It holds a value which maps to the actual output data rate in
-Hertz using lookup table. For example value `0x0` maps to `240` Hz, `0x1` to `218.537` Hz and so on. Thus, we need to
+example, `ODR_CONFIG` register has field called `odr`. It holds a value which maps to the actual output data rate in
+Hertz using lookup table. For example, value `0x0` maps to `240` Hz, `0x1` to `218.537` Hz and so on. Thus, we need to
 create a list where value and index is a string that holds representation of output data rate in Hertz. We will place
 this list into context `ctx` and initialize it in special command `__start__`.
 
@@ -167,7 +167,7 @@ odr = prompt_user(
     Variable(
         current_odr_value, valid_values=ctx.ODR_HZ, name="Output Data Rate [Hz]"
     )
-)
+)you
 ```
 
 Function `prompt_user(...)` builds a GUI dialog window using drop down boxes, check boxes or string input fields and
@@ -178,7 +178,7 @@ function returns values selected by the user in that dialog window. This functio
 the example above it has `valid_values` set to an array of values `ctx.ODR_HZ`. This means that it will be shown as drop
 down box with fixed choice selection. Initially it will be shown with value held in variable
 `current_odr_value`. To the left of label "`Output Data Rate [Hz]`" will appear. Since `current_odr_value` is a string
-returned value writen into `odr` variable will also be a string.
+returned value written into `odr` variable will also be a string.
 
 In a next few lines:
 
