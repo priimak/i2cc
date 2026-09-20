@@ -294,7 +294,11 @@ However, according to the definition for these registers fields are always inter
 bitarrays. To access field values as raw bitarrays you can append `_raw` suffix, which is what you see in this code
 
 ```python
-temp_C = S(16, [dut.TEMP_DATA_MSB.temp_23_16_raw, dut.TEMP_DATA_LSB.temp_15_8_raw, dut.TEMP_DATA_XLSB.temp_7_0_raw])
+temp_C = S(16, [
+    dut.TEMP_DATA_MSB.temp_23_16_raw, 
+    dut.TEMP_DATA_LSB.temp_15_8_raw, 
+    dut.TEMP_DATA_XLSB.temp_7_0_raw
+])
 ```
 
 Function `S(...)` combines input bitarrays into one large one and interprets it as a signed number. It takes two
@@ -308,7 +312,11 @@ This means that if fields have types U8.0, then you can simply use them when cal
 This is actually the case temperature fields above and thus code above can be shorted to
 
 ```python
-temp_C = S(16, [dut.TEMP_DATA_MSB.temp_23_16, dut.TEMP_DATA_LSB.temp_15_8, dut.TEMP_DATA_XLSB.temp_7_0])
+temp_C = S(16, [
+    dut.TEMP_DATA_MSB.temp_23_16, 
+    dut.TEMP_DATA_LSB.temp_15_8, 
+    dut.TEMP_DATA_XLSB.temp_7_0
+])
 ```
 
 If field is not `U8.0`, then you **must** access it with `_raw` suffix when calling `S(...)` or `U(...)` functions.
