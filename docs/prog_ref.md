@@ -154,6 +154,6 @@ temp_C = S(16, [
 ])
 ```
 
-## **S (n, [BitArray])**
+## **S (n, [BitArray | int])**
 
 Same as function `U(...)` but it interprets combined BitArray as signed number.
