@@ -491,7 +491,7 @@
   <a href="#read" class="md-nav__link">
     <span class="md-ellipsis">
       
-        read(...)
+        read (...)
       
     </span>
   </a>
@@ -502,7 +502,7 @@
   <a href="#write" class="md-nav__link">
     <span class="md-ellipsis">
       
-        write(...)
+        write (...)
       
     </span>
   </a>
@@ -524,7 +524,7 @@
   <a href="#prompt_user" class="md-nav__link">
     <span class="md-ellipsis">
       
-        prompt_user(...)
+        prompt_user (...)
       
     </span>
   </a>
@@ -537,10 +537,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#un-bitarray" class="md-nav__link">
+  <a href="#u-n-bitarray-int" class="md-nav__link">
     <span class="md-ellipsis">
       
-        U(n, [BitArray])
+        U (n, [BitArray | int])
       
     </span>
   </a>
@@ -548,10 +548,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sn-bitarray" class="md-nav__link">
+  <a href="#s-n-bitarray" class="md-nav__link">
     <span class="md-ellipsis">
       
-        S(n, [BitArray])
+        S (n, [BitArray])
       
     </span>
   </a>
@@ -697,7 +697,7 @@
   <a href="#read" class="md-nav__link">
     <span class="md-ellipsis">
       
-        read(...)
+        read (...)
       
     </span>
   </a>
@@ -708,7 +708,7 @@
   <a href="#write" class="md-nav__link">
     <span class="md-ellipsis">
       
-        write(...)
+        write (...)
       
     </span>
   </a>
@@ -730,7 +730,7 @@
   <a href="#prompt_user" class="md-nav__link">
     <span class="md-ellipsis">
       
-        prompt_user(...)
+        prompt_user (...)
       
     </span>
   </a>
@@ -743,10 +743,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#un-bitarray" class="md-nav__link">
+  <a href="#u-n-bitarray-int" class="md-nav__link">
     <span class="md-ellipsis">
       
-        U(n, [BitArray])
+        U (n, [BitArray | int])
       
     </span>
   </a>
@@ -754,10 +754,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sn-bitarray" class="md-nav__link">
+  <a href="#s-n-bitarray" class="md-nav__link">
     <span class="md-ellipsis">
       
-        S(n, [BitArray])
+        S (n, [BitArray])
       
     </span>
   </a>
@@ -782,69 +782,63 @@
 
 
 <h1 id="programming-language-reference">Programming language reference<a class="headerlink" href="#programming-language-reference" title="Permanent link">&para;</a></h1>
-<p>Language used in the code for custom commands is Python 3.13. Below we describe in 
-details additional variables, functions, and objects available to developer of the 
-custom commands that aid access to the I2C devices and their registers.</p>
+<p>Language used in the code for custom commands is Python 3.13. Below we describe in details additional variables,
+functions, and objects available to developer of the custom commands that aid access to the I2C devices and their
+registers.</p>
 <h2 id="variables">Variables<a class="headerlink" href="#variables" title="Permanent link">&para;</a></h2>
 <h3 id="__project_name__"><strong>__project_name__</strong><a class="headerlink" href="#__project_name__" title="Permanent link">&para;</a></h3>
-<p>Variable that holds name of the current project. </p>
+<p>Variable that holds name of the current project.</p>
 <h3 id="__command_name__"><strong>__command_name__</strong><a class="headerlink" href="#__command_name__" title="Permanent link">&para;</a></h3>
 <p>Variable that holds name of the command that is executing.</p>
 <h3 id="__device_address__"><strong>__device_address__</strong><a class="headerlink" href="#__device_address__" title="Permanent link">&para;</a></h3>
 <p>Integer variable that holds i2c device address as selected in the GUI.</p>
 <h2 id="objects">Objects<a class="headerlink" href="#objects" title="Permanent link">&para;</a></h2>
 <h3 id="ctx"><strong>ctx</strong><a class="headerlink" href="#ctx" title="Permanent link">&para;</a></h3>
-<p>Context object that persists across the project session. Project session refers to a 
-time duration when a given project is active. That is for example from the moment
-application starts and previously loaded project is loaded again until either application
-closes or user opens another project. Context object can be used to store arbitrary 
-variables and functions which become available to all defined custom commands. Assigning
-arbitrary variable in the context <code>ctx</code> creates it and attempts to access variable before it is being 
-assigned return <code>None</code>.</p>
+<p>Context object that persists across the project session. Project session refers to a time duration when a given project
+is active. That is for example from the moment application starts and previously loaded project is loaded again until
+either application closes or user opens another project. Context object can be used to store arbitrary variables and
+functions which become available to all defined custom commands. Assigning arbitrary variable in the context <code>ctx</code>
+creates it and attempts to access variable before it is being assigned return <code>None</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">ctx</span><span class="o">.</span><span class="n">OSR</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
 </code></pre></div>
 <h3 id="dut"><strong>dut</strong><a class="headerlink" href="#dut" title="Permanent link">&para;</a></h3>
-<p><em>Device Under Test</em> (aka DUT) object that use to access register and theirs field as defined in
-the <em>RegList</em>. For example</p>
-<div class="highlight"><pre><span></span><code><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span> <span class="c1"># the whole register</span>
-<span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p</span> <span class="c1"># field osr_p in the OSR_CONFIG register</span>
+<p><em>Device Under Test</em> (aka DUT) object that use to access register and theirs field as defined in the <em>RegList</em>. For
+example</p>
+<div class="highlight"><pre><span></span><code><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span>  <span class="c1"># the whole register</span>
+<span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p</span>  <span class="c1"># field osr_p in the OSR_CONFIG register</span>
 </code></pre></div>
-<p>Normal register fields are always interpreted as number according the fixed point number 
-definition in the register model in RegList. To access raw BitArray for a given field
-append <code>_raw</code> prefix.</p>
-<div class="highlight"><pre><span></span><code><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p_raw</span> <span class="c1"># returns raw BitArray object for a field osr_p</span>
+<p>Normal register fields are always interpreted as number according the fixed point number definition in the register
+model in RegList. To access raw BitArray for a given field append <code>_raw</code> prefix.</p>
+<div class="highlight"><pre><span></span><code><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="o">.</span><span class="n">osr_p_raw</span>  <span class="c1"># returns raw BitArray object for a field osr_p</span>
 </code></pre></div>
 <h2 id="functions-classes">Functions &amp; Classes<a class="headerlink" href="#functions-classes" title="Permanent link">&para;</a></h2>
-<h3 id="read"><strong>read(...)</strong><a class="headerlink" href="#read" title="Permanent link">&para;</a></h3>
-<p>This function takes register as an argument, reads register value from the connected device
-and updates register with read value. The reason we want to do that is because any register 
-in the <code>dut</code> object are in memory objects that hold last read or a default value. Calling this 
-function allows us to update register object in memory with register value as it is present
-in the I2C device. This function returns None.</p>
+<h3 id="read"><strong>read (...)</strong><a class="headerlink" href="#read" title="Permanent link">&para;</a></h3>
+<p>This function takes register as an argument, reads register value from the connected device and updates register with
+read value. The reason we want to do that is because any register in the <code>dut</code> object are in memory objects that hold
+last read or a default value. Calling this function allows us to update register object in memory with register value as
+it is present in the I2C device. This function returns None.</p>
 <div class="highlight"><pre><span></span><code><span class="n">read</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="p">)</span>
 </code></pre></div>
-<h3 id="write"><strong>write(...)</strong><a class="headerlink" href="#write" title="Permanent link">&para;</a></h3>
-<p>This function take register as an argument and writes its in-memory content into the 
-corresponding register on connected I2C device. This function returns None.</p>
+<h3 id="write"><strong>write (...)</strong><a class="headerlink" href="#write" title="Permanent link">&para;</a></h3>
+<p>This function take register as an argument and writes its in-memory content into the corresponding register on connected
+I2C device. This function returns None.</p>
 <div class="highlight"><pre><span></span><code><span class="n">write</span><span class="p">(</span><span class="n">dut</span><span class="o">.</span><span class="n">OSR_CONFIG</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="variable"><strong>Variable</strong><a class="headerlink" href="#variable" title="Permanent link">&para;</a></h3>
-<p>Class <code>Variable</code> is a wrapper over any regular python variable that adds various metadata
-that is used to build GUI dialog when method <code>prompt_user(...)</code> is called. Its first 
-argument is value that is to be wrapped inside of this class. Other two arguments
-are optional </p>
+<p>Class <code>Variable</code> is a wrapper over any regular python variable that adds various metadata that is used to build GUI
+dialog when method <code>prompt_user(...)</code> is called. Its first argument is value that is to be wrapped inside of this class.
+Other two arguments are optional</p>
 <ul>
-<li><code>valid_values</code> - array of possible values which can be assigned to the value contained 
-    inside. If not given, then any value can later be assigned to variable inside.</li>
+<li><code>valid_values</code> - array of possible values which can be assigned to the value contained inside. If not given, then any
+  value can later be assigned to variable inside.</li>
 <li><code>name</code> - user-friendly name associated with this variable.</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="n">Variable</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Sampling rate"</span><span class="p">)</span>
 </code></pre></div>
-<h3 id="prompt_user"><strong>prompt_user(...)</strong><a class="headerlink" href="#prompt_user" title="Permanent link">&para;</a></h3>
-<p>Given its arguments, which are one or more instances of <code>Variable</code> (see above) constructs
-and presents GUI input dialog to the user. If user clicks <code>Ok</code> button in the dialog, then it
-returns n-tuple of values selected by the user in the order in which <code>Variable</code> objects 
-were passed to this function.</p>
+<h3 id="prompt_user"><strong>prompt_user (...)</strong><a class="headerlink" href="#prompt_user" title="Permanent link">&para;</a></h3>
+<p>Given its arguments, which are one or more instances of <code>Variable</code> (see above) constructs and presents GUI input dialog
+to the user. If user clicks <code>Ok</code> button in the dialog, then it returns n-tuple of values selected by the user in the
+order in which <code>Variable</code> objects were passed to this function.</p>
 <div class="highlight"><pre><span></span><code><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">prompt_user</span><span class="p">(</span>
     <span class="n">Variable</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Offset"</span><span class="p">),</span>
     <span class="n">Variable</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">valid_values</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Scale factor"</span><span class="p">),</span>
@@ -873,17 +867,28 @@ were passed to this function.</p>
 <span class="k">else</span>
 <span class="w">    </span>show<span class="w"> </span>text<span class="w"> </span>input<span class="w"> </span>field<span class="w"> </span>with<span class="w"> </span>no<span class="w"> </span>validation<span class="w"> </span>and<span class="w"> </span>no<span class="w"> </span>contrains<span class="w"> </span>on<span class="w"> </span>its<span class="w"> </span>content<span class="w"> </span>
 </code></pre></div>
-<h2 id="un-bitarray"><strong>U(n, [BitArray])</strong><a class="headerlink" href="#un-bitarray" title="Permanent link">&para;</a></h2>
-<p>This function converts list of BitArray objects as one large BitArray into floating point 
-number according fixed point interpretation <code>U{w}.{n}</code> where <code>{w}</code> width of sum of all 
-BitArray objects and <code>{n}</code> is $1/2^n$ scaling factor.</p>
+<h2 id="u-n-bitarray-int"><strong>U (n, [BitArray | int])</strong><a class="headerlink" href="#u-n-bitarray-int" title="Permanent link">&para;</a></h2>
+<p>This function interprets list of either BitArray objects or integers as one large BitArray into floating point number
+according fixed point interpretation <code>U{w}.{n}</code> where <code>{w}</code> width of sum of all BitArray objects and <code>{n}</code> is $1/2^n$
+scaling factor.</p>
 <div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span>
-    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16_raw</span><span class="p">,</span> 
-    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8_raw</span><span class="p">,</span> 
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16_raw</span><span class="p">,</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8_raw</span><span class="p">,</span>
     <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0_raw</span>
 <span class="p">])</span>
 </code></pre></div>
-<h2 id="sn-bitarray"><strong>S(n, [BitArray])</strong><a class="headerlink" href="#sn-bitarray" title="Permanent link">&para;</a></h2>
+<p>If passed object is BitArray then it is concatenated into resulting BitArray as is. If object is an integer then it is
+converted into BitArray first by assuming that the int unsigned representation of one byte. This means that if field
+that is part of some larger number is one byte wide and is marked in register definition as <code>U8.0</code> then you do not have
+access raw bitarray data by adding <code>_raw</code> suffix and simply refer to the field by its name. In the example above all
+fields are <code>U8.0</code>, which means that above code can be written shorter as</p>
+<div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16</span><span class="p">,</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8</span><span class="p">,</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0</span>
+<span class="p">])</span>
+</code></pre></div>
+<h2 id="s-n-bitarray"><strong>S (n, [BitArray])</strong><a class="headerlink" href="#s-n-bitarray" title="Permanent link">&para;</a></h2>
 <p>Same as function <code>U(...)</code> but it interprets combined BitArray as signed number.</p>
 
 
