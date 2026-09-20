@@ -167,7 +167,8 @@ odr = prompt_user(
     Variable(
         current_odr_value, valid_values=ctx.ODR_HZ, name="Output Data Rate [Hz]"
     )
-)you
+)
+you
 ```
 
 Function `prompt_user(...)` builds a GUI dialog window using drop down boxes, check boxes or string input fields and
@@ -296,16 +297,27 @@ bitarrays. To access field values as raw bitarrays you can append `_raw` suffix,
 temp_C = S(16, [dut.TEMP_DATA_MSB.temp_23_16_raw, dut.TEMP_DATA_LSB.temp_15_8_raw, dut.TEMP_DATA_XLSB.temp_7_0_raw])
 ```
 
-Function `S(...)` interprets supplied bitarrays as a signed number. It takes two arguments. First argument is value of
-the fractional part in the fixed point number definition (in case above that is 16 as in `U24.16`) and second, array of
-bitarrays. Companion function `U(...)` is similar, but interprets combined bitarrays as unsigned number. Both functions
-`U(...)` and `S(...)` return floating point number after interpretation.
+Function `S(...)` combines input bitarrays into one large one and interprets it as a signed number. It takes two
+arguments. First argument is value of the fractional part in the fixed point number definition (in case above that is 16
+as in `U24.16`) and second, array of bitarrays or integers. Companion function `U(...)` is similar, but interprets
+combined bitarrays as unsigned number. Both functions `U(...)` and `S(...)` return floating point number after
+interpretation.
+
+If argument is an integer then it is converted to one byte bit array assuming that int represents unsigned 8 bit field.
+This means that if fields have types U8.0, then you can simply use them when calling `S(...)` or `U(...)` functions.
+This is actually the case temperature fields above and thus code above can be shorted to
+
+```python
+temp_C = S(16, [dut.TEMP_DATA_MSB.temp_23_16, dut.TEMP_DATA_LSB.temp_15_8, dut.TEMP_DATA_XLSB.temp_7_0])
+```
+
+If field is not `U8.0`, then you **must** access it with `_raw` suffix when calling `S(...)` or `U(...)` functions.
 
 ## Code auto-completion
 
-Some limited code autocompletion is present in the code edit window. When you type `dut.` the moment you enter the 
-dot `.` popup dialog with table of registers and fields opens where you can select register or register 
-and one of its fields as they are defined in the RegList. Like in many other tables in the I2C Commander you can start 
-typing to perform fuzzy search for entry that you need. 
+Some limited code autocompletion is present in the code edit window. When you type `dut.` the moment you enter the dot
+`.` popup dialog with table of registers and fields opens where you can select register or register and one of its
+fields as they are defined in the RegList. Like in many other tables in the I2C Commander you can start typing to
+perform fuzzy search for entry that you need.
 
 ![](images/register-autocomplete.gif)
