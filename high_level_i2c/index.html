@@ -795,7 +795,11 @@ user. Let's call it</p>
 <code>TEMP_DATA_MSB.temp_23_16</code> fields, combine them into one bitarray and interpret it as <code>U24.16</code> fixed point number.
 However, according to the definition for these registers fields are always interpreted as some numeric value, not raw
 bitarrays. To access field values as raw bitarrays you can append <code>_raw</code> suffix, which is what you see in this code</p>
-<div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16_raw</span><span class="p">,</span> <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8_raw</span><span class="p">,</span> <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0_raw</span><span class="p">])</span>
+<div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16_raw</span><span class="p">,</span> 
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8_raw</span><span class="p">,</span> 
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0_raw</span>
+<span class="p">])</span>
 </code></pre></div>
 <p>Function <code>S(...)</code> combines input bitarrays into one large one and interprets it as a signed number. It takes two
 arguments. First argument is value of the fractional part in the fixed point number definition (in case above that is 16
@@ -805,7 +809,11 @@ interpretation.</p>
 <p>If argument is an integer then it is converted to one byte bit array assuming that int represents unsigned 8 bit field.
 This means that if fields have types U8.0, then you can simply use them when calling <code>S(...)</code> or <code>U(...)</code> functions.
 This is actually the case temperature fields above and thus code above can be shorted to</p>
-<div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span><span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16</span><span class="p">,</span> <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8</span><span class="p">,</span> <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0</span><span class="p">])</span>
+<div class="highlight"><pre><span></span><code><span class="n">temp_C</span> <span class="o">=</span> <span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">[</span>
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_MSB</span><span class="o">.</span><span class="n">temp_23_16</span><span class="p">,</span> 
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_LSB</span><span class="o">.</span><span class="n">temp_15_8</span><span class="p">,</span> 
+    <span class="n">dut</span><span class="o">.</span><span class="n">TEMP_DATA_XLSB</span><span class="o">.</span><span class="n">temp_7_0</span>
+<span class="p">])</span>
 </code></pre></div>
 <p>If field is not <code>U8.0</code>, then you <strong>must</strong> access it with <code>_raw</code> suffix when calling <code>S(...)</code> or <code>U(...)</code> functions.</p>
 <h2 id="code-auto-completion">Code auto-completion<a class="headerlink" href="#code-auto-completion" title="Permanent link">&para;</a></h2>
