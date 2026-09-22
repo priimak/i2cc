@@ -15,6 +15,7 @@ from i2cc.project.projects_gui import (
     RenameProjectDialog,
     SaveAsProjectDialog,
 )
+from i2cc.settings_dialog import SettingDialog
 
 
 class FileMenu(QMenu):
@@ -43,7 +44,7 @@ class FileMenu(QMenu):
         self.addAction("Do&wnload Official Project", lambda: DownloadProjectDialog(app).exec())
         self.addAction("Download Project from &URL", None)
         self.addSeparator()
-        self.addAction("S&ettings", show_settings_window)
+        self.addAction("S&ettings", lambda: SettingDialog(app).exec())
         self.addSeparator()
         self.addAction("&Quit", lambda: app.exit_application[0]())
 

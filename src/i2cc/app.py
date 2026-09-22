@@ -65,6 +65,9 @@ class App:
         self.request_notes_reload: Callable[[], None] = lambda: None
         self.request_reglist_select_register: Callable[[Register], None] = lambda _: None
         self.show_last_i2c_log_message: Callable[[list], None] = lambda _: None
+        self.toggle_syntax_highlighting: Callable[[bool], None] = lambda _: None
+        self.set_syntax_highlighting_style: Callable[[str], None] = lambda _: None
+        self.update_code_font: Callable[[], None] = lambda _: None
 
         # called by results panel when register is read and result are (re)displayed
         self.registers_values_changed: Callable[[int], None] = lambda _: None

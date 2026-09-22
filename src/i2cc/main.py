@@ -3,7 +3,7 @@ from typing import override
 
 from PySide6 import QtGui
 from PySide6.QtCore import QByteArray, QLockFile, QSize, Qt
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtGui import QCloseEvent, QFont
 from PySide6.QtWidgets import (
     QApplication,
     QMessageBox,
@@ -202,7 +202,9 @@ class I2CDriverWindow(MainWindow):
 
 
 def main():
+    # QApplication.setFont(QtGui.QFont("Serif"))
     app = QApplication(sys.argv)
+    # app.setFont(QtGui.QFont("Serif"))
 
     # # Fetch all available font family names
     # db = QtGui.QFontDatabase
@@ -219,11 +221,34 @@ def main():
         override_config_if_different_version=True,
         init_config_data={
             "speed": "100",
-            "config_version": 2,
+            "config_version": 3,
             "last_open_project": "default",
             "last_selected_device": {},
+            "code_appearance": {
+                "font_family": "Monospace",
+                "syntax_highlight": True,
+                "syntax_highlight_style": "light_bold",
+            },
+            "global_appearance": {},
         },
     )
+    font_family = persistence.config.get_by_xpath("/global_appearance/font_family", str)
+    font_size = persistence.config.get_by_xpath("/global_appearance/font_size", int)
+    if font_family is None:
+        persistence.config.set_by_xpath("/global_appearance/font_family", app.font().family())
+    else:
+        app.setFont(QFont(font_family))
+
+    if font_size is None:
+        persistence.config.set_by_xpath("/global_appearance/font_size", app.font().pointSize())
+    else:
+        font = app.font()
+        font.setPointSize(font_size)
+        app.setFont(font)
+
+    if persistence.config.get_by_xpath("/code_appearance/font_size", int) is None:
+        # use the same size as the rest of the application
+        persistence.config.set_by_xpath("/code_appearance/font_size", app.font().pointSize())
 
     # Only one instance of this application can be run at a time. Following code attains that by using POSIX lock file.
     lock_file_path = (persistence.config.app_name_config_dir / "lock").absolute()

@@ -114,7 +114,7 @@ class CustomCommandsPanel(VBoxPanel):
         self.app = app
         self.app.request_commands_reload = self.request_commands_reload
 
-        self.code_preview_widget = CodePreviewWidget("light_bold")
+        self.code_preview_widget = CodePreviewWidget(app)
         commands_table_model = CommandsListModel(app, self.code_preview_widget)
         self.commands_table = ListTableView(
             table_model=commands_table_model,

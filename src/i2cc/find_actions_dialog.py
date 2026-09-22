@@ -60,6 +60,7 @@ ACTIONS = [
     Action("Read register", None),
     Action("Rename project", lambda app: RenameProjectDialog(app).exec()),
     Action("Save currently open project under a different name", lambda app: SaveAsProjectDialog(app).exec()),
+    Action("Scan and select device on I2C bus", None),
     Action("Write register", None),
 ]
 

@@ -5,7 +5,7 @@ from collections.abc import Callable
 from typing import override
 
 from PySide6 import QtCore
-from PySide6.QtGui import QKeyEvent, Qt
+from PySide6.QtGui import QFont, QKeyEvent, Qt
 from pytide6 import Dialog, HBoxPanel, PushButton, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
@@ -24,7 +24,15 @@ class CodeEditor(QPythonPlainTextEdit):
     space_key_event = QKeyEvent(QtCore.QEvent.Type.KeyPress, Qt.Key.Key_A, QtCore.Qt.KeyboardModifier.NoModifier, " ")
 
     def __init__(self, app: App, save_command: Callable[[], None]):
-        super().__init__(highlightStyle="light_bold")
+        super().__init__(
+            enableSyntaxHighlighting=app.persistence.config.get_by_xpath("/code_appearance/syntax_highlight", bool),
+            highlightStyle=app.persistence.config.get_by_xpath("/code_appearance/syntax_highlight_style", str),
+            font=QFont(
+                app.persistence.config.get_by_xpath("/code_appearance/font_family", str),
+                app.persistence.config.get_by_xpath("/code_appearance/font_size", int),
+            ),
+        )
+
         self.app = app
         self.save_command = save_command
         char_width = self.fontMetrics().height()
