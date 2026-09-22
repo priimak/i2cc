@@ -7,7 +7,7 @@ from i2cc.dongles.dongles import I2CMasterContainer
 
 class AddrSelector(ComboBox):
     def __init__(self, app: App):
-        super().__init__(on_text_change=app.device_address_changed)
+        super().__init__(items=[], on_text_change=app.device_address_changed)
         self.app = app
 
     def scan(self) -> None:

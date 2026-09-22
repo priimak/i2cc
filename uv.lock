@@ -285,7 +285,7 @@ requires-dist = [
     { name = "i2capi-i2cdriver", git = "https://github.com/priimak/i2capi_i2cdriver.git?rev=v0.7.2" },
     { name = "i2cdriver", specifier = "==1.0.6" },
     { name = "pyside6", specifier = "==6.11.2" },
-    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.22.4" },
+    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.22.5" },
     { name = "qppte", git = "https://github.com/priimak/qppte.git?rev=v0.5.0" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "rgscore", git = "https://github.com/priimak/rgscore.git?rev=v0.13.0" },
@@ -601,8 +601,8 @@ wheels = [
 
 [[package]]
 name = "pytide6"
-version = "0.22.4.post0+git.ff413dd1.dirty"
-source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.22.4#ff413dd1d363d0a6978f4a07ac5e454de401a4e8" }
+version = "0.22.5.post0+git.eec99cc8.dirty"
+source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.22.5#eec99cc844a12dc982d2650838eaaae6b93a6952" }
 dependencies = [
     { name = "pyside6" },
     { name = "sprats" },
