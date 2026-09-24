@@ -55,12 +55,11 @@ ACTIONS = [
     Action("Export project into file", lambda app: app.export_project()),
     Action("Connect to a new/different dongle", select_dongle),
     Action("Import project from file", lambda app: app.import_project()),
-    Action("Import official project from the internet", None),
     Action("Open project", lambda app: OpenProjectDialog(app).exec()),
     Action("Read register", None),
     Action("Rename project", lambda app: RenameProjectDialog(app).exec()),
     Action("Save currently open project under a different name", lambda app: SaveAsProjectDialog(app).exec()),
-    Action("Scan and select device on I2C bus", None),
+    Action("Scan and select device on I2C bus", lambda app: app.scan_and_show_select_device_dialog()),
     Action("Write register", None),
 ]
 

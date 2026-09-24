@@ -43,6 +43,8 @@ class App:
         self.q_application = q_application
         self.i2c_master_changed: list[Callable[[I2CMasterContainer], None]] = []
         self.i2c_master.register_value_change_callback(lambda m: [c(m) for c in self.i2c_master_changed])
+        self.scan_and_show_select_device_dialog: Callable[[], None] = lambda: None
+        self.select_device_address: Callable[[str], None] = lambda _: None
 
         self.device_address: int = -1
         self.read_register_num_bytes: Variable[int] = Variable(1, valid_values=[1, 2, 3, 4])

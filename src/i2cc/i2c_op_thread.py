@@ -18,6 +18,10 @@ class WithAddrStr:
         return f"0x{self.register_address:0{self.address_bus_width_in_bytes * 2}X}"
 
 
+class I2CBusScan(Command):
+    pass
+
+
 class ReadRegister(Command):
     __match_args__ = (
         "device_address",
@@ -97,6 +101,8 @@ class I2COpThread(QThread):
     highlight_register_at_addr = Signal(str)
     request_re_read_all_registers = Signal()
     request_highlight_off = Signal()
+    dismiss_scan_dialog = Signal()
+    set_available_addresses = Signal(list)
 
     def __init__(self, i2c_provider: Callable[[], I2CMaster]):
         super().__init__()
@@ -172,6 +178,10 @@ class I2COpThread(QThread):
         while True:
             cmd = self.commands.get()
             match cmd:
+                case I2CBusScan():
+                    self.set_available_addresses.emit(self.i2c.scan())
+                    self.dismiss_scan_dialog.emit()
+
                 case ReadRegister():
                     self.read_register_at_addr(cmd)
 

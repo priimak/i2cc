@@ -1,20 +1,51 @@
-from pytide6 import ComboBox, HBoxPanel, Label, PushButton, VBoxPanel, W
+from PySide6.QtWidgets import QMessageBox
+from pytide6 import ComboBox, Dialog, HBoxPanel, Label, PushButton, VBoxLayout, VBoxPanel, W
 from pytide6.inputs import LineEdit
+from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.dongles.dongles import I2CMasterContainer
+from i2cc.i2c_op_thread import I2CBusScan
+
+
+class SelectDeviceDialog(Dialog):
+    def __init__(self, app: App, addresses: list[int]):
+        super().__init__(app.main_window, windowTitle="Select device", modal=True)
+        addrs = [f"0x{a:X}" for a in addresses]
+        available_addresses = Variable(addrs[0], valid_values=addrs)
+
+        def ok():
+            app.select_device_address(available_addresses.value)
+            self.close()
+
+        self.setLayout(
+            VBoxLayout(
+                [
+                    HBoxPanel([Label("Select i2c device to use"), ComboBox(reactive_variable=available_addresses)]),
+                    W(stretch=1),
+                    HBoxPanel(
+                        [W(stretch=1), PushButton("Ok", on_clicked=ok), PushButton("Cancel", on_clicked=self.close)]
+                    ),
+                ]
+            )
+        )
 
 
 class AddrSelector(ComboBox):
     def __init__(self, app: App):
         super().__init__(items=[], on_text_change=app.device_address_changed)
         self.app = app
+        self.available_addresses = []
+        app.op_thread.set_available_addresses.connect(self.set_addresses)
+        self.app.select_device_address = self.setCurrentText
 
-    def scan(self) -> None:
-        addrs = [f"0x{a:X}" for a in self.app.scan()]
-        self.clear()
-        self.addItems(addrs)
-        self.app.device_address_changed(self.currentText())
+    def set_addresses(self, addresses: list[int]) -> None:
+        if self.available_addresses != addresses:
+            self.available_addresses.clear()
+            self.available_addresses.extend(addresses)
+            self.clear()
+            self.addItems([f"0x{a:X}" for a in addresses])
+            self.app.device_address_changed(self.currentText())
 
 
 class SpeedSelector(ComboBox):
@@ -59,13 +90,15 @@ class CommandsPanel(VBoxPanel):
         self.speed_selector = SpeedSelector(app)
         self.pullup_selector = PullUpResistorSelector(app)
         app.i2c_master_changed.append(self.i2c_master_changed)
+        app.scan_and_show_select_device_dialog = self.scan_and_show_select_device_dialog
+
         self.addWidget(
             HBoxPanel(
                 [
                     W(Label(""), stretch=1),
                     Label("I2C Device Address"),
                     self.addr_selector,
-                    PushButton("Scan", on_clicked=self.addr_selector.scan),
+                    PushButton("Scan", on_clicked=self.do_i2c_bus_scan),
                     Label("  |  "),
                     Label("Speed"),
                     self.speed_selector,
@@ -118,6 +151,26 @@ class CommandsPanel(VBoxPanel):
             margins=0,
         )
         self.addWidget(HBoxPanel([W(Label(""), stretch=1), panel, W(Label(""), stretch=1)]))
+
+    def do_i2c_bus_scan(self) -> None:
+        scan_dialog = QMessageBox(self.app.main_window)
+        scan_dialog.setStandardButtons(QMessageBox.StandardButton.Cancel)
+        connection = []
+
+        def close():
+            scan_dialog.close()
+            self.app.op_thread.dismiss_scan_dialog.disconnect(connection[0])
+
+        connection.append(self.app.op_thread.dismiss_scan_dialog.connect(close))
+        scan_dialog.setIcon(QMessageBox.Icon.Information)
+        scan_dialog.setText("Performing I2C bus scan ...")
+        scan_dialog.setModal(True)
+        self.app.op_thread.commands.put(I2CBusScan())
+        scan_dialog.exec()
+
+    def scan_and_show_select_device_dialog(self) -> None:
+        self.do_i2c_bus_scan()
+        SelectDeviceDialog(self.app, self.addr_selector.available_addresses).show()
 
     def i2c_master_changed(self, i2c: I2CMasterContainer) -> None:
         self.pullup_selector.clear()
