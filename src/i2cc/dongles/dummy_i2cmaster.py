@@ -1,11 +1,36 @@
 from bitstring import Bits
 from i2c_api import ExecResults, I2CLogger, I2CMaster, I2CTransaction, RegisterAddress
+from i2c_api.log import I2CTransactionElement
 from i2capi_i2cdriver.i2cdriver_api import DummyI2CLogger
 
 
 class DummyI2CMaster(I2CMaster):
     def __init__(self):
+        super().__init__()
         self.__logger = DummyI2CLogger()
+
+    def _write(
+        self,
+        address: int,
+        *,
+        data: Bits | str | int | list[int],
+        log_msg: list[I2CTransactionElement],
+        num_bytes: int | None,
+        end_with_stop: bool,
+        start_with_restart: bool,
+    ) -> bool:
+        return True
+
+    def _read(
+        self,
+        address: int,
+        *,
+        num_bytes: int,
+        log_msg: list[I2CTransactionElement],
+        end_with_stop: bool,
+        start_with_restart: bool,
+    ) -> Bits | None:
+        return None
 
     def __repr__(self) -> str:
         return "DummyI2CDriver"

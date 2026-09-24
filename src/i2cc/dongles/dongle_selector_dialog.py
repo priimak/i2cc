@@ -16,19 +16,25 @@ class DongleSelectorDialog(Prompt[bool]):
         if ports == []:
             ports = [""]
 
-        self.com_ports = ComboBox(items=ports, current_selection=ports[0])
+        com_ports = ComboBox(items=ports, current_selection=ports[0])
+        label_and_ports_selector = HBoxPanel([Label("COM Port"), com_ports])
 
         def update_com_ports_combo_box(make_and_model: str | None):
-            ports = [
-                p.device
-                for p in slp.comports()
-                if SUPPORTED_DONGLES_DICT[make_and_model].comp_port_filter[sys.platform](p)
-            ]
-            if ports == []:
-                ports = [""]
-            self.com_ports.clear()
-            self.com_ports.addItems(ports)
-            self.com_ports.setCurrentText(ports[0])
+            if not SUPPORTED_DONGLES_DICT[make_and_model].com_port_required:
+                com_ports.clear()
+                label_and_ports_selector.setVisible(False)
+            else:
+                label_and_ports_selector.setVisible(True)
+                ports = [
+                    p.device
+                    for p in slp.comports()
+                    if SUPPORTED_DONGLES_DICT[make_and_model].comp_port_filter[sys.platform](p)
+                ]
+                if ports == []:
+                    ports = [""]
+                com_ports.clear()
+                com_ports.addItems(ports)
+                com_ports.setCurrentText(ports[0])
 
         self.dongle_id = Variable(
             SUPPORTED_DONGLES[0].make_and_model,
@@ -37,25 +43,27 @@ class DongleSelectorDialog(Prompt[bool]):
         )
 
         def ok():
-            com_port = self.com_ports.currentText()
-            if com_port == "":
-                app.show_error("You cannot select dongle without COM port it is deemed to be connected")
+            dongle_ref = SUPPORTED_DONGLES_DICT[self.dongle_id.value]
+            com_port = com_ports.currentText()
+            if com_port == "" and dongle_ref.com_port_required:
+                app.show_error("You cannot select this dongle without COM port it is deemed to be connected")
             else:
                 try:
-                    app.i2c_master.value = SUPPORTED_DONGLES_DICT[self.dongle_id.value].cons(com_port, app.i2c_logger)
+                    app.i2c_master.value = dongle_ref.cons(com_port, app.i2c_logger)
                     app.persistence.config.set_value(
                         "last_selected_device", {"make_and_model": self.dongle_id.value, "port": com_port}
                     )
                     self.retval = True
                     self.close()
                 except Exception as ex:
-                    app.show_error(str(ex))
+                    app.show_error(f"Failed to use selected dongle.\n\n{ex}")
 
         self.setLayout(
             VBoxLayout(
                 [
                     HBoxPanel([Label("Make and Model"), ComboBox(reactive_variable=self.dongle_id)]),
-                    HBoxPanel([Label("COM Port"), self.com_ports]),
+                    label_and_ports_selector,
+                    W(stretch=1),
                     HBoxPanel(
                         [
                             W(stretch=1),
