@@ -37,11 +37,7 @@ class CommandLabelAndId:
     id: str
 
 
-class CommandsListModel(
-    TableModelWithOneColumn,
-    TableModelAllSelectableAndEnabled,
-    TableModelWithFilterAction,
-):
+class CommandsListModel(TableModelWithOneColumn, TableModelAllSelectableAndEnabled, TableModelWithFilterAction):
     def __init__(self, app: App, code_preview_widget: CodePreviewWidget):
         super().__init__()
         self.app = app

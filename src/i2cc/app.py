@@ -96,6 +96,18 @@ class App:
         self.project = self.projects.open_project(last_open_project_name)
         self._main_window = None
 
+    def clear_history(self):
+        ret = QMessageBox.question(
+            self.main_window,
+            "Clear history?",
+            "Please confirm that you want to clear history for this project?\n\n"
+            "You will NOT be able to undo this operation!",
+            QMessageBox.StandardButton.Yes,
+            QMessageBox.StandardButton.No,
+        )
+        if ret == QMessageBox.StandardButton.Yes:
+            self.project.commands_history.clear()
+
     def append_i2c_log_message(self, log_message: list[I2CTransactionElement]):
         self.show_last_i2c_log_message(log_message)
 

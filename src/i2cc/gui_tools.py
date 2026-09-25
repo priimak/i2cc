@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
+from PySide6 import QtCore
 from PySide6.QtCore import (
     QAbstractTableModel,
     QItemSelection,
@@ -59,12 +60,14 @@ class ListTableView[T: TableModelWithFilterAction](QTableView):
     def __init__(
         self,
         table_model: T,
-        pass_key_press_event: Callable[[], Callable[[QKeyEvent], None]],
+        pass_key_press_event: Callable[[], Callable[[QKeyEvent], None]] | None,
         on_double_clicked: Callable[[QModelIndex], None] | None,
         hide_horizontal_header: bool = False,
+        on_selection_change: Callable[[QtCore.QItemSelection], None] = lambda _: None,
     ):
         super().__init__(None)
         self.pass_key_press_event = pass_key_press_event
+        self.on_selection_change = on_selection_change
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.horizontalHeader().setStretchLastSection(True)
@@ -79,7 +82,14 @@ class ListTableView[T: TableModelWithFilterAction](QTableView):
             self.doubleClicked.connect(on_double_clicked)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
-        self.pass_key_press_event()(event)
+        if self.pass_key_press_event is None:
+            super().keyPressEvent(event)
+        else:
+            self.pass_key_press_event()(event)
+
+    def selectionChanged(self, selected: QtCore.QItemSelection, deselected: QtCore.QItemSelection, /) -> None:
+        super().selectionChanged(selected, deselected)
+        self.on_selection_change(selected)
 
 
 class InTableSearchField[T: TableModelWithFilterAction](LineEdit):

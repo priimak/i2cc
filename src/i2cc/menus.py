@@ -34,7 +34,7 @@ class FileMenu(QMenu):
 
         self.addAction("&New Project", lambda: NewProjectDialog(app).exec())
         self.addAction("&Save Project As", lambda: SaveAsProjectDialog(app).exec())
-        self.addAction("&Rename Project", lambda: RenameProjectDialog(app).exec())
+        self.addAction("&Rename Project", lambda: RenameProjectDialog.show_dialog(app))
         self.addAction("&Open Project", lambda: OpenProjectDialog(app).exec())
         self.addAction("&Delete Project", delete_project)
         self.addSeparator()
@@ -43,6 +43,8 @@ class FileMenu(QMenu):
         self.addSeparator()
         self.addAction("Do&wnload Official Project", lambda: DownloadProjectDialog(app).exec())
         self.addAction("Download Project from &URL", None)
+        self.addSeparator()
+        self.addAction("&Clear history", app.clear_history)
         self.addSeparator()
         self.addAction("S&ettings", lambda: SettingDialog(app).exec())
         self.addSeparator()

@@ -4,6 +4,8 @@ import json
 import marshal
 import re
 import shutil
+import sqlite3
+import zlib
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from types import CodeType
@@ -42,6 +44,7 @@ class CustomCommand:
     source_code: str
     compiled_code: CodeType
     compiled_code_txt: str | None = None
+    restored_from_history_id: int | None = None
 
     def __post_init__(self):
         if self.compiled_code_txt is None:
@@ -95,6 +98,91 @@ class RawResult:
         )
 
 
+class CommandsHistory:
+    def __init__(self, commands_history_db_file: Path):
+        self.db_file = commands_history_db_file
+        self.db = sqlite3.connect(commands_history_db_file, autocommit=False)
+        self.db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS command_history(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                code BLOB NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP UNIQUE
+            )
+            """
+        )
+        self.db.commit()
+        self.last_loaded_command_name: str | None = None
+        self.last_loaded_command_code: str | None = None
+
+    def get_history_for_command(self, command_name) -> list[tuple[int, str]]:
+        data = self.db.execute(
+            "SELECT id, created_at FROM command_history WHERE name = ? ORDER BY id", (command_name,)
+        ).fetchall()
+        return [(row[0], row[1]) for row in data]
+
+    def get_latest_command_code(self, command_name: str) -> str | None:
+        data = self.db.execute(
+            "SELECT code FROM command_history WHERE name = ? ORDER BY id DESC LIMIT 1", (command_name,)
+        ).fetchall()
+        return None if data == [] else zlib.decompress(data[0][0]).decode("utf-8")
+
+    def record_command(self, name: str, code: str) -> None:
+        try:
+            if self.get_latest_command_code(name) != code:
+                self.db.execute(
+                    "INSERT INTO command_history (name, code) VALUES (?, ?)",
+                    (name, zlib.compress(code.encode("utf-8"))),
+                )
+                self.db.commit()
+        except Exception as ex:
+            print(f"Failed to record command in history. {ex}")
+            self.db.rollback()
+
+    def delete_command(self, name: str) -> None:
+        try:
+            self.db.execute("DELETE FROM command_history WHERE name = ?", (name,))
+            self.db.commit()
+        except Exception as ex:
+            print(f"Failed to delete command from history. {ex}")
+            self.db.rollback()
+
+    def get_command(self, name: str, id: int, revert_to_requested_id: bool = False) -> tuple[str, str] | None:
+        response = self.db.execute("SELECT code FROM command_history WHERE name = ? AND id = ?", (name, id)).fetchall()
+        if revert_to_requested_id:
+            try:
+                self.db.execute("DELETE FROM command_history WHERE id > ? AND name == ?", (id, name))
+                self.db.commit()
+            except Exception as ex:
+                print(f"Failed to record command in history. {ex}")
+                self.db.rollback()
+
+        if response == []:
+            return None
+        else:
+            code = zlib.decompress(response[0][0]).decode("utf-8")
+            self.last_loaded_command_name = name
+            self.last_loaded_command_code = code
+            return name, code
+
+    def clear(self):
+        """
+        Removes all but latest versions of the code for each custom command and sets created_at
+        in all to current timestamp.
+        """
+        try:
+            response = self.db.execute("select max(id) as max_id, name from command_history group by name").fetchall()
+            for id, name in response:
+                self.db.execute("DELETE FROM command_history WHERE name = ? AND id < ?", (name, id))
+
+            self.db.execute("UPDATE command_history SET created_at = CURRENT_TIMESTAMP")
+            self.db.commit()
+        except Exception as ex:
+            print(f"Failed to clear command history. {ex}")
+            self.db.rollback()
+
+
 class Project:
     version: int = 1
 
@@ -102,6 +190,7 @@ class Project:
         self.name = name
         self.dir = dir
         self.commands_context = CommandsContext()
+        self.commands_history = CommandsHistory(dir / "commands_history.db")
 
         if not self.commands_path.exists():
             self.commands_path.write_text("[]")
@@ -162,6 +251,7 @@ class Project:
             "regList": json.loads(self.reg_list_path.read_text()),
             "commands": json.loads(self.commands_path.read_text()),
             "notes": self.notes_markdown_path.read_text(),
+            "commands_history": base64.encodebytes(self.commands_history.db_file.read_bytes()).decode("utf-8"),
         }
         with gzip.open(file_out_path, "wb") as f:
             f.write(json.dumps(data_to_export).encode())
@@ -177,6 +267,7 @@ class Project:
         self.commands.sort(key=lambda cmd: cmd.label.lower())
         self.commands_by_label[command.label] = command
         self.save_commands()
+        self.commands_history.record_command(command.label, command.source_code)
 
     def update_custom_command(self, original_cmd: CustomCommand, new_cmd: CustomCommand):
         self.delete_custom_command(original_cmd.label, auto_save=False)
@@ -194,6 +285,8 @@ class Project:
                     del self.commands_by_label[label]
                     if auto_save:
                         self.save_commands()
+                    if auto_save:
+                        self.commands_history.delete_command(label)
                 except ValueError:
                     pass
 
@@ -295,6 +388,9 @@ class Projects:
                 project.reg_list_path.write_text(json.dumps(data["regList"]))
                 project.commands_path.write_text(json.dumps(data["commands"]))
                 project.notes_markdown_path.write_text(data["notes"])
+                project.commands_history.db_file.write_bytes(
+                    base64.decodebytes(data["commands_history"].encode("utf-8"))
+                )
                 return project.name
             else:
                 return None
@@ -324,6 +420,7 @@ class Projects:
             project.reg_list_path.write_text(json.dumps(data["regList"]))
             project.commands_path.write_text(json.dumps(data["commands"]))
             project.notes_markdown_path.write_text(data["notes"])
+            project.commands_history.db_file.write_bytes(base64.decodebytes(data["commands_history"].encode("utf-8")))
             return project.name
         else:
             return None

@@ -30,6 +30,7 @@ from i2cc.gui_tools import (
     TableModelWithFilterAction,
     TableModelWithOneColumn,
 )
+from i2cc.project.project import PROJECT_RE
 
 
 class RemoteProject(NamedTuple):
@@ -266,6 +267,8 @@ class ImportNameProjectDialog(SimpleProjectDialogBase):
     def ok_action(self):
         if self.project_name.value in self.app.projects.list_projects():
             self.app.show_error("Project under this name already exist. Please pick another name.")
+        elif not PROJECT_RE.match(self.project_name.value):
+            self.app.show_error("Project name must consist of only letters, numbers and underscore characters.")
         else:
             self.close()
 
@@ -336,6 +339,13 @@ class RenameProjectDialog(SimpleProjectDialogBase):
                 self.close()
         except Exception as ex:
             self.app.show_error(f"{ex}")
+
+    @staticmethod
+    def show_dialog(app: App):
+        if app.project.name == "default":
+            app.show_error("Project [default] cannot be renamed")
+        else:
+            RenameProjectDialog(app).exec()
 
 
 class DeleteProjectDialog(SimpleProjectDialogBase):
