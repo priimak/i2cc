@@ -15,7 +15,6 @@ import requests
 from rgscore import RegList
 
 PROJECT_RE = re.compile("^[a-zA-Z0-9_]+$")
-PROJECT_VALID_CHAR_RE = re.compile("[a-zA-Z0-9_]")
 
 
 class CommandsContext:
