@@ -7,11 +7,11 @@ from typing import Any, override
 
 from PySide6 import QtCore
 from PySide6.QtCore import QModelIndex, QPersistentModelIndex
-from PySide6.QtGui import QCloseEvent, QFont, QKeyEvent, Qt
+from PySide6.QtGui import QCloseEvent, QKeyEvent, Qt
 from pytide6 import Dialog, HBoxPanel, Label, PushButton, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
-from qppte import QPythonPlainTextEdit
+from qppte import QPythonPlainTextEdit, QPythonPlainTextWidget
 from sprats.collections import Variable
 
 from i2cc.app import App
@@ -32,14 +32,7 @@ class CodeEditor(QPythonPlainTextEdit):
     space_key_event = QKeyEvent(QtCore.QEvent.Type.KeyPress, Qt.Key.Key_A, QtCore.Qt.KeyboardModifier.NoModifier, " ")
 
     def __init__(self, app: App, save_command: Callable[[], None]):
-        super().__init__(
-            enableSyntaxHighlighting=app.persistence.config.get_by_xpath("/code_appearance/syntax_highlight", bool),
-            highlightStyle=app.persistence.config.get_by_xpath("/code_appearance/syntax_highlight_style", str),
-            font=QFont(
-                app.persistence.config.get_by_xpath("/code_appearance/font_family", str),
-                app.persistence.config.get_by_xpath("/code_appearance/font_size", int),
-            ),
-        )
+        super().__init__(None, settings=app.get_code_editor_settings())
 
         self.app = app
         self.save_command = save_command
@@ -187,6 +180,7 @@ class CustomCommandsEditor(Dialog):
 
         self.command_label = Variable("" if cmd is None else cmd.label)
         self.code_editor = CodeEditor(app, self.save_command)
+        code_editor_widget = QPythonPlainTextWidget(self, editor=self.code_editor)
         if cmd is not None:
             self.code_editor.setPlainText(cmd.source_code)
 
@@ -205,11 +199,12 @@ class CustomCommandsEditor(Dialog):
                 [
                     LineEdit(
                         reactive_variable=self.command_label,
-                        with_min_width_for_text=(" " * 200),
+                        with_min_width_for_text=(" " * 100),
                         on_key_enter=lambda _: self.code_editor.setFocus(),
                         suppress_keys=[Qt.Key.Key_Escape],
+                        font=self.code_editor.font(),
                     ),
-                    W(self.code_editor, stretch=1),
+                    W(code_editor_widget, stretch=1),
                     HorizonalLine(),
                     HBoxPanel(
                         history_button

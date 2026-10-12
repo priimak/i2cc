@@ -1,4 +1,5 @@
 import sys
+from dataclasses import asdict
 from typing import override
 
 from PySide6 import QtGui
@@ -18,6 +19,7 @@ from pytide6 import (
     W,
     set_geometry,
 )
+from qppte import Settings
 from sprats.config import AppPersistence
 
 from i2cc.app import App
@@ -63,9 +65,7 @@ class InfoPanel(HBoxPanel):
 
 class I2CDriverWindow(MainWindow):
     def __init__(self, screen_dim: tuple[int, int], app: App):
-        super().__init__(
-            objectName="MainWindow", windowTitle="I2C Commander", css="QMainWindow { background-color: #ffffff; }"
-        )
+        super().__init__(objectName="MainWindow", windowTitle="I2C Commander")
         set_geometry(
             app_state=app.persistence.state,
             widget=self,
@@ -216,12 +216,13 @@ def main():
     #     if db.isFixedPitch(font):
     #         print(font)
 
+    # code_appearance
     persistence = AppPersistence(
         app_name="i2cc",
         override_config_if_different_version=True,
         init_config_data={
-            "speed": "100",
-            "config_version": 3,
+            "speed": "100 KHz",
+            "config_version": 4,
             "last_open_project": "default",
             "last_selected_device": {},
             "code_appearance": {
@@ -229,6 +230,7 @@ def main():
                 "syntax_highlight": True,
                 "syntax_highlight_style": "light_bold",
             },
+            "code_settings": asdict(Settings.default()),
             "global_appearance": {},
         },
     )

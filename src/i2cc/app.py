@@ -5,6 +5,7 @@ from bitstring import BitArray
 from i2c_api import I2CLogger, I2CMaster
 from i2c_api.log import I2CTransactionElement
 from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox
+from qppte import Settings
 from rgscore import Register
 from sprats.collections import Variable
 from sprats.config import AppPersistence
@@ -67,9 +68,7 @@ class App:
         self.request_notes_reload: Callable[[], None] = lambda: None
         self.request_reglist_select_register: Callable[[Register], None] = lambda _: None
         self.show_last_i2c_log_message: Callable[[list], None] = lambda _: None
-        self.toggle_syntax_highlighting: Callable[[bool], None] = lambda _: None
-        self.set_syntax_highlighting_style: Callable[[str], None] = lambda _: None
-        self.update_code_font: Callable[[], None] = lambda _: None
+        self.set_code_settings: Callable[[Settings], None] = lambda _: None
 
         # called by results panel when register is read and result are (re)displayed
         self.registers_values_changed: Callable[[int], None] = lambda _: None
@@ -137,6 +136,9 @@ class App:
 
     def scan(self) -> list[int]:
         return [] if self.i2c is None else self.i2c.scan()
+
+    def get_code_editor_settings(self) -> Settings:
+        return Settings(**self.persistence.config.get_value("code_settings"))
 
     @staticmethod
     def get_address_width(register_address_str: str) -> int:

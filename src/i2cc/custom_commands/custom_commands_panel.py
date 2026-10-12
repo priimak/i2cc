@@ -11,11 +11,11 @@ from PySide6.QtCore import QByteArray, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLabel, QMessageBox, QTextEdit
 from pytide6 import HBoxPanel, Label, Menu, PushButton, Splitter, VBoxPanel, W
+from qppte import QPythonPlainTextEdit
 from rgscore import RLinkI2C, S, U
 from sprats.collections import Variable
 
 from i2cc.app import App
-from i2cc.custom_commands.code_preview_widget import CodePreviewWidget
 from i2cc.custom_commands.custom_command_editor import CustomCommandsEditor
 from i2cc.custom_commands.user_prompt import EvalExit, mk_prompt_user
 from i2cc.gui_tools import (
@@ -38,7 +38,7 @@ class CommandLabelAndId:
 
 
 class CommandsListModel(TableModelWithOneColumn, TableModelAllSelectableAndEnabled, TableModelWithFilterAction):
-    def __init__(self, app: App, code_preview_widget: CodePreviewWidget):
+    def __init__(self, app: App, code_preview_widget: QPythonPlainTextEdit):
         super().__init__()
         self.app = app
         self.code_preview_widget = code_preview_widget
@@ -101,7 +101,6 @@ class ResultsText(QTextEdit):
     def __init__(self, app: App):
         super().__init__()
         self.app = app
-        self.setStyleSheet("QTextEdit { font-family: 'Monospace'; }")
 
 
 class CustomCommandsPanel(VBoxPanel):
@@ -110,7 +109,10 @@ class CustomCommandsPanel(VBoxPanel):
         self.app = app
         self.app.request_commands_reload = self.request_commands_reload
 
-        self.code_preview_widget = CodePreviewWidget(app)
+        self.code_preview_widget = QPythonPlainTextEdit(
+            app.main_window, settings=app.get_code_editor_settings(), readOnly=True
+        )
+        app.set_code_settings = lambda s: s.apply(self.code_preview_widget)
         commands_table_model = CommandsListModel(app, self.code_preview_widget)
         self.commands_table = ListTableView(
             table_model=commands_table_model,

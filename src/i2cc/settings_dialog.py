@@ -1,149 +1,134 @@
-from PySide6.QtGui import QFont, QFontDatabase
-from PySide6.QtWidgets import QApplication
-from pytide6 import CheckBox, ComboBox, Dialog, HBoxPanel, Label, PushButton, VBoxLayout, W
-from qppte import DEFAULT_STYLES
+from dataclasses import asdict
+from typing import Any
+
+from PySide6.QtCore import QItemSelectionModel, QModelIndex, QPersistentModelIndex
+from PySide6.QtGui import QFont, QFontDatabase, QFontMetrics, Qt
+from PySide6.QtWidgets import QFrame, QPlainTextEdit
+from pytide6 import ComboBox, Dialog, HBoxLayout, HBoxPanel, Label, VBoxPanel, W
+from qppte import QPythonPlainTextSettings, Settings
 from sprats.collections import Variable
 
 from i2cc.app import App
+from i2cc.gui_tools import (
+    ListTableView,
+    TableModelAllSelectableAndEnabled,
+    TableModelWithFilterAction,
+    TableModelWithOneColumn,
+    TableModelWithoutHeader,
+)
 
 
-class SettingDialog(Dialog):
+class GroupsModel(
+    TableModelWithoutHeader, TableModelWithOneColumn, TableModelAllSelectableAndEnabled, TableModelWithFilterAction
+):
+    def __init__(self, groups: list[str]):
+        super().__init__()
+        self.groups = groups
+
+    def rowCount(self, /, parent: QModelIndex | QPersistentModelIndex = ...) -> int:
+        return len(self.groups)
+
+    def data(self, index: QModelIndex | QPersistentModelIndex, /, role: int = ...) -> Any:
+        return self.groups[index.row()] if index.isValid() and role == Qt.ItemDataRole.DisplayRole else None
+
+
+class SettingDialog2(Dialog):
     def __init__(
         self,
         app: App,
     ):
         super().__init__(app.main_window, windowTitle="Settings", modal=True)
+        group_names = ["General", "Code Editor"]
+        settings_groups = ListTableView(
+            table_model=GroupsModel(group_names),
+            pass_key_press_event=None,
+            on_double_clicked=None,
+            hide_horizontal_header=True,
+        )
+        width = QFontMetrics(self.font()).horizontalAdvance("Code Editor   ")
+        settings_groups.setMaximumWidth(width)
+        settings_groups.setMinimumWidth(width)
+        settings_groups.setFrameShape(QFrame.Shape.NoFrame)
+        settings_groups.setShowGrid(False)
+        settings_groups.selectionModel().select(
+            settings_groups.model().index(0, 0), QItemSelectionModel.SelectionFlag.ClearAndSelect
+        )
+        example_general_text = QPlainTextEdit(
+            """“I love those who can smile in trouble, who can gather strength
+from distress, and grow brave by reflection. 'Tis the business
+of little minds to shrink, but they whose heart is firm, and
+whose conscience approves their conduct, will pursue their
+principles unto death”
 
-        font_families = QFontDatabase.families()
-        fixed_font_families = [f for f in font_families if QFontDatabase.isFixedPitch(f)]
-
-        from typing import Callable
-
-        self.apply_functions: dict[str, Callable[[], None]] = dict()
-
-        def mk_set_font_family(key: str) -> Callable[[str | None], None]:
-            def set_font_family(font_name: str | None) -> None:
-                def _set():
-                    assert font_name is not None
-                    app.persistence.config.set_by_xpath(key, font_name)
-                    if key == "/global_appearance/font_family":
-                        app.q_application.setFont(QFont(font_name, QApplication.font().pointSize()))
-                    if key == "/code_appearance/font_family":
-                        app.update_code_font()
-
-                self.apply_functions[key] = _set
-
-            return set_font_family
-
-        def mk_set_font_size(key: str) -> Callable[[int | None], None]:
-            def set_font_size(font_size: int | None) -> None:
-                def _set():
-                    assert font_size is not None
-                    app.persistence.config.set_by_xpath(key, font_size)
-                    if key == "/global_appearance/font_size":
-                        font = app.q_application.font()
-                        font.setPointSize(font_size)
-                        app.q_application.setFont(font)
-                    elif key == "/code_appearance/font_size":
-                        app.update_code_font()
-
-                self.apply_functions[key] = _set
-
-            return set_font_size
-
-        def set_syntax_highlight(value: bool | None) -> None:
-            def _set():
-                assert value is not None
-                app.persistence.config.set_by_xpath("/code_appearance/syntax_highlight", value)
-                app.toggle_syntax_highlighting(value)
-
-            self.apply_functions["/code_appearance/syntax_highlight"] = _set
-
-        def set_syntax_highlight_style(style: str | None) -> None:
-            def _set():
-                assert style is not None
-                app.persistence.config.set_by_xpath("/code_appearance/syntax_highlight_style", style)
-                app.set_syntax_highlighting_style(style)
-
-            self.apply_functions["/code_appearance/syntax_highlight"] = _set
-
+    ― Leonardo da Vinci""",
+            self,
+        )
+        example_general_text.setReadOnly(True)
         application_font_family: Variable[str] = Variable(
             app.q_application.font().family(),
-            valid_values=font_families,
-            on_value_change=mk_set_font_family("/global_appearance/font_family"),
+            valid_values=QFontDatabase.families(),
+            on_value_change=lambda f: example_general_text.setFont(QFont(f, example_general_text.font().pointSize())),
         )
-        application_font_size = Variable(
-            app.q_application.font().pointSize(),
-            valid_values=list(range(9, 30)),
-            on_value_change=mk_set_font_size("/global_appearance/font_size"),
-        )
-
-        code_font_family: Variable[str] = Variable(
-            app.persistence.config.get_by_xpath("/code_appearance/font_family", str),
-            valid_values=fixed_font_families,
-            on_value_change=mk_set_font_family("/code_appearance/font_family"),
-        )
-        code_font_size = Variable(
-            app.persistence.config.get_by_xpath("/code_appearance/font_size", int),
-            valid_values=list(range(9, 30)),
-            on_value_change=mk_set_font_size("/code_appearance/font_size"),
-        )
-        code_syntax_highlight = Variable(
-            app.persistence.config.get_by_xpath("/code_appearance/syntax_highlight", bool),
-            on_value_change=set_syntax_highlight,
+        current_font_point_size = app.q_application.font().pointSize()
+        application_font_size = Variable[int](
+            current_font_point_size,
+            valid_values=list(range(min(9, current_font_point_size), max(30, current_font_point_size + 1))),
+            on_value_change=lambda s: example_general_text.setFont(QFont(example_general_text.font().family(), s)),
         )
 
-        code_syntax_highlight_style = Variable(
-            app.persistence.config.get_by_xpath("/code_appearance/syntax_highlight_style", str),
-            valid_values=list(DEFAULT_STYLES.keys()),
-            on_value_change=set_syntax_highlight_style,
+        general_settings = VBoxPanel(
+            [
+                HBoxPanel(
+                    [
+                        Label("Application font"),
+                        ComboBox(reactive_variable=application_font_family),
+                        ComboBox(reactive_variable=application_font_size),
+                        W(stretch=1),
+                    ],
+                    margins=0,
+                ),
+                example_general_text,
+                W(stretch=1),
+            ],
+        )
+        code_editor_settings = QPythonPlainTextSettings(self, app.get_code_editor_settings(), displayButtons=False)
+        general_settings.setMinimumWidth(QFontMetrics(self.font()).horizontalAdvance("9") * 70)
+        code_editor_settings.setVisible(False)
+        ok_button = code_editor_settings.ok_button()
+        cancel_button = code_editor_settings.cancel_button()
+
+        def apply_new_settings(settings: Settings):
+            app.set_code_settings(settings)
+            app.persistence.config.set_value("code_settings", asdict(settings))
+
+        def ok():
+            app.q_application.setFont(QFont(application_font_family.value, application_font_size.value))
+            app.persistence.config.set_by_xpath("/global_appearance/font_family", application_font_family.value)
+            app.persistence.config.set_by_xpath("/global_appearance/font_size", application_font_size.value)
+            self.close()
+
+        code_editor_settings.settings_changed.connect(apply_new_settings)
+        code_editor_settings.ok_called.connect(ok)
+        code_editor_settings.cancel_called.connect(self.close)
+
+        settings_container = VBoxPanel(
+            widgets=[
+                W(general_settings, stretch=1),
+                W(code_editor_settings, stretch=1),
+                HBoxPanel([W(stretch=1), ok_button, cancel_button]),
+            ],
+            margins=0,
         )
 
-        self.setLayout(
-            VBoxLayout(
-                [
-                    HBoxPanel(
-                        [
-                            Label("Application font"),
-                            ComboBox(reactive_variable=application_font_family),
-                            ComboBox(reactive_variable=application_font_size),
-                            W(stretch=1),
-                        ]
-                    ),
-                    HBoxPanel(
-                        [
-                            Label("Code editor font"),
-                            ComboBox(reactive_variable=code_font_family),
-                            ComboBox(reactive_variable=code_font_size),
-                            W(stretch=1),
-                        ]
-                    ),
-                    HBoxPanel(
-                        [
-                            Label("Code syntax highlight"),
-                            CheckBox(reactive_variable=code_syntax_highlight),
-                            W(stretch=1),
-                        ]
-                    ),
-                    HBoxPanel(
-                        [
-                            Label("Code highlight style"),
-                            ComboBox(reactive_variable=code_syntax_highlight_style),
-                            W(stretch=1),
-                        ]
-                    ),
-                    HBoxPanel(
-                        [
-                            W(stretch=1),
-                            PushButton("Ok", on_clicked=self.ok, auto_default=False),
-                            PushButton("Cancel", on_clicked=self.close, auto_default=False),
-                        ]
-                    ),
-                ]
-            )
-        )
+        def show_group(a, b):
+            group = group_names[settings_groups.currentIndex().row()]
+            match group:
+                case "General":
+                    general_settings.setVisible(True)
+                    code_editor_settings.setVisible(False)
+                case "Code Editor":
+                    general_settings.setVisible(False)
+                    code_editor_settings.setVisible(True)
 
-    def ok(self):
-        for f in self.apply_functions:
-            self.apply_functions[f]()
-        self.close()
+        settings_groups.selectionModel().selectionChanged.connect(show_group)
+        self.setLayout(HBoxLayout([settings_groups, W(settings_container, stretch=2)]))
