@@ -7,7 +7,8 @@ from typing import Any, override
 
 from PySide6 import QtCore
 from PySide6.QtCore import QModelIndex, QPersistentModelIndex
-from PySide6.QtGui import QCloseEvent, QKeyEvent, Qt
+from PySide6.QtGui import QAction, QCloseEvent, QKeyEvent, Qt
+from PySide6.QtWidgets import QDialog
 from pytide6 import Dialog, HBoxPanel, Label, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
@@ -32,13 +33,18 @@ NO_COMMENT_REGEX = re.compile(r"^(\s*)")
 class CodeEditor(QPythonPlainTextEdit):
     space_key_event = QKeyEvent(QtCore.QEvent.Type.KeyPress, Qt.Key.Key_A, QtCore.Qt.KeyboardModifier.NoModifier, " ")
 
-    def __init__(self, app: App, save_command: Callable[[], None]):
+    def __init__(self, parent: QDialog, app: App, save_command: Callable[[], None]):
         super().__init__(None, settings=app.get_code_editor_settings())
 
         self.app = app
         self.save_command = save_command
         char_width = self.fontMetrics().height()
         self.setMinimumHeight(char_width * 25)
+
+        search_action = QAction("Quit", self)
+        search_action.setShortcut(QtCore.QKeyCombination(QtCore.Qt.KeyboardModifier.ControlModifier, Qt.Key.Key_Q))
+        search_action.triggered.connect(parent.close)
+        self.addAction(search_action)
 
     @override
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -183,7 +189,7 @@ class CustomCommandsEditor(Dialog):
         self.update_old_historical_records: Callable[[], None] = lambda: None
 
         self.command_label = Variable("" if cmd is None else cmd.label)
-        self.code_editor = CodeEditor(app, self.save_command)
+        self.code_editor = CodeEditor(self, app, self.save_command)
         code_editor_widget = QPythonPlainTextWidget(self, editor=self.code_editor)
         if cmd is not None:
             self.code_editor.setPlainText(cmd.source_code)
