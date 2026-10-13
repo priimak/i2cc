@@ -12,6 +12,8 @@ from i2c_api.log import (
 )
 from pytide6 import RichTextLabel
 
+from i2cc.app import App
+
 
 def i2c_log_message_to_str(e: I2CTransactionElement) -> str:
     match e:
@@ -39,7 +41,7 @@ def i2c_log_message_to_str(e: I2CTransactionElement) -> str:
 
 class LogLineLabel(RichTextLabel):
     def __init__(self):
-        super().__init__("<em>Last I2C operation:</em>", css="border: 1px solid black;")
+        super().__init__("<em>Last I2C operation:</em>", css=App.css.LogLineLabel)
 
     def set_log_message(self, log_message: str):
         self.setText(log_message)

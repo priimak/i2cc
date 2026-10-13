@@ -4,9 +4,10 @@ from typing import Any
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, QPersistentModelIndex
 from PySide6.QtGui import QColor, QKeyEvent, QMouseEvent, Qt
 from PySide6.QtWidgets import QAbstractItemView, QTableView, QWidget
-from pytide6 import HBoxPanel, Label, Menu, PushButton, VBoxPanel, W
+from pytide6 import HBoxPanel, Label, Menu, VBoxPanel, W
 
 from i2cc.app import App
+from i2cc.gui_tools import XButton
 from i2cc.i2c_op_thread import HighlightOff, ReadRegister, RequestReadAllRegisters
 from i2cc.project.project import Project, RawResult
 from i2cc.registers.reg_def_editor import open_create_or_edit_register_from_template
@@ -287,7 +288,7 @@ class ResultsPanel(VBoxPanel):
         self.addWidgets(
             HBoxPanel(
                 [
-                    PushButton("Re-Read All", on_clicked=results_table.re_read_all_registers),
+                    XButton("Re-Read All", on_clicked=results_table.re_read_all_registers),
                     # ComboBox(
                     #     items=["once", "every 0.25s", "every 0.5s", "every 1s"],
                     #     on_text_change=freq_change,
@@ -295,7 +296,7 @@ class ResultsPanel(VBoxPanel):
                     self.re_reading_label,
                     W(QWidget(), stretch=2),
                 ],
-                background_color="lightblue",
+                background_color=App.colors.background_main_window,
             ),
             results_table,
         )

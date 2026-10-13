@@ -2,10 +2,13 @@ from typing import Callable
 
 from PySide6.QtGui import QDoubleValidator, QIntValidator
 from PySide6.QtWidgets import QMessageBox, QWidget
-from pytide6 import CheckBox, ComboBox, Dialog, HBoxPanel, Label, PushButton, VBoxLayout, W
+from pytide6 import CheckBox, ComboBox, Dialog, HBoxPanel, Label, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
 from sprats.collections import Variable
+
+from i2cc.app import App
+from i2cc.gui_tools import XButton
 
 
 class EvalExit(Exception):
@@ -14,7 +17,7 @@ class EvalExit(Exception):
 
 class UserPromptDialog(Dialog):
     def __init__(self, title: str, vars: list[Variable]):
-        super().__init__(None, windowTitle="User Input", modal=True)
+        super().__init__(None, windowTitle="User Input", modal=True, css=App.css.UserPromptDialog)
         self.is_canceled = True
 
         def get_input_widget(variable: Variable) -> tuple[QWidget, Variable[str]]:
@@ -79,8 +82,8 @@ class UserPromptDialog(Dialog):
                     HBoxPanel(
                         [
                             W(stretch=1),
-                            PushButton("Ok", parent=self, on_clicked=self.ok, auto_default=False),
-                            PushButton("Cancel", parent=self, on_clicked=self.close, auto_default=False),
+                            XButton("Ok", parent=self, on_clicked=self.ok, auto_default=False),
+                            XButton("Cancel", parent=self, on_clicked=self.close, auto_default=False),
                         ]
                     ),
                 ]

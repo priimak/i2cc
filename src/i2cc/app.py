@@ -24,7 +24,81 @@ class InAppI2CLogger(I2CLogger):
         self.message_appender(message)
 
 
+class Colors:
+    background_common = "#f0f8ff"
+    background_main_window = "#b0c4de"
+
+
+class CSS:
+    FindActionDialog = "QDialog { background-color: " + Colors.background_common + "; border: 2px solid; }"
+    LogLineLabel = "QLabel { border: 1px solid black; background-color: " + Colors.background_common + " ; }"
+    selected_dongle_label = "QLabel { border: 1px solid black; background-color: " + Colors.background_common + " ; }"
+    OpenedProjectLabel = "QLabel { border: 1px solid black; background-color: " + Colors.background_common + " ; }"
+    NewRegDefDialog = "QDialog { background-color: " + Colors.background_common + ";}"
+    CustomCommandsEditor = "QDialog { background-color: " + Colors.background_common + ";}"
+    UserPromptDialog = "QDialog { background-color: " + Colors.background_common + ";}"
+    ProjectNotesViewer = "QTextEdit { background-color: #feffff; }"
+    RegInfoText = "QTextEdit { font-family: 'Monospace'; }"
+    Tabs = """
+    QTabBar::tab {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 7px;
+
+        background: #f0f8ff;
+        color: #666666;
+        padding: 6px 12px;
+        border: solid #3A434B;
+        border-top: 1px solid #333333;
+        border-left: 1px solid #333333;
+        border-right: 1px solid #aaaaaa;
+      }
+  
+    QTabBar::tab:selected {
+        background: #778899;
+        border-top: 2px solid #cccccc;
+        border-left: 2px solid #cccccc;
+        border-right: 4px solid #333333;
+        color: white;
+    }
+    QTabBar::tab:hover:!selected {
+        background: #f0f8ff;
+    }
+"""
+    PushButton = """
+        QPushButton {
+            background-color: #708090;
+            color: white;
+            border-style: outset;
+            border: 3px solid;
+            border-top-color: #bbbbbb;
+            border-left-color: #bbbbbb;
+            border-right-color: #555555;
+            border-bottom-color: #555555;
+            border-radius: 12px;
+            min-width: 2em;
+            padding: 4px;
+        }
+
+        QPushButton:hover {
+            background-color: #b9cbe5;
+            color: black;
+        }
+
+        QPushButton:pressed {
+            color: black;
+            background-color: #b9cbe5;
+            border-style: inset;
+            border-top-color: #555555;
+            border-left-color: #555555;
+            border-right-color: #bbbbbb;
+            border-bottom-color: #bbbbbb;
+        }"""
+
+
 class App:
+    colors = Colors
+    css = CSS
+
     def __init__(self, persistence: AppPersistence, q_application: QApplication):
         last_selected_device = persistence.config.get_value("last_selected_device", dict)
         self.i2c_logger = InAppI2CLogger(self.append_i2c_log_message)

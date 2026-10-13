@@ -107,6 +107,7 @@ class ActionsModel(
 class FindActionDialog(Dialog):
     def __init__(self, app: App):
         super().__init__(app.main_window, windowTitle="Find Action", modal=True)
+        self.setStyleSheet(App.css.FindActionDialog)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint | QtCore.Qt.WindowType.Window)
         self.app = app
         self.actions_table = ListTableView(

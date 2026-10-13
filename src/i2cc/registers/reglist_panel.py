@@ -8,7 +8,7 @@ from PySide6 import QtGui
 from PySide6.QtCore import QItemSelection, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLabel, QMessageBox, QTextEdit
-from pytide6 import HBoxPanel, Menu, PushButton, Splitter, VBoxPanel, W
+from pytide6 import HBoxPanel, Menu, Splitter, VBoxPanel, W
 from rgscore import Register
 
 from i2cc.app import App
@@ -18,6 +18,7 @@ from i2cc.gui_tools import (
     TableModelAllSelectableAndEnabled,
     TableModelWithFilterAction,
     TableModelWithThreeColumns,
+    XButton,
     apply_filter_to_text,
 )
 from i2cc.registers.reg_def_editor import DefRegEditor, NewRegDefDialog, RegisterPrototype
@@ -141,8 +142,9 @@ class RegListModel(
 class RegInfoText(QTextEdit):
     def __init__(self, app: App):
         super().__init__()
+        self.setReadOnly(True)
         self.app = app
-        self.setStyleSheet("QTextEdit { font-family: 'Monospace'; }")
+        self.setStyleSheet(App.css.RegInfoText)
         self.register: Register | None = None
         self.__lock = Lock()
 
@@ -199,7 +201,7 @@ class RegInfoText(QTextEdit):
 
 class RegListPanel(VBoxPanel):
     def __init__(self, app: App):
-        super().__init__(background_color="lightyellow", margins=(7, 7, 7, 0))
+        super().__init__(background_color=App.colors.background_common, margins=(7, 7, 7, 0))
         self.app = app
         self.reglist_table = ListTableView(
             table_model=RegListModel(app),
@@ -263,15 +265,12 @@ class RegListPanel(VBoxPanel):
         self.withWidgets(
             HBoxPanel(
                 widgets=[
-                    PushButton(
-                        "Define new register",
-                        on_clicked=lambda: NewRegDefDialog(self.app).exec(),
-                    ),
-                    PushButton("Edit register", on_clicked=self.edit_selected_register),
-                    PushButton("Delete register", on_clicked=self.delete_selected_register),
+                    XButton("New register", on_clicked=lambda: NewRegDefDialog(self.app).exec()),
+                    XButton("Edit", on_clicked=self.edit_selected_register),
+                    XButton("Delete", on_clicked=self.delete_selected_register),
                     QLabel("        "),
-                    PushButton("Read register", on_clicked=self.read_selected_register),
-                    PushButton("Write register", on_clicked=self.write_selected_register),
+                    XButton("Read", on_clicked=self.read_selected_register),
+                    XButton("Write", on_clicked=self.write_selected_register),
                     W(stretch=1),
                 ],
                 margins=0,

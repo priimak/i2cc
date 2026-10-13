@@ -19,6 +19,7 @@ from pytide6 import (
     W,
     set_geometry,
 )
+from pytide6.palette import Palette
 from qppte import Settings
 from sprats.config import AppPersistence
 
@@ -39,14 +40,14 @@ from i2cc.results_panel import ResultsPanel
 
 class InfoPanel(HBoxPanel):
     def __init__(self, app: App):
-        super().__init__(background_color="#f1f1f1")
+        super().__init__(background_color=App.colors.background_main_window)
 
         i2c_master_container = app.i2c_master.value
         self.selected_dongle_label = Label(
             ""
             if i2c_master_container is None
             else (i2c_master_container.display_name + " :: " + i2c_master_container.port),
-            css="border: 1px solid black;",
+            css=App.css.selected_dongle_label,
         )
         app.i2c_master.register_value_change_callback(
             lambda m: self.selected_dongle_label.setText(m.display_name + " :: " + m.port)
@@ -72,15 +73,15 @@ class I2CDriverWindow(MainWindow):
             screen_dim=screen_dim,
             win_size_fraction=0.7,
         )
-
         self.app = app
         self.info_panel = InfoPanel(app)
+        self.setAutoFillBackground(True)
+        self.setPalette(Palette(QtGui.QPalette.ColorRole.Window, App.colors.background_main_window))
 
         self.res_table = ResultsPanel(self.app)
-        left_panel = VBoxPanel(widgets=[self.res_table], background_color="gray", margins=1)
+        left_panel = VBoxPanel(widgets=[self.res_table], background_color=App.colors.background_main_window, margins=1)
 
         self.cpanel = CommandsPanel(app)
-        self.cpanel.setBackgroundColor("lightgreen")
 
         right_bottom_panel = QTabWidget()
         right_bottom_panel.setDocumentMode(True)
@@ -90,6 +91,7 @@ class I2CDriverWindow(MainWindow):
         self.custom_commands_panel = CustomCommandsPanel(app)
         right_bottom_panel.addTab(self.custom_commands_panel, "User defined commands")
         right_bottom_panel.addTab(ProjectNotes(app), "Project notes")
+        right_bottom_panel.setStyleSheet(App.css.Tabs)
 
         right_panel = VBoxPanel(
             widgets=[
@@ -115,6 +117,8 @@ class I2CDriverWindow(MainWindow):
         app.connect_show_register_value(self.res_table.show_register_value)
 
         self.main_menu_bar = self.setMenuBar(MainMenuBar(self.app, dialogs_parent=self))
+        self.setPalette(Palette(QtGui.QPalette.ColorRole.Window, App.colors.background_main_window))
+        self.main_menu_bar.setPalette(Palette(QtGui.QPalette.ColorRole.Window, App.colors.background_common))
         self.app.exit_application[0] = self.exit_application
 
     def keyPressEvent(self, event: QtGui.QKeyEvent, /) -> None:

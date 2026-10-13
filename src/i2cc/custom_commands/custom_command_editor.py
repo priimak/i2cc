@@ -8,7 +8,7 @@ from typing import Any, override
 from PySide6 import QtCore
 from PySide6.QtCore import QModelIndex, QPersistentModelIndex
 from PySide6.QtGui import QCloseEvent, QKeyEvent, Qt
-from pytide6 import Dialog, HBoxPanel, Label, PushButton, VBoxLayout, W
+from pytide6 import Dialog, HBoxPanel, Label, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
 from qppte import QPythonPlainTextEdit, QPythonPlainTextWidget
@@ -21,6 +21,7 @@ from i2cc.gui_tools import (
     TableModelAllSelectableAndEnabled,
     TableModelWithFilterAction,
     TableModelWithOneColumn,
+    XButton,
 )
 from i2cc.project.project import CustomCommand
 
@@ -149,8 +150,8 @@ class HistoryDialog(Dialog):
                     HBoxPanel(
                         [
                             W(stretch=1),
-                            PushButton("Ok", on_clicked=set_to_historical_record, auto_default=True),
-                            PushButton("Cancel", on_clicked=self.close, auto_default=False),
+                            XButton("Ok", on_clicked=set_to_historical_record, auto_default=True),
+                            XButton("Cancel", on_clicked=self.close, auto_default=False),
                         ]
                     ),
                 ]
@@ -172,7 +173,10 @@ class HistoryDialog(Dialog):
 class CustomCommandsEditor(Dialog):
     def __init__(self, app: App, cmd: CustomCommand | None):
         super().__init__(
-            app.main_window, windowTitle="Create Custom Command" if cmd is None else "Edit Custom Command", modal=True
+            app.main_window,
+            windowTitle="Create Custom Command" if cmd is None else "Edit Custom Command",
+            modal=True,
+            css=App.css.CustomCommandsEditor,
         )
         self.app = app
         self.original_cmd = None if cmd is None else dataclasses.replace(cmd)
@@ -191,7 +195,7 @@ class CustomCommandsEditor(Dialog):
             HistoryDialog(self, app, command_name=self.command_label.value, history=history).show()
 
         history_button = (
-            [] if cmd is None else [PushButton("History", on_clicked=show_history_selector, auto_default=False)]
+            [] if cmd is None else [XButton("History", on_clicked=show_history_selector, auto_default=False)]
         )
 
         self.setLayout(
@@ -210,8 +214,8 @@ class CustomCommandsEditor(Dialog):
                         history_button
                         + [
                             W(stretch=1),
-                            PushButton("Ok", on_clicked=self.save_command, auto_default=False),
-                            PushButton("Cancel", on_clicked=self.close, auto_default=False),
+                            XButton("Ok", on_clicked=self.save_command, auto_default=False),
+                            XButton("Cancel", on_clicked=self.close, auto_default=False),
                         ],
                         margins=0,
                     ),

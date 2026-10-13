@@ -14,16 +14,17 @@ from pytide6 import (
     HBoxPanel,
     Label,
     Panel,
-    PushButton,
     RichTextLabel,
     VBoxLayout,
     W,
 )
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
+from pytide6.palette import Palette
 from rgscore import Register
 
 from i2cc.app import App
+from i2cc.gui_tools import XButton
 
 
 class FieldValueInput(LineEdit):
@@ -95,16 +96,12 @@ class RegisterWriteDialog(Dialog):
         )
         layout.addWidget(Label("Address: "), 1, 0)
         layout.addWidget(
-            RichTextLabel(
-                f"<span style='color: blue;'>0x{self.register.address:02X}</span>"
-            ),
+            RichTextLabel(f"<span style='color: blue;'>0x{self.register.address:02X}</span>"),
             1,
             1,
         )
         layout.addWidget(Label("Raw data: "), 2, 0)
-        raw_data_label = RichTextLabel(
-            f"<span style='color: blue;'>{self.register.data.bin}</span>"
-        )
+        raw_data_label = RichTextLabel(f"<span style='color: blue;'>{self.register.data.bin}</span>")
         layout.addWidget(raw_data_label, 2, 1)
         layout.addWidget(Label("Fields: "), 3, 0, 2, 1)
 
@@ -124,9 +121,7 @@ class RegisterWriteDialog(Dialog):
                     except Exception:
                         current_field_value = self.register.get_field_value(fname)
                         input_line_edit.setText(f"{current_field_value}")
-                    raw_data_label.setText(
-                        f"<span style='color: blue;'>{self.register.data.bin}</span>"
-                    )
+                    raw_data_label.setText(f"<span style='color: blue;'>{self.register.data.bin}</span>")
 
                 return set_field_value
 
@@ -136,14 +131,10 @@ class RegisterWriteDialog(Dialog):
                 self.register,
                 field_name,
             )
-            field_value_input_field.editingFinished.connect(
-                mk_field_value_setter(field_name, field_value_input_field)
-            )
+            field_value_input_field.editingFinished.connect(mk_field_value_setter(field_name, field_value_input_field))
 
             fields_layout.addWidget(
-                RichTextLabel(
-                    f"<span style='color: blue;'>{field_name}&nbsp;&nbsp;</span>"
-                ),
+                RichTextLabel(f"<span style='color: blue;'>{field_name}&nbsp;&nbsp;</span>"),
                 row,
                 0,
             )
@@ -156,27 +147,19 @@ class RegisterWriteDialog(Dialog):
                 1,
             )
             fields_layout.addWidget(
-                Label(
-                    f"{field_definition.signed}{field_definition.width}.{field_definition.fractional}  "
-                ),
+                Label(f"{field_definition.signed}{field_definition.width}.{field_definition.fractional}  "),
                 row,
                 2,
             )
-            fields_layout.addWidget(
-                Label("rw  " if field_definition.rw else "ro  "), row, 3
-            )
+            fields_layout.addWidget(Label("rw  " if field_definition.rw else "ro  "), row, 3)
 
             up_button = QToolButton()
             up_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-            up_button.setIcon(
-                self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowUp)
-            )
+            up_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowUp))
 
             down_button = QToolButton()
             down_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-            down_button.setIcon(
-                self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowDown)
-            )
+            down_button.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_ArrowDown))
 
             def mk_up(fvi: FieldValueInput) -> Callable[[], None]:
                 return lambda: fvi.next_up()
@@ -213,13 +196,13 @@ class RegisterWriteDialog(Dialog):
                     HBoxPanel(
                         [
                             W(stretch=1),
-                            PushButton(
+                            XButton(
                                 "Ok",
                                 parent=self,
                                 on_clicked=self.save_register,
                                 auto_default=False,
                             ),
-                            PushButton(
+                            XButton(
                                 "Cancel",
                                 parent=self,
                                 on_clicked=self.close,
@@ -231,10 +214,8 @@ class RegisterWriteDialog(Dialog):
             )
         )
 
-        palette = QPalette()
-        palette.setColor(QPalette.ColorRole.Window, "white")
         self.setAutoFillBackground(True)
-        self.setPalette(palette)
+        self.setPalette(Palette(QPalette.ColorRole.Window, "white"))
 
     def save_register(self):
         self.app.write_register_address_str.set_value(f"0x{self.register.address:02X}")

@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QMessageBox
-from pytide6 import ComboBox, Dialog, HBoxPanel, Label, PushButton, VBoxLayout, VBoxPanel, W
+from pytide6 import ComboBox, Dialog, HBoxPanel, Label, VBoxLayout, VBoxPanel, W
 from pytide6.inputs import LineEdit
 from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.dongles.dongles import I2CMasterContainer
+from i2cc.gui_tools import XButton
 from i2cc.i2c_op_thread import I2CBusScan
 
 
@@ -23,9 +24,7 @@ class SelectDeviceDialog(Dialog):
                 [
                     HBoxPanel([Label("Select i2c device to use"), ComboBox(reactive_variable=available_addresses)]),
                     W(stretch=1),
-                    HBoxPanel(
-                        [W(stretch=1), PushButton("Ok", on_clicked=ok), PushButton("Cancel", on_clicked=self.close)]
-                    ),
+                    HBoxPanel([W(stretch=1), XButton("Ok", on_clicked=ok), XButton("Cancel", on_clicked=self.close)]),
                 ]
             )
         )
@@ -84,7 +83,7 @@ class PullUpResistorSelector(ComboBox):
 
 class CommandsPanel(VBoxPanel):
     def __init__(self, app: App):
-        super().__init__(margins=1, background_color="gray")
+        super().__init__(margins=1, background_color=App.colors.background_common)
         self.app = app
         self.addr_selector = AddrSelector(app)
         self.speed_selector = SpeedSelector(app)
@@ -98,7 +97,7 @@ class CommandsPanel(VBoxPanel):
                     W(Label(""), stretch=1),
                     Label("I2C Device Address"),
                     self.addr_selector,
-                    PushButton("Scan", on_clicked=self.do_i2c_bus_scan),
+                    XButton("Scan", on_clicked=self.do_i2c_bus_scan),
                     Label("  |  "),
                     Label("Speed"),
                     self.speed_selector,
@@ -127,7 +126,7 @@ class CommandsPanel(VBoxPanel):
             [
                 HBoxPanel(
                     [
-                        PushButton("Read Register", on_clicked=app.read_register),
+                        XButton("Read Register", on_clicked=app.read_register),
                         Label(" Addr:"),
                         reg_addres_input[0],
                         Label(" Num Bytes:"),
@@ -137,7 +136,7 @@ class CommandsPanel(VBoxPanel):
                 ),
                 HBoxPanel(
                     [
-                        PushButton("Write Register", on_clicked=app.write_register),
+                        XButton("Write Register", on_clicked=app.write_register),
                         Label(" Addr:"),
                         LineEdit(reactive_variable=app.write_register_address_str),
                         Label(" Value:"),

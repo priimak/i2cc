@@ -13,7 +13,6 @@ from pytide6 import (
     Dialog,
     HBoxPanel,
     Label,
-    PushButton,
     VBoxLayout,
     VBoxPanel,
     W,
@@ -24,6 +23,7 @@ from rgscore import FieldDef, Register
 from sprats.collections import Variable
 
 from i2cc.app import App
+from i2cc.gui_tools import XButton
 
 
 class FractionalInput(LineEdit):
@@ -208,7 +208,7 @@ class DefRegEditor(Dialog):
                     HBoxPanel(
                         [
                             Label("Fields"),
-                            PushButton(
+                            XButton(
                                 "Add New Field",
                                 on_clicked=add_new_field,
                                 auto_default=False,
@@ -223,8 +223,8 @@ class DefRegEditor(Dialog):
                     HBoxPanel(
                         [
                             W(stretch=1),
-                            PushButton("Ok", on_clicked=self.save_register, auto_default=False),
-                            PushButton("Cancel", on_clicked=self.close, auto_default=False),
+                            XButton("Ok", on_clicked=self.save_register, auto_default=False),
+                            XButton("Cancel", on_clicked=self.close, auto_default=False),
                         ],
                         margins=0,
                     ),
@@ -405,11 +405,7 @@ class DefRegEditor(Dialog):
                         self.register_proto.gui_model[field_idx].fractional_input_field,
                         Label("  "),
                         W(stretch=1),
-                        PushButton(
-                            "Delete",
-                            on_clicked=mk_delete_action(field_idx),
-                            auto_default=False,
-                        ),
+                        XButton("Del", on_clicked=mk_delete_action(field_idx), auto_default=False),
                     ],
                     margins=0,
                 )
@@ -420,7 +416,7 @@ class DefRegEditor(Dialog):
 
 class NewRegDefDialog(Dialog):
     def __init__(self, app: App):
-        super().__init__(app.main_window, windowTitle="Create new register", modal=True)
+        super().__init__(app.main_window, windowTitle="Create new register", modal=True, css=App.css.NewRegDefDialog)
         self.app = app
         self.bit_width: Variable[int] = Variable(8, valid_values=[8, 16, 24, 32])
 
@@ -461,8 +457,8 @@ class NewRegDefDialog(Dialog):
                     HBoxPanel(
                         [
                             W(stretch=1),
-                            PushButton("Ok", on_clicked=open_edit_dialog, auto_default=True),
-                            PushButton("Cancel", on_clicked=self.close, auto_default=False),
+                            XButton("Ok", on_clicked=open_edit_dialog, auto_default=True),
+                            XButton("Cancel", on_clicked=self.close, auto_default=False),
                         ]
                     ),
                 ]

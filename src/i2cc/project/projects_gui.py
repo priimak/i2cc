@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMessageBox,
 )
-from pytide6 import Dialog, HBoxPanel, Label, Prompt, PushButton, RichTextLabel, VBoxLayout, W
+from pytide6 import Dialog, HBoxPanel, Label, Prompt, RichTextLabel, VBoxLayout, W
 from pytide6.inputs import LineEdit
 from sprats.collections import Variable
 
@@ -29,6 +29,7 @@ from i2cc.gui_tools import (
     TableModelAllSelectableAndEnabled,
     TableModelWithFilterAction,
     TableModelWithOneColumn,
+    XButton,
 )
 from i2cc.project.project import PROJECT_RE
 
@@ -117,8 +118,8 @@ class SimpleProjectDialogBase(Dialog):
         return HBoxPanel(
             [
                 W(QLabel(), stretch=10),
-                PushButton(ok_label, on_clicked=self.ok_action),
-                PushButton(cancel_label, on_clicked=self.cancel_action),
+                XButton(ok_label, on_clicked=self.ok_action),
+                XButton(cancel_label, on_clicked=self.cancel_action),
             ]
         )
 
@@ -237,9 +238,9 @@ class OverrideProjectDialog(Prompt[OverrideAction]):
                     HBoxPanel(
                         [
                             W(QLabel(), stretch=10),
-                            PushButton("Override", on_clicked=override),
-                            PushButton("Import under a different name", on_clicked=different_name),
-                            PushButton("Cancel", on_clicked=self.close),
+                            XButton("Override", on_clicked=override),
+                            XButton("Import under a different name", on_clicked=different_name),
+                            XButton("Cancel", on_clicked=self.close),
                         ]
                     ),
                 ]
@@ -436,8 +437,8 @@ class DownloadProjectDialog(Dialog):
                     HBoxPanel(
                         [
                             W(QLabel(), stretch=10),
-                            PushButton("Ok", on_clicked=self.ok_action),
-                            PushButton("Cancel", on_clicked=self.close),
+                            XButton("Ok", on_clicked=self.ok_action),
+                            XButton("Cancel", on_clicked=self.close),
                         ]
                     ),
                 ]

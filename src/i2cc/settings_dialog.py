@@ -95,7 +95,9 @@ principles unto death”
         general_settings.setMinimumWidth(QFontMetrics(self.font()).horizontalAdvance("9") * 70)
         code_editor_settings.setVisible(False)
         ok_button = code_editor_settings.ok_button()
+        ok_button.setStyleSheet(App.css.PushButton)
         cancel_button = code_editor_settings.cancel_button()
+        cancel_button.setStyleSheet(App.css.PushButton)
 
         def apply_new_settings(settings: Settings):
             app.set_code_settings(settings)

@@ -11,15 +11,19 @@ from PySide6.QtCore import (
     QSize,
     Qt,
 )
-from PySide6.QtGui import QIcon, QKeyEvent, QPainter, QTextDocument
+from PySide6.QtGui import QCursor, QIcon, QKeyEvent, QPainter, QPixmap, QTextDocument
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QItemDelegate,
     QLineEdit,
     QStyleOptionViewItem,
     QTableView,
+    QWidget,
 )
+from pytide6 import PushButton
 from pytide6.inputs import LineEdit
+
+from i2cc.app import App
 
 
 class Txt2HTMLDelegate(QItemDelegate):
@@ -198,3 +202,29 @@ def apply_filter_to_text(char_filter: list[str], text: str) -> str | None:
             new_text += text[i]
 
     return new_text if j == num_chars_in_filter else None
+
+
+class XButton(PushButton):
+    def __init__(
+        self,
+        text: str,
+        parent: QWidget | None = None,
+        *,
+        on_clicked: Callable[[], Any] | None = None,
+        auto_default: bool | None = None,
+        cursor: QCursor | Qt.CursorShape | QPixmap | None = None,
+        enabled: bool = True,
+        tool_tip: str | None = None,
+        respond_to_enter_and_return_keys: bool = True,
+    ):
+        super().__init__(
+            text,
+            parent,
+            on_clicked=on_clicked,
+            auto_default=auto_default,
+            style_sheet=App.css.PushButton,
+            cursor=cursor,
+            enabled=enabled,
+            tool_tip=tool_tip,
+            respond_to_enter_and_return_keys=respond_to_enter_and_return_keys,
+        )

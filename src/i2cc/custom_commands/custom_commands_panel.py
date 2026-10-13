@@ -10,7 +10,7 @@ from PySide6 import QtCore
 from PySide6.QtCore import QByteArray, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLabel, QMessageBox, QTextEdit
-from pytide6 import HBoxPanel, Label, Menu, PushButton, Splitter, VBoxPanel, W
+from pytide6 import HBoxPanel, Label, Menu, Splitter, VBoxPanel, W
 from qppte import QPythonPlainTextEdit
 from rgscore import RLinkI2C, S, U
 from sprats.collections import Variable
@@ -24,6 +24,7 @@ from i2cc.gui_tools import (
     TableModelAllSelectableAndEnabled,
     TableModelWithFilterAction,
     TableModelWithOneColumn,
+    XButton,
     apply_filter_to_text,
 )
 from i2cc.project.project import CustomCommand
@@ -105,14 +106,15 @@ class ResultsText(QTextEdit):
 
 class CustomCommandsPanel(VBoxPanel):
     def __init__(self, app: App):
-        super().__init__(background_color="lightyellow", margins=(7, 7, 7, 0))
+        super().__init__(background_color=App.colors.background_common, margins=(7, 7, 7, 0))
         self.app = app
         self.app.request_commands_reload = self.request_commands_reload
 
-        self.code_preview_widget = QPythonPlainTextEdit(
+        self._code_preview_widget = QPythonPlainTextEdit(
             app.main_window, settings=app.get_code_editor_settings(), readOnly=True
         )
-        app.set_code_settings = lambda s: s.apply(self.code_preview_widget)
+
+        app.set_code_settings = lambda settings: settings.apply(self.code_preview_widget)
         commands_table_model = CommandsListModel(app, self.code_preview_widget)
         self.commands_table = ListTableView(
             table_model=commands_table_model,
@@ -199,11 +201,11 @@ class CustomCommandsPanel(VBoxPanel):
         self.withWidgets(
             HBoxPanel(
                 widgets=[
-                    PushButton("Define new command", on_clicked=self.define_new_command),
-                    PushButton("Edit selected command", on_clicked=self.edit_selected_command),
-                    PushButton("Delete selected command", on_clicked=self.delete_selected_command),
+                    XButton("Define new command", on_clicked=self.define_new_command),
+                    XButton("Edit selected command", on_clicked=self.edit_selected_command),
+                    XButton("Delete selected command", on_clicked=self.delete_selected_command),
                     QLabel("        "),
-                    PushButton("Run command", on_clicked=self.eval_selected_command),
+                    XButton("Run command", on_clicked=self.eval_selected_command),
                     W(stretch=1),
                 ],
                 margins=0,
@@ -211,6 +213,10 @@ class CustomCommandsPanel(VBoxPanel):
             self.search_field,
             W(self.custom_commands_main_splitter, stretch=2),
         )
+
+    @property
+    def code_preview_widget(self) -> QPythonPlainTextEdit:
+        return self._code_preview_widget
 
     def pass_key_press_event(self) -> Callable[[QKeyEvent], None]:
         def key_pressed(event: QKeyEvent) -> None:

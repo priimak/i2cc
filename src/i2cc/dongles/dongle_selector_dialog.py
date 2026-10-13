@@ -1,16 +1,21 @@
 import sys
 
 import serial.tools.list_ports as slp
-from pytide6 import ComboBox, HBoxPanel, Label, Prompt, PushButton, VBoxLayout, W
+from PySide6.QtGui import QPalette
+from pytide6 import ComboBox, HBoxPanel, Label, Prompt, VBoxLayout, W
+from pytide6.palette import Palette
 from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.dongles.dongles import SUPPORTED_DONGLES, SUPPORTED_DONGLES_DICT
+from i2cc.gui_tools import XButton
 
 
 class DongleSelectorDialog(Prompt[bool]):
     def __init__(self, app: App):
         super().__init__(app.main_window, windowTitle="Select dongle to connect to", default_value=False)
+        self.setAutoFillBackground(True)
+        self.setPalette(Palette(QPalette.ColorRole.Window, App.colors.background_common))
 
         ports = [p.device for p in slp.comports() if SUPPORTED_DONGLES[0].comp_port_filter[sys.platform](p)]
         if ports == []:
@@ -67,8 +72,8 @@ class DongleSelectorDialog(Prompt[bool]):
                     HBoxPanel(
                         [
                             W(stretch=1),
-                            PushButton("Ok", on_clicked=ok, auto_default=True),
-                            PushButton("Cancel", on_clicked=self.close, auto_default=False),
+                            XButton("Ok", on_clicked=ok, auto_default=True),
+                            XButton("Cancel", on_clicked=self.close, auto_default=False),
                         ]
                     ),
                 ]
