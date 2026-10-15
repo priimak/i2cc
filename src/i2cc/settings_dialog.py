@@ -1,16 +1,15 @@
 from dataclasses import asdict
 from typing import Any
 
-from PySide6.QtCore import QItemSelectionModel, QModelIndex, QPersistentModelIndex
+from PySide6.QtCore import QModelIndex, QPersistentModelIndex
 from PySide6.QtGui import QFont, QFontDatabase, QFontMetrics, Qt
-from PySide6.QtWidgets import QFrame, QPlainTextEdit
+from PySide6.QtWidgets import QPlainTextEdit
 from pytide6 import ComboBox, Dialog, HBoxLayout, HBoxPanel, Label, VBoxPanel, W
 from qppte import QPythonPlainTextSettings, Settings
 from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.gui_tools import (
-    ListTableView,
     TableModelAllSelectableAndEnabled,
     TableModelWithFilterAction,
     TableModelWithOneColumn,
@@ -32,27 +31,21 @@ class GroupsModel(
         return self.groups[index.row()] if index.isValid() and role == Qt.ItemDataRole.DisplayRole else None
 
 
-class SettingDialog2(Dialog):
+class SettingDialog(Dialog):
     def __init__(
         self,
         app: App,
     ):
-        super().__init__(app.main_window, windowTitle="Settings", modal=True)
-        group_names = ["General", "Code Editor"]
-        settings_groups = ListTableView(
-            table_model=GroupsModel(group_names),
-            pass_key_press_event=None,
-            on_double_clicked=None,
-            hide_horizontal_header=True,
-        )
-        width = QFontMetrics(self.font()).horizontalAdvance("Code Editor   ")
-        settings_groups.setMaximumWidth(width)
-        settings_groups.setMinimumWidth(width)
-        settings_groups.setFrameShape(QFrame.Shape.NoFrame)
-        settings_groups.setShowGrid(False)
-        settings_groups.selectionModel().select(
-            settings_groups.model().index(0, 0), QItemSelectionModel.SelectionFlag.ClearAndSelect
-        )
+        super().__init__(app.main_window, windowTitle="Settings", modal=True, css=App.css.SettingsDialog)
+
+        group_labels = [
+            Label(" General ", css=App.css.ReactiveLabelOn),
+            Label(" Code Editor ", css=App.css.ReactiveLabelOff),
+        ]
+
+        groups_panel = VBoxPanel(group_labels + [W(stretch=1)], spacing=0, margins=0)
+        groups_panel.setStyleSheet(App.css.SettingGroupsPanel)
+
         example_general_text = QPlainTextEdit(
             """“I love those who can smile in trouble, who can gather strength
 from distress, and grow brave by reflection. 'Tis the business
@@ -122,15 +115,19 @@ principles unto death”
             margins=0,
         )
 
-        def show_group(a, b):
-            group = group_names[settings_groups.currentIndex().row()]
-            match group:
-                case "General":
-                    general_settings.setVisible(True)
-                    code_editor_settings.setVisible(False)
-                case "Code Editor":
-                    general_settings.setVisible(False)
-                    code_editor_settings.setVisible(True)
+        def show_general(_):
+            general_settings.setVisible(True)
+            code_editor_settings.setVisible(False)
+            group_labels[0].setStyleSheet(App.css.ReactiveLabelOn)
+            group_labels[1].setStyleSheet(App.css.ReactiveLabelOff)
 
-        settings_groups.selectionModel().selectionChanged.connect(show_group)
-        self.setLayout(HBoxLayout([settings_groups, W(settings_container, stretch=2)]))
+        def show_code_editor(_):
+            general_settings.setVisible(False)
+            code_editor_settings.setVisible(True)
+            group_labels[0].setStyleSheet(App.css.ReactiveLabelOff)
+            group_labels[1].setStyleSheet(App.css.ReactiveLabelOn)
+
+        group_labels[0].mousePressEvent = show_general
+        group_labels[1].mousePressEvent = show_code_editor
+
+        self.setLayout(HBoxLayout([groups_panel, W(settings_container, stretch=2)]))

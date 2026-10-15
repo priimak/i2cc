@@ -15,7 +15,7 @@ from i2cc.project.projects_gui import (
     RenameProjectDialog,
     SaveAsProjectDialog,
 )
-from i2cc.settings_dialog import SettingDialog2
+from i2cc.settings_dialog import SettingDialog
 
 
 class FileMenu(QMenu):
@@ -46,7 +46,7 @@ class FileMenu(QMenu):
         self.addSeparator()
         self.addAction("&Clear history", app.clear_history)
         self.addSeparator()
-        self.addAction("S&ettings", lambda: SettingDialog2(app).exec())
+        self.addAction("S&ettings", lambda: SettingDialog(app).exec())
         self.addSeparator()
         self.addAction("&Quit", lambda: app.exit_application[0]())
 

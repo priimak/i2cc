@@ -30,6 +30,30 @@ class Colors:
 
 
 class CSS:
+    SettingsDialog = "QDialog { background-color: " + Colors.background_common + "; }"
+    SettingGroupsPanel = (
+        "QWidget { background-color: " + Colors.background_common + "; border-right: 1px solid #000000}"
+    )
+    ReactiveLabelOn = """
+    QLabel {
+        background-color: #a0b0ac;
+    }
+    QLabel:hover {
+        background-color: #aabaaf;
+    }
+    """
+    ReactiveLabelOff = (
+        """
+    QLabel {
+        background-color: """
+        + Colors.background_common
+        + """;
+    }
+    QLabel:hover {
+        background-color: #fbffff;
+    }
+    """
+    )
     FindActionDialog = "QDialog { background-color: " + Colors.background_common + "; border: 2px solid; }"
     LogLineLabel = "QLabel { border: 1px solid black; background-color: " + Colors.background_common + " ; }"
     selected_dongle_label = "QLabel { border: 1px solid black; background-color: " + Colors.background_common + " ; }"
@@ -74,7 +98,7 @@ class CSS:
             border-left-color: #bbbbbb;
             border-right-color: #555555;
             border-bottom-color: #555555;
-            border-radius: 12px;
+            border-radius: 8px;
             min-width: 2em;
             padding: 4px;
         }
