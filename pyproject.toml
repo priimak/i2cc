@@ -49,7 +49,7 @@ select = [
 [tool.uv.sources]
 pytide6 = { git = "https://github.com/priimak/PyTide6.git", rev = "v0.24.1" }
 sprats = { git = "https://github.com/priimak/sprats.git", rev = "v0.9.0" }
-rgscore = { git = "git+https://github.com/priimak/rgscore.git", rev = "v0.14.0" }
+rgscore = { git = "git+https://github.com/priimak/rgscore.git", rev = "v0.14.1" }
 
 [dependency-groups]
 dev = [

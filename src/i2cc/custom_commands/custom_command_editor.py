@@ -177,7 +177,7 @@ class HistoryDialog(Dialog):
 
 
 class CustomCommandsEditor(Dialog):
-    def __init__(self, app: App, cmd: CustomCommand | None):
+    def __init__(self, app: App, cmd: CustomCommand | None, new_command: bool = False):
         super().__init__(
             app.main_window,
             windowTitle="Create Custom Command" if cmd is None else "Edit Custom Command",
@@ -204,16 +204,17 @@ class CustomCommandsEditor(Dialog):
             [] if cmd is None else [XButton("History", on_clicked=show_history_selector, auto_default=False)]
         )
 
+        command_name_line_edit = LineEdit(
+            reactive_variable=self.command_label,
+            with_min_width_for_text=(" " * 100),
+            on_key_enter=lambda _: self.code_editor.setFocus(),
+            suppress_keys=[Qt.Key.Key_Escape],
+            font=self.code_editor.font(),
+        )
         self.setLayout(
             VBoxLayout(
                 [
-                    LineEdit(
-                        reactive_variable=self.command_label,
-                        with_min_width_for_text=(" " * 100),
-                        on_key_enter=lambda _: self.code_editor.setFocus(),
-                        suppress_keys=[Qt.Key.Key_Escape],
-                        font=self.code_editor.font(),
-                    ),
+                    command_name_line_edit,
                     W(code_editor_widget, stretch=1),
                     HorizonalLine(),
                     HBoxPanel(
@@ -228,6 +229,8 @@ class CustomCommandsEditor(Dialog):
                 ]
             )
         )
+        if new_command:
+            command_name_line_edit.setFocus()
 
     def save_command(self):
         code = self.code_editor.toPlainText()

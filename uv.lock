@@ -359,7 +359,7 @@ requires-dist = [
     { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.24.1" },
     { name = "qppte", specifier = ">=0.7.2" },
     { name = "requests", specifier = ">=2.34.2" },
-    { name = "rgscore", git = "https://github.com/priimak/rgscore.git?rev=v0.14.0" },
+    { name = "rgscore", git = "https://github.com/priimak/rgscore.git?rev=v0.14.1" },
     { name = "sprats", git = "https://github.com/priimak/sprats.git?rev=v0.9.0" },
     { name = "usb-monitor" },
 ]
@@ -885,8 +885,8 @@ wheels = [
 
 [[package]]
 name = "rgscore"
-version = "0.14.0.post0+git.0f2ccdd1.dirty"
-source = { git = "https://github.com/priimak/rgscore.git?rev=v0.14.0#0f2ccdd1ed497e98eb09b0ef8a2e871d7af21098" }
+version = "0.14.1.post0+git.c5dc8e37.dirty"
+source = { git = "https://github.com/priimak/rgscore.git?rev=v0.14.1#c5dc8e3759105b909f1af498436809eff39c46ba" }
 dependencies = [
     { name = "bitstring" },
     { name = "i2c-api" },

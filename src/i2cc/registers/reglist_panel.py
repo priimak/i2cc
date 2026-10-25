@@ -15,6 +15,8 @@ from i2cc.app import App
 from i2cc.gui_tools import (
     InTableSearchField,
     ListTableView,
+    ModalMessageDialog,
+    ReactiveActionLabelWithMenu,
     TableModelAllSelectableAndEnabled,
     TableModelWithFilterAction,
     TableModelWithThreeColumns,
@@ -182,7 +184,6 @@ class RegInfoText(QTextEdit):
                     fields_rows += "<td></td></tr>"
                 else:
                     fields_rows += f"<td>&nbsp;&nbsp;=> {register.get_field_value(field_def.name)}</td></tr>"
-
             self.setText(
                 f"""
                 <table>
@@ -262,16 +263,46 @@ class RegListPanel(VBoxPanel):
             widgets=[self.reglist_table, self.register_text],
             margins=0,
         )
+
+        button_new_register = XButton("New register", on_clicked=lambda: NewRegDefDialog(self.app).exec())
+        button_edit = XButton("Edit", on_clicked=self.edit_selected_register)
+        button_delete = XButton("Delete", on_clicked=self.delete_selected_register)
+        button_read = XButton("Read", on_clicked=self.read_selected_register)
+        button_write = XButton("Write", on_clicked=self.write_selected_register)
+
+        def set_buttons_visible(visible: bool) -> None:
+            button_new_register.setVisible(visible)
+            button_edit.setVisible(visible)
+            button_delete.setVisible(visible)
+            button_read.setVisible(visible)
+            button_write.setVisible(visible)
+
+        show_registers_buttons = self.app.persistence.state.get_value("registers_buttons_show", True)
+        set_buttons_visible(show_registers_buttons)
+
+        config_label = ReactiveActionLabelWithMenu()
+        show_action = config_label.addMenuAction("Show buttons")
+        show_action.setCheckable(True)
+        show_action.setChecked(show_registers_buttons)
+
+        def action_show():
+            is_checked = show_action.isChecked()
+            self.app.persistence.state.set_value("registers_buttons_show", is_checked)
+            set_buttons_visible(is_checked)
+
+        show_action.triggered.connect(action_show)
+
         self.withWidgets(
             HBoxPanel(
                 widgets=[
-                    XButton("New register", on_clicked=lambda: NewRegDefDialog(self.app).exec()),
-                    XButton("Edit", on_clicked=self.edit_selected_register),
-                    XButton("Delete", on_clicked=self.delete_selected_register),
+                    button_new_register,
+                    button_edit,
+                    button_delete,
                     QLabel("        "),
-                    XButton("Read", on_clicked=self.read_selected_register),
-                    XButton("Write", on_clicked=self.write_selected_register),
+                    button_read,
+                    button_write,
                     W(stretch=1),
+                    config_label,
                 ],
                 margins=0,
             ),
@@ -336,12 +367,10 @@ class RegListPanel(VBoxPanel):
     def delete_selected_register(self):
         register = self.get_selected_register_name()
         if register is not None:
-            ret = QMessageBox.question(
+            ret = ModalMessageDialog.question(
                 self.app.main_window,
                 "Delete register?",
                 f"Please confirm that you want to delete register [{register.name}]?",
-                QMessageBox.StandardButton.Yes,
-                QMessageBox.StandardButton.No,
             )
             if ret == QMessageBox.StandardButton.Yes:
                 self.app.project.reg_list.delete_register_by_name(register.name)

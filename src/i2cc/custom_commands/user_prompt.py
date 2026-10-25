@@ -1,14 +1,14 @@
 from typing import Callable
 
 from PySide6.QtGui import QDoubleValidator, QIntValidator
-from PySide6.QtWidgets import QMessageBox, QWidget
+from PySide6.QtWidgets import QWidget
 from pytide6 import CheckBox, ComboBox, Dialog, HBoxPanel, Label, VBoxLayout, W
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
 from sprats.collections import Variable
 
 from i2cc.app import App
-from i2cc.gui_tools import XButton
+from i2cc.gui_tools import ModalMessageDialog, XButton
 
 
 class EvalExit(Exception):
@@ -93,7 +93,7 @@ class UserPromptDialog(Dialog):
     def ok(self):
         for success_status in self.inputs_success_status:
             if success_status.value != "":
-                QMessageBox.critical(None, "Error", success_status.value)
+                ModalMessageDialog.error(None, success_status.value)
                 return
 
         self.is_canceled = False

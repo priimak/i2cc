@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QMessageBox
 from pytide6 import ComboBox, Dialog, HBoxPanel, Label, VBoxLayout, VBoxPanel, W
+from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
 from sprats.collections import Variable
 
@@ -149,7 +150,17 @@ class CommandsPanel(VBoxPanel):
             ],
             margins=0,
         )
-        self.addWidget(HBoxPanel([W(Label(""), stretch=1), panel, W(Label(""), stretch=1)]))
+
+        cmd_panel = HBoxPanel([W(Label(""), stretch=1), panel, W(Label(""), stretch=1)])
+        reg_panel = VBoxPanel([HorizonalLine(), cmd_panel], margins=0, spacing=0)
+        reg_panel.setVisible(self.app.persistence.state.get_value("commands_panel_visible", True))
+
+        def toggle_bottom_control_panel_visibility(visible: bool):
+            reg_panel.setVisible(visible)
+            self.app.persistence.state.set_value("commands_panel_visible", visible)
+
+        app.set_commands_panel_visible = toggle_bottom_control_panel_visibility
+        self.addWidget(reg_panel)
 
     def do_i2c_bus_scan(self) -> None:
         scan_dialog = QMessageBox(self.app.main_window)

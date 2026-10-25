@@ -11,16 +11,20 @@ from PySide6.QtCore import (
     QSize,
     Qt,
 )
-from PySide6.QtGui import QCursor, QIcon, QKeyEvent, QPainter, QPixmap, QTextDocument
+from PySide6.QtGui import QAction, QCursor, QIcon, QKeyEvent, QPainter, QPixmap, QTextDocument
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QDialogButtonBox,
     QItemDelegate,
+    QLabel,
     QLineEdit,
+    QMenu,
+    QMessageBox,
     QStyleOptionViewItem,
     QTableView,
     QWidget,
 )
-from pytide6 import PushButton
+from pytide6 import Dialog, HBoxPanel, Label, PushButton, VBoxLayout, W
 from pytide6.inputs import LineEdit
 
 from i2cc.app import App
@@ -228,3 +232,114 @@ class XButton(PushButton):
             tool_tip=tool_tip,
             respond_to_enter_and_return_keys=respond_to_enter_and_return_keys,
         )
+
+
+class ModalMessageDialog(Dialog):
+    def __init__(self, parent, *, message: str, windowTitle: str, icon: QIcon.ThemeIcon | None, buttons: list[XButton]):
+        super().__init__(parent, windowTitle=windowTitle, modal=True, css=App.css.ErrorDialog)
+
+        msg_widgets = []
+        if icon is not None:
+            icon_label = QLabel()
+            icon_label.setPixmap(QIcon.fromTheme(icon).pixmap(QSize(52, 52)))
+            msg_widgets.append(icon_label)
+        msg_widgets.append(Label(message))
+        self.setLayout(
+            VBoxLayout(
+                [
+                    HBoxPanel(msg_widgets),
+                    W(stretch=1),
+                    HBoxPanel([W(stretch=1)] + buttons),
+                ]
+            )
+        )
+
+    @staticmethod
+    def error(parent, message: Any):
+        dialog = []
+
+        def close():
+            dialog[0].close()
+
+        message_dialog = ModalMessageDialog(
+            parent,
+            message=str(message),
+            windowTitle="Error",
+            icon=QIcon.ThemeIcon.DialogError,
+            buttons=[XButton("Ok", on_clicked=close)],
+        )
+        dialog.append(message_dialog)
+        message_dialog.exec()
+
+    @staticmethod
+    def information(parent, message: Any):
+        dialog = []
+
+        def close():
+            dialog[0].close()
+
+        message_dialog = ModalMessageDialog(
+            parent,
+            message=str(message),
+            windowTitle="Info",
+            icon=QIcon.ThemeIcon.DialogInformation,
+            buttons=[XButton("Ok", on_clicked=close)],
+        )
+        dialog.append(message_dialog)
+        message_dialog.exec()
+
+    @staticmethod
+    def about(parent, message: Any):
+        dialog = []
+
+        def close():
+            dialog[0].close()
+
+        message_dialog = ModalMessageDialog(
+            parent, message=str(message), windowTitle="About", icon=None, buttons=[XButton("Ok", on_clicked=close)]
+        )
+        dialog.append(message_dialog)
+        message_dialog.exec()
+
+    @staticmethod
+    def question(parent, title: str, message: Any) -> QDialogButtonBox.StandardButton:
+        dialog = []
+        retval = [QMessageBox.StandardButton.No]
+
+        def yes():
+            retval.clear()
+            retval.append(QMessageBox.StandardButton.Yes)
+            dialog[0].close()
+
+        def no():
+            dialog[0].close()
+
+        message_dialog = ModalMessageDialog(
+            parent,
+            message=str(message),
+            windowTitle=title,
+            icon=QIcon.ThemeIcon.DialogQuestion,
+            buttons=[XButton("Yes", on_clicked=yes), XButton("No", on_clicked=no)],
+        )
+        dialog.append(message_dialog)
+        message_dialog.exec()
+        return retval[0]
+
+
+class ReactiveActionLabelWithMenu(QLabel):
+    def __init__(self, text="⋮⋮"):
+        super().__init__(text)
+        "⬔"
+        self.setStyleSheet(App.css.ReactiveActionLabel)
+
+        self.menu = QMenu(self)
+
+    def addMenuAction(self, action_text: str) -> QAction:
+        action = QAction(action_text, self)
+        self.menu.addAction(action)
+        return action
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.menu.exec(event.globalPosition().toPoint())
+        super().mousePressEvent(event)

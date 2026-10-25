@@ -7,7 +7,6 @@ from PySide6.QtCore import QByteArray, QLockFile, QSize, Qt
 from PySide6.QtGui import QCloseEvent, QFont
 from PySide6.QtWidgets import (
     QApplication,
-    QMessageBox,
     QTabWidget,
 )
 from pytide6 import (
@@ -29,6 +28,7 @@ from i2cc.custom_commands.custom_commands_panel import CustomCommandsPanel
 from i2cc.dongles.dongle_selector_dialog import select_dongle
 from i2cc.dongles.dongles import SUPPORTED_DONGLES_DICT, mk_DummyI2CMaster
 from i2cc.find_actions_dialog import FindActionDialog
+from i2cc.gui_tools import ModalMessageDialog
 from i2cc.i2c_log import LogLineLabel
 from i2cc.i2c_op_thread import Quit
 from i2cc.menus import MainMenuBar
@@ -80,6 +80,13 @@ class I2CDriverWindow(MainWindow):
 
         self.res_table = ResultsPanel(self.app)
         left_panel = VBoxPanel(widgets=[self.res_table], background_color=App.colors.background_main_window, margins=1)
+        left_panel.setVisible(self.app.persistence.state.get_value("results_panel_visible", True))
+
+        def toggle_left_panel_visibility(visible: bool):
+            left_panel.setVisible(visible)
+            self.app.persistence.state.set_value("results_panel_visible", visible)
+
+        app.set_results_panel_visible = toggle_left_panel_visibility
 
         self.cpanel = CommandsPanel(app)
 
@@ -169,9 +176,8 @@ class I2CDriverWindow(MainWindow):
 
         last_selected_device = self.app.persistence.config.get_value("last_selected_device", dict)
         if last_selected_device == dict():
-            QMessageBox.information(
+            ModalMessageDialog.information(
                 self,
-                "Info",
                 "<H3>Please select I2CDongle to use.</H3>"
                 ""
                 "Once selected you will <b>NOT</b> be prompted again on start up of "
@@ -179,8 +185,8 @@ class I2CDriverWindow(MainWindow):
                 'and select option "Connect" to pick different dongle.',
             )
             if not select_dongle(self.app):
-                QMessageBox.information(
-                    self, "Info", "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
+                ModalMessageDialog.information(
+                    self, "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
                 )
                 self.app.i2c_master.value = mk_DummyI2CMaster("COM", None)
         else:
@@ -192,12 +198,12 @@ class I2CDriverWindow(MainWindow):
                 self.cpanel.speed_selector.setCurrentText(saved_speed)
             except Exception:
                 self.app.show_error(
-                    "Failed to connected to last used dongle. Please select a new one or connect previously "
-                    "used one and restart the application"
+                    "Failed to connected to last used dongle.<br/><br/>Please select new dongle or connect "
+                    "<br/>previously used one and restart the application"
                 )
                 if not select_dongle(self.app):
-                    QMessageBox.information(
-                        self, "Info", "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
+                    ModalMessageDialog.information(
+                        self, "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
                     )
                     self.app.i2c_master.value = mk_DummyI2CMaster("COM", None)
                     self.app.persistence.config.set_value(
@@ -206,21 +212,8 @@ class I2CDriverWindow(MainWindow):
 
 
 def main():
-    # QApplication.setFont(QtGui.QFont("Serif"))
     app = QApplication(sys.argv)
-    # app.setFont(QtGui.QFont("Serif"))
 
-    # # Fetch all available font family names
-    # db = QtGui.QFontDatabase
-    # font_families = db.families()
-    #
-    #
-    # # Print the list of fonts
-    # for font in font_families:
-    #     if db.isFixedPitch(font):
-    #         print(font)
-
-    # code_appearance
     persistence = AppPersistence(
         app_name="i2cc",
         override_config_if_different_version=True,
@@ -261,7 +254,7 @@ def main():
     lock_file = QLockFile(f"{lock_file_path}")
     lock_file.setStaleLockTime(0)
     if not lock_file.tryLock(0):
-        QMessageBox.critical(None, "Error", "Application i2cgui is already running.")
+        ModalMessageDialog.error(None, "Application i2cgui is already running.")
         sys.exit(1)
 
     # Will init main window size to be some fraction of the screen size unless defined elsewhere
@@ -280,7 +273,7 @@ def main():
 
         sys.exit(app.exec())
     except Exception as ex:
-        QMessageBox.critical(None, "Error", f"Error: {ex}")
+        ModalMessageDialog.error(None, f"Error: {ex}")
         sys.exit(1)
 
 

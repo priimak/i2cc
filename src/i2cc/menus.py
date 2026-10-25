@@ -1,12 +1,13 @@
 from functools import partial
 
-from PySide6.QtWidgets import QMenu, QMenuBar, QMessageBox, QWidget
+from PySide6.QtWidgets import QMenu, QMenuBar, QWidget
 from pytide6 import Menu
 
 from i2cc import __version__
 from i2cc.app import App
 from i2cc.dongles.dongle_selector_dialog import select_dongle
 from i2cc.find_actions_dialog import FindActionDialog
+from i2cc.gui_tools import ModalMessageDialog
 from i2cc.project.projects_gui import (
     DeleteProjectDialog,
     DownloadProjectDialog,
@@ -58,11 +59,27 @@ class DongleMenu(QMenu):
         self.addAction("&Reset Dongle")
 
 
+class ViewMenu(QMenu):
+    def __init__(self, parent: QMenuBar, app: App):
+        super().__init__("&View", parent)
+        results_panel_action = self.addAction("&Generic Results Panel")
+        results_panel_action.setCheckable(True)
+        results_panel_action.setChecked(app.persistence.state.get_value("results_panel_visible", True))
+        results_panel_action.toggled.connect(app.set_results_panel_visible)
+
+        commands_panel_action = self.addAction("&Commands Panel")
+        commands_panel_action.setCheckable(True)
+        value = app.persistence.state.get_value("commands_panel_visible", True)
+        commands_panel_action.setChecked(value)
+        commands_panel_action.toggled.connect(app.set_commands_panel_visible)
+
+
 class MainMenuBar(QMenuBar):
     def __init__(self, app: App, dialogs_parent: QWidget) -> None:
         super().__init__(dialogs_parent)
         self.addMenu(FileMenu(self, app))
         self.addMenu(DongleMenu(self, app))
+        self.addMenu(ViewMenu(self, app))
         self.addMenu(
             Menu(
                 "&Help",
@@ -74,14 +91,13 @@ class MainMenuBar(QMenuBar):
                     ),
                     (
                         "&About",
-                        lambda: QMessageBox.about(
+                        lambda: ModalMessageDialog.about(
                             self,
-                            "About",
                             f"<html><H2>I2C Commander</H2><H4>Version: {__version__}</H4>"
-                            '<p style="font-size:14px;">"While there is life there is hope. I beg to assert...that '
-                            "as long as a man's heart beats, as long as a man's flesh quivers, I do not allow that "
-                            'a being gifted with thought and will can allow himself to despair."</br>'
-                            "&nbsp;&nbsp;&nbsp;&nbsp;- <em>Jules Verne, Journey to the Center of the Earth</em></html>",
+                            '<p style="font-size:14px;">"While there is life there is hope. I beg to assert...<br/>that '
+                            "as long as a man's heart beats, as long as a man's flesh<br/>quivers,  "
+                            'I do not allow that a being gifted with thought and will<br/>can allow himself to despair."'
+                            "<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;- <em>Jules Verne, Journey to the Center of the Earth</em></html>",
                         ),
                     ),
                 ],

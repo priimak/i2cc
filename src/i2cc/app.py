@@ -30,6 +30,7 @@ class Colors:
 
 
 class CSS:
+    ErrorDialog = "QDialog { background-color: " + Colors.background_common + "; }"
     SettingsDialog = "QDialog { background-color: " + Colors.background_common + "; }"
     SettingGroupsPanel = (
         "QWidget { background-color: " + Colors.background_common + "; border-right: 1px solid #000000}"
@@ -63,26 +64,36 @@ class CSS:
     UserPromptDialog = "QDialog { background-color: " + Colors.background_common + ";}"
     ProjectNotesViewer = "QTextEdit { background-color: #feffff; }"
     RegInfoText = "QTextEdit { font-family: 'Monospace'; }"
+    ReactiveActionLabel = """
+    QLabel {
+        border: 1px solid #dadada;
+        border-radius: 8px;
+        background-color: #f0f8ff;
+    }
+    QLabel:hover {
+        background-color: #dddddd;
+    }
+    """
     Tabs = """
     QTabBar::tab {
         border-top-left-radius: 15px;
         border-top-right-radius: 7px;
 
-        background: #f0f8ff;
-        color: #666666;
+        background: #b0c4de;
+        color: #333333;
         padding: 6px 12px;
         border: solid #3A434B;
-        border-top: 1px solid #333333;
-        border-left: 1px solid #333333;
-        border-right: 1px solid #aaaaaa;
+        border-top: 1px solid #111111;
+        border-left: 1px solid #111111;
+        border-right: 1px solid #111111;
       }
   
     QTabBar::tab:selected {
-        background: #778899;
-        border-top: 2px solid #cccccc;
-        border-left: 2px solid #cccccc;
-        border-right: 4px solid #333333;
-        color: white;
+        background: #f0f8ff;
+        border-top: 1px solid #111111;
+        border-left: 1px solid #111111;
+        border-right: 1px solid #111111;
+        color: black;
     }
     QTabBar::tab:hover:!selected {
         background: #f0f8ff;
@@ -167,6 +178,8 @@ class App:
         self.request_reglist_select_register: Callable[[Register], None] = lambda _: None
         self.show_last_i2c_log_message: Callable[[list], None] = lambda _: None
         self.set_code_settings: Callable[[Settings], None] = lambda _: None
+        self.set_results_panel_visible: Callable[[bool], None] = lambda _: None
+        self.set_commands_panel_visible: Callable[[bool], None] = lambda _: None
 
         # called by results panel when register is read and result are (re)displayed
         self.registers_values_changed: Callable[[int], None] = lambda _: None
@@ -194,13 +207,13 @@ class App:
         self._main_window = None
 
     def clear_history(self):
-        ret = QMessageBox.question(
+        from i2cc.gui_tools import ModalMessageDialog
+
+        ret = ModalMessageDialog.question(
             self.main_window,
             "Clear history?",
-            "Please confirm that you want to clear history for this project?\n\n"
+            "Please confirm that you want to clear history for this project?<br/>"
             "You will NOT be able to undo this operation!",
-            QMessageBox.StandardButton.Yes,
-            QMessageBox.StandardButton.No,
         )
         if ret == QMessageBox.StandardButton.Yes:
             self.project.commands_history.clear()
@@ -399,7 +412,9 @@ class App:
         if file_name != "":
             try:
                 self.project.export_to_file(file_name, override_if_exists=True)
-                QMessageBox.information(self.main_window, "Info", f'Project exported into file "{file_name}"')
+                from i2cc.gui_tools import ModalMessageDialog
+
+                ModalMessageDialog.information(self.main_window, f'Project exported into file "{file_name}"')
                 self.persistence.state.set_value("last_used_dir", str(Path(file_name).parent.absolute()))
             except Exception as ex:
                 self.show_error(str(ex))
@@ -419,4 +434,6 @@ class App:
                 self.show_error(str(ex))
 
     def show_error(self, message) -> None:
-        QMessageBox.critical(self.main_window, "Error", message)
+        from i2cc.gui_tools import ModalMessageDialog
+
+        ModalMessageDialog.error(self.main_window, message=str(message))

@@ -21,6 +21,8 @@ from i2cc.custom_commands.user_prompt import EvalExit, mk_prompt_user
 from i2cc.gui_tools import (
     InTableSearchField,
     ListTableView,
+    ModalMessageDialog,
+    ReactiveActionLabelWithMenu,
     TableModelAllSelectableAndEnabled,
     TableModelWithFilterAction,
     TableModelWithOneColumn,
@@ -130,6 +132,8 @@ class CustomCommandsPanel(VBoxPanel):
             parent=self,
             actions=[
                 ("Run", self.eval_selected_command),
+                Menu.Separator,
+                ("New", self.define_new_command),
                 ("Edit", self.edit_selected_command),
                 ("Delete", self.delete_selected_command),
             ],
@@ -148,6 +152,17 @@ class CustomCommandsPanel(VBoxPanel):
             close_action=lambda: None,
         )
 
+        code_preview_panel = VBoxPanel(
+            [
+                HBoxPanel(
+                    [(Label(" Code Preview ", css=title_labels_css)), W(stretch=1)],
+                    margins=0,
+                ),
+                self.code_preview_widget,
+            ],
+            margins=(0, 10, 0, 0),
+            spacing=0,
+        )
         self.results_and_preview_splitter = Splitter(
             Qt.Orientation.Vertical,
             childrenCollapsible=False,
@@ -164,17 +179,7 @@ class CustomCommandsPanel(VBoxPanel):
                     margins=0,
                     spacing=0,
                 ),
-                VBoxPanel(
-                    [
-                        HBoxPanel(
-                            [(Label(" Code Preview ", css=title_labels_css)), W(stretch=1)],
-                            margins=0,
-                        ),
-                        self.code_preview_widget,
-                    ],
-                    margins=(0, 10, 0, 0),
-                    spacing=0,
-                ),
+                code_preview_panel,
             ],
             margins=0,
         )
@@ -198,15 +203,49 @@ class CustomCommandsPanel(VBoxPanel):
             ],
         )
 
+        button_new_command = XButton("Define new command", on_clicked=self.define_new_command)
+        button_edit_command = XButton("Edit selected command", on_clicked=self.edit_selected_command)
+        button_delete_command = XButton("Delete selected command", on_clicked=self.delete_selected_command)
+        button_run_command = XButton("Run command", on_clicked=self.eval_selected_command)
+
+        def set_buttons_visible(visible: bool) -> None:
+            button_new_command.setVisible(visible)
+            button_edit_command.setVisible(visible)
+            button_delete_command.setVisible(visible)
+            button_run_command.setVisible(visible)
+            self.app.persistence.state.set_value("commands_buttons_show", visible)
+
+        config_label = ReactiveActionLabelWithMenu()
+        show_buttons_action = config_label.addMenuAction("Show buttons")
+        show_buttons_action.setCheckable(True)
+        show_commands_buttons = self.app.persistence.state.get_value("commands_buttons_show", True)
+        set_buttons_visible(show_commands_buttons)
+        show_buttons_action.setChecked(show_commands_buttons)
+        show_buttons_action.triggered.connect(set_buttons_visible)
+
+        show_code_preview_action = config_label.addMenuAction("Show code preview")
+        show_code_preview_action.setCheckable(True)
+        show_code_preview = self.app.persistence.state.get_value("code_preview_show", True)
+        show_code_preview_action.setChecked(show_code_preview)
+        code_preview_panel.setVisible(show_code_preview)
+
+        def show_code_preview_callback():
+            is_checked = show_code_preview_action.isChecked()
+            self.app.persistence.state.set_value("code_preview_show", is_checked)
+            code_preview_panel.setVisible(is_checked)
+
+        show_code_preview_action.triggered.connect(show_code_preview_callback)
+
         self.withWidgets(
             HBoxPanel(
                 widgets=[
-                    XButton("Define new command", on_clicked=self.define_new_command),
-                    XButton("Edit selected command", on_clicked=self.edit_selected_command),
-                    XButton("Delete selected command", on_clicked=self.delete_selected_command),
+                    button_new_command,
+                    button_edit_command,
+                    button_delete_command,
                     QLabel("        "),
-                    XButton("Run command", on_clicked=self.eval_selected_command),
+                    button_run_command,
                     W(stretch=1),
+                    config_label,
                 ],
                 margins=0,
             ),
@@ -293,7 +332,7 @@ class CustomCommandsPanel(VBoxPanel):
         self.eval_selected_command()
 
     def define_new_command(self):
-        CustomCommandsEditor(self.app, cmd=None).exec()
+        CustomCommandsEditor(self.app, cmd=None, new_command=True).exec()
 
     def get_selected_command(self) -> tuple[CustomCommand, int] | None:
         selected_row = self.get_selected_row()
@@ -306,12 +345,10 @@ class CustomCommandsPanel(VBoxPanel):
     def delete_selected_command(self):
         match self.get_selected_command():
             case (cmd, row):
-                ret = QMessageBox.question(
+                ret = ModalMessageDialog.question(
                     self.app.main_window,
                     "Delete custom command?",
                     "Please confirm that you want to delete this command?",
-                    QMessageBox.StandardButton.Yes,
-                    QMessageBox.StandardButton.No,
                 )
                 if ret == QMessageBox.StandardButton.Yes:
                     self.commands_table.table_model.beginResetModel()
