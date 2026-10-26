@@ -21,3 +21,15 @@ To run _I2C Commander_
 ```shell
 uv run i2cc
 ```
+
+## Installing as an application
+
+```shell
+uv tool install git+https://github.com/priimak/i2cc.git
+```
+
+Then to run simply
+
+```shell
+i2cc
+```
