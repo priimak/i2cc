@@ -22,9 +22,10 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QStyleOptionViewItem,
     QTableView,
+    QTextEdit,
     QWidget,
 )
-from pytide6 import Dialog, HBoxPanel, Label, PushButton, VBoxLayout, W
+from pytide6 import Dialog, HBoxPanel, PushButton, VBoxLayout, VBoxPanel, W
 from pytide6.inputs import LineEdit
 
 from i2cc.app import App
@@ -242,13 +243,21 @@ class ModalMessageDialog(Dialog):
         if icon is not None:
             icon_label = QLabel()
             icon_label.setPixmap(QIcon.fromTheme(icon).pixmap(QSize(52, 52)))
-            msg_widgets.append(icon_label)
-        msg_widgets.append(Label(message))
+            msg_widgets.append(VBoxPanel([icon_label, W(stretch=1)], margins=0))
+        text_edit = QTextEdit(message)
+        text_edit.setReadOnly(True)
+
+        min_width = text_edit.fontMetrics().horizontalAdvance(message + "  ")
+        max_width = text_edit.fontMetrics().horizontalAdvance("_" * 100)
+        text_edit.setMinimumWidth(min(min_width, max_width))
+        text_edit.setMaximumWidth(max_width)
+
+        msg_widgets.append(text_edit)
         self.setLayout(
             VBoxLayout(
                 [
                     HBoxPanel(msg_widgets),
-                    W(stretch=1),
+                    # W(stretch=1),
                     HBoxPanel([W(stretch=1)] + buttons),
                 ]
             )

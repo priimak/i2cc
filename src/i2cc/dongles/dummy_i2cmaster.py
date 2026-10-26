@@ -1,76 +1,9 @@
-from bitstring import Bits
-from i2c_api import ExecResults, I2CLogger, I2CMaster, I2CTransaction, RegisterAddress
-from i2c_api.log import I2CTransactionElement
-from i2capi_i2cdriver.i2cdriver_api import DummyI2CLogger
+from i2c_api import ExecResults, I2CMaster, I2CTransaction
 
 
 class DummyI2CMaster(I2CMaster):
-    def __init__(self):
-        super().__init__()
-        self.__logger = DummyI2CLogger()
-
-    def _write(
-        self,
-        address: int,
-        *,
-        data: Bits | str | int | list[int],
-        log_msg: list[I2CTransactionElement],
-        num_bytes: int | None,
-        end_with_stop: bool,
-        start_with_restart: bool,
-    ) -> bool:
-        return True
-
-    def _read(
-        self,
-        address: int,
-        *,
-        num_bytes: int,
-        log_msg: list[I2CTransactionElement],
-        end_with_stop: bool,
-        start_with_restart: bool,
-    ) -> Bits | None:
-        return None
-
-    def __repr__(self) -> str:
-        return "DummyI2CDriver"
-
-    def _exec(self, transaction: I2CTransaction) -> ExecResults:
-        return ExecResults([], True)
-
-    def logger(self) -> I2CLogger:
-        return self.__logger
-
-    def write_register(
-        self,
-        address: int,
-        register: RegisterAddress,
-        data: Bits | str | int | list[int],
-        num_bytes: int | None = 1,
-        read_back: bool = False,
-        use_restart: bool = True,
-    ) -> Bits | None:
-        return None
-
-    def write(
-        self,
-        address: int,
-        data: Bits | str | int | list[int],
-        num_bytes: int | None = None,
-    ) -> bool:
-        return False
-
-    def read(self, address: int, num_bytes: int = 1) -> Bits | None:
-        return None
-
-    def read_register(
-        self,
-        address: int,
-        register: RegisterAddress,
-        num_bytes: int = 1,
-        use_restart: bool = True,
-    ) -> Bits | None:
-        return None
+    def _exec(self, transaction: I2CTransaction, device_address: int = -1) -> ExecResults:
+        pass
 
     def scan(self) -> list[int]:
         return []
@@ -91,4 +24,7 @@ class DummyI2CMaster(I2CMaster):
         return 100
 
     def set_clk_speed(self, speed: int) -> None:
+        pass
+
+    def close(self):
         pass

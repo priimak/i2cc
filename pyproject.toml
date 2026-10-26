@@ -9,16 +9,13 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "usb-monitor",
-    "i2cdriver==1.0.6",
     "pyside6==6.11.2",
-    "i2c-api @ git+https://github.com/priimak/i2c_api.git@v0.16.5",
-    "i2capi_i2cdriver @ git+https://github.com/priimak/i2capi_i2cdriver.git@v0.7.3",
-    "i2capi_mcp2221 @ git+https://github.com/priimak/i2capi_mcp2221.git@v0.1.1",
     "requests>=2.34.2",
     "qppte>=0.7.2",
     "pytide6",
     "sprats",
-    "rgscore"
+    "rgscore",
+    "i2c-drivers",
 ]
 
 [project.scripts]
@@ -49,7 +46,8 @@ select = [
 [tool.uv.sources]
 pytide6 = { git = "https://github.com/priimak/PyTide6.git", rev = "v0.24.1" }
 sprats = { git = "https://github.com/priimak/sprats.git", rev = "v0.9.0" }
-rgscore = { git = "git+https://github.com/priimak/rgscore.git", rev = "v0.14.1" }
+rgscore = { git = "https://github.com/brainless-software/rgscore.git", rev = "v0.14.3" }
+i2c-drivers = { git = "https://github.com/brainless-software/i2c_drivers.git", rev = "v0.1.6" }
 
 [dependency-groups]
 dev = [

@@ -31,8 +31,8 @@ class DongleSelectorDialog(Prompt[bool]):
             else:
                 label_and_ports_selector.setVisible(True)
                 ports = [
-                    p.device
-                    for p in slp.comports()
+                    p if isinstance(p, str) else p.device
+                    for p in SUPPORTED_DONGLES_DICT[make_and_model].port_supplier[sys.platform]()
                     if SUPPORTED_DONGLES_DICT[make_and_model].comp_port_filter[sys.platform](p)
                 ]
                 if ports == []:

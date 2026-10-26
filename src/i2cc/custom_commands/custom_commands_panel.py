@@ -5,7 +5,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from typing import Any
 
-from i2c_api import I2CError, I2CTransaction
+from i2c_api import I2CTransactionBuilder
 from PySide6 import QtCore
 from PySide6.QtCore import QByteArray, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
@@ -299,7 +299,7 @@ class CustomCommandsPanel(VBoxPanel):
                         "write": lambda r: r._write(),
                         "dut": dut_cls(),
                         "ctx": self.app.project.commands_context,
-                        "i2c": I2CTransaction(self.app.i2c, default_device_address=self.app.device_address),
+                        "i2c": I2CTransactionBuilder(self.app.i2c, default_device_address=self.app.device_address),
                         "prompt_user": mk_prompt_user(cmd.label),
                         "Variable": Variable,
                         "exit": exit_eval,
@@ -321,7 +321,7 @@ class CustomCommandsPanel(VBoxPanel):
         except EvalExit:
             pass
         except Exception as ex:
-            if isinstance(ex, I2CError):
+            if isinstance(ex, ValueError):
                 self.app.show_error(str(ex))
             else:
                 tb_lines = traceback.format_exception(type(ex), ex, ex.__traceback__)
