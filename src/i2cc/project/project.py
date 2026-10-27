@@ -151,7 +151,11 @@ class CommandsHistory:
         response = self.db.execute("SELECT code FROM command_history WHERE name = ? AND id = ?", (name, id)).fetchall()
         if revert_to_requested_id:
             try:
-                self.db.execute("DELETE FROM command_history WHERE id > ? AND name == ?", (id, name))
+                self.db.execute(
+                    "insert into command_history(name, code) "
+                    "select name, code from command_history where name = ? and id = ?",
+                    (id, name),
+                )
                 self.db.commit()
             except Exception as ex:
                 print(f"Failed to record command in history. {ex}")

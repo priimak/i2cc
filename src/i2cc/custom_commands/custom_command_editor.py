@@ -195,10 +195,15 @@ class CustomCommandsEditor(Dialog):
             self.code_editor.setPlainText(cmd.source_code)
 
         def show_history_selector():
-            history = app.project.commands_history.get_history_for_command(self.command_label.value) + [
-                (sys.maxsize, "current")
-            ]
-            HistoryDialog(self, app, command_name=self.command_label.value, history=history).show()
+            HistoryDialog(
+                self,
+                app,
+                command_name=self.command_label.value,
+                history=(
+                    app.project.commands_history.get_history_for_command(self.command_label.value)
+                    + [(sys.maxsize, "current")]
+                ),
+            ).show()
 
         history_button = (
             [] if cmd is None else [XButton("History", on_clicked=show_history_selector, auto_default=False)]
