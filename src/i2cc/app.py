@@ -307,8 +307,8 @@ class App:
                         retval = BitArray(register_value_str)
 
                         write_num_bits = self.write_register_num_bytes.value * 8
-                        if retval.len < write_num_bits:
-                            return BitArray(write_num_bits - retval.len) + retval
+                        if len(retval) < write_num_bits:
+                            return BitArray(write_num_bits - len(retval)) + retval
                         else:
                             return retval[-write_num_bits:]
                     else:
