@@ -172,27 +172,33 @@ class RegInfoText(QTextEdit):
             for field_name in register.get_field_names():
                 field_def = register.get_field_definition(field_name)
                 fields_rows += (
-                    f"<tr><td>&nbsp;</td><td><p style='color: blue;'>{field_def.name}&nbsp;&nbsp;</p></td>"
-                    f"<td>[{field_def.end_offset()}:{field_def.offset}]&nbsp;&nbsp;</td>"
-                    f"<td>{field_def.signed}{field_def.width}.{field_def.fractional}</td>"
+                    f"<tr><td>&nbsp;</td><td style='white-space: nowrap;'><p style='color: blue;'>{field_def.name}&nbsp;&nbsp;</p></td>"
+                    f"<td style='white-space: nowrap;'>[{field_def.end_offset()}:{field_def.offset}]&nbsp;&nbsp;</td>"
+                    f"<td style='white-space: nowrap;'>{field_def.signed}{field_def.width}.{field_def.fractional}</td>"
                 )
                 if field_def.rw:
-                    fields_rows += "<td>&nbsp;&nbsp;r/w</td>"
+                    fields_rows += "<td style='white-space: nowrap;'>&nbsp;&nbsp;r/w</td>"
                 else:
-                    fields_rows += "<td>&nbsp;&nbsp;r/o</td>"
+                    fields_rows += "<td style='white-space: nowrap;'>&nbsp;&nbsp;r/o</td>"
                 if raw_result is None:
+                    fields_rows += "<td></td>"
+                else:
+                    fields_rows += f"<td style='white-space: nowrap;'>&nbsp;&nbsp;=> {register.get_field_value(field_def.name)}</td>"
+                if field_def.desc.strip() == "":
                     fields_rows += "<td></td></tr>"
                 else:
-                    fields_rows += f"<td>&nbsp;&nbsp;=> {register.get_field_value(field_def.name)}</td></tr>"
+                    fields_rows += f"<td style='white-space: nowrap;'><p style='color: green;'><em>&nbsp;&nbsp;# {field_def.desc}</em></p></td></tr>"
+
             self.setText(
                 f"""
                 <table>
                 <tbody>
-                <tr><td>Register:</td><td colspan=5><p style='color: blue;'>{register.name}</p></td></tr>
-                <tr><td>Address:</td><td colspan=5><p style='color: blue;'>0x{register.address:0{register.address_bus_width_bytes * 2}X}</p></td></tr>
-                <tr><td>Width (bits):&nbsp;&nbsp;</td><td colspan=5><p style='color: blue;'>{register.width}</p></td></tr>
-                <tr><td>Raw data:&nbsp;&nbsp;</td><td colspan=5><p style='color: blue;'>{register.data.bin}</p></td></tr>
-                <tr><td colspan=6>Fields:</td></tr>
+                <tr><td>Register:</td><td colspan=6><p style='color: blue;'>{register.name}</p></td></tr>
+                <tr><td>Description:</td><td colspan=6><p style='color: green;'><em>{register.desc}</em></p></td></tr>
+                <tr><td>Address:</td><td colspan=6><p style='color: blue;'>0x{register.address:0{register.address_bus_width_bytes * 2}X}</p></td></tr>
+                <tr><td style='white-space: nowrap;'>Width (bits):&nbsp;&nbsp;</td><td colspan=6><p style='color: blue;'>{register.width}</p></td></tr>
+                <tr><td>Raw data:&nbsp;&nbsp;</td><td colspan=6><p style='color: blue;'>{register.data.bin}</p></td></tr>
+                <tr><td colspan=7>Fields:</td></tr>
                 {fields_rows}
                 </tbody>
                 </table>

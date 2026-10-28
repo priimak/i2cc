@@ -44,7 +44,7 @@ select = [
 ]
 
 [tool.uv.sources]
-pytide6 = { git = "https://github.com/priimak/PyTide6.git", rev = "v0.24.1" }
+pytide6 = { git = "https://github.com/priimak/PyTide6.git", rev = "v0.25.1" }
 sprats = { git = "https://github.com/priimak/sprats.git", rev = "v0.9.0" }
 rgscore = { git = "https://github.com/brainless-software/rgscore.git", rev = "v0.14.3" }
 i2c-drivers = { git = "https://github.com/brainless-software/i2c_drivers.git", rev = "v0.1.6" }

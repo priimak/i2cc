@@ -295,7 +295,7 @@ dev = [
 requires-dist = [
     { name = "i2c-drivers", git = "https://github.com/brainless-software/i2c_drivers.git?rev=v0.1.6" },
     { name = "pyside6", specifier = "==6.11.2" },
-    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.24.1" },
+    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.25.1" },
     { name = "qppte", specifier = ">=0.7.2" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "rgscore", git = "https://github.com/brainless-software/rgscore.git?rev=v0.14.3" },
@@ -725,8 +725,8 @@ wheels = [
 
 [[package]]
 name = "pytide6"
-version = "0.24.1"
-source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.24.1#de34e9ffed8ff6f9129502baea19609ce9e7eca9" }
+version = "0.25.1"
+source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.25.1#80cf57e1d602378afe320c4b5fe34e6bcec6cf9a" }
 dependencies = [
     { name = "pyside6" },
     { name = "sprats" },

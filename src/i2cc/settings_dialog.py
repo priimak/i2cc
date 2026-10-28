@@ -78,7 +78,6 @@ principles unto death”
                         ComboBox(reactive_variable=application_font_size),
                         W(stretch=1),
                     ],
-                    margins=0,
                 ),
                 example_general_text,
                 W(stretch=1),

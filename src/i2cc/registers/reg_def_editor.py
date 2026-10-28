@@ -23,11 +23,11 @@ from rgscore import FieldDef, Register
 from sprats.collections import Variable
 
 from i2cc.app import App
-from i2cc.gui_tools import XButton
+from i2cc.gui_tools import ModalLineTextInputDialog, XButton
 
 
 class FractionalInput(LineEdit):
-    def __init__(self, value: str, on_text_change: Callable[[str], None] | None = None):
+    def __init__(self, value: str, on_text_change: Callable[[str], None]):
         super().__init__(
             text=value,
             with_fixed_width_for_text="00",
@@ -52,17 +52,18 @@ class FractionalInput(LineEdit):
 
 
 class FieldNameInput(LineEdit):
-    def __init__(self, value: str, on_text_change: Callable[[str], None] | None = None):
+    def __init__(self, value: str, on_text_change: Callable[[str], None], tooltip: str | None = None):
         super().__init__(
             text=value,
             with_fixed_width_for_text="Very Long Field Name",
             validator=QRegularExpressionValidator("^[a-zA-Z_]?[a-zA-Z0-9_]*$"),
             on_text_change=on_text_change,
+            tooltip=tooltip,
         )
 
 
 @dataclass
-class FieldDevGUIElements:
+class FieldDefGUIElements:
     field_name_input_field: FieldNameInput
     checkboxes: list[CheckBox]
     width_label: Label
@@ -78,7 +79,8 @@ class RegisterPrototype:
     address_bus_width_bytes: int
     width: int
     model: list[FieldDef]
-    gui_model: list[FieldDevGUIElements]
+    gui_model: list[FieldDefGUIElements]
+    desc: str
 
     __address_str: str = ""
 
@@ -87,6 +89,9 @@ class RegisterPrototype:
 
     def set_name(self, name: str):
         self.name = name
+
+    def set_desc(self, desc: str):
+        self.desc = desc
 
     def set_address(self, address: str) -> None:
         self.__address_str = address
@@ -113,6 +118,7 @@ class RegisterPrototype:
                 address_bus_width_bytes=self.address_bus_width_bytes,
                 name=self.name,
                 model=self.model,
+                desc=self.desc,
             )
 
     @staticmethod
@@ -124,6 +130,7 @@ class RegisterPrototype:
             width=register.width,
             model=[fd.copy() for fd in register._model],
             gui_model=[],
+            desc=register.desc,
         )
 
 
@@ -201,6 +208,13 @@ class DefRegEditor(Dialog):
                             AddressInput(self.register_proto),
                             Label(f"  This register is {self.register_proto.width} bits wide"),
                             W(stretch=1),
+                        ],
+                        margins=0,
+                    ),
+                    HBoxPanel(
+                        [
+                            Label("Description"),
+                            LineEdit(self.register_proto.desc, on_text_change=self.register_proto.set_desc),
                         ],
                         margins=0,
                     ),
@@ -303,9 +317,9 @@ class DefRegEditor(Dialog):
                 return set_name
 
             self.register_proto.gui_model.append(
-                FieldDevGUIElements(
+                FieldDefGUIElements(
                     field_name_input_field=FieldNameInput(
-                        field_def.name, on_text_change=mk_field_name_setter(field_def)
+                        field_def.name, on_text_change=mk_field_name_setter(field_def), tooltip=field_def.desc
                     ),
                     checkboxes=[mk_bare_cb(field_idx, offset) for offset in range(self.register_proto.width)],
                     width_label=Label(f"{field_def.width}."),
@@ -327,7 +341,6 @@ class DefRegEditor(Dialog):
             )
         for field_idx, field_def in enumerate(self.register_proto.model):
             bits_to_disable: set[int] = other_used_bits(field_def)
-            # field_width_label = Label(f"{field_def.width}.")
 
             def mk_cb(i: int, bits_to_disable: set[int], field_def: FieldDef):
                 cb: CheckBox = self.register_proto.gui_model[field_idx].checkboxes[i]
@@ -393,16 +406,36 @@ class DefRegEditor(Dialog):
 
                 return delete_action
 
+            desc_tooltip = Variable(self.register_proto.model[field_idx].desc)
+
+            def mk_desc_field_updater(f: FieldDef, desc_tooltip: Variable[str]):
+                def desc_field_updater():
+                    desc_dialog = ModalLineTextInputDialog(self, text=f.desc, windowTitle="Field Description")
+                    desc_dialog.exec()
+                    f.desc = desc_dialog.new_value
+                    desc_tooltip.value = f.desc
+
+                return desc_field_updater
+
+            field_name_input_field = self.register_proto.gui_model[field_idx].field_name_input_field
+            desc_tooltip.register_value_change_callback(field_name_input_field.setToolTip)
             wgs.append(
                 HBoxPanel(
                     cbs
                     + [
                         Label(" "),
-                        self.register_proto.gui_model[field_idx].field_name_input_field,
+                        field_name_input_field,
                         self.register_proto.gui_model[field_idx].rw_selector,
                         self.register_proto.gui_model[field_idx].signed_selector,
                         self.register_proto.gui_model[field_idx].width_label,
                         self.register_proto.gui_model[field_idx].fractional_input_field,
+                        XButton(
+                            "Desc",
+                            auto_default=False,
+                            on_clicked=mk_desc_field_updater(self.register_proto.model[field_idx], desc_tooltip),
+                            tool_tip=self.register_proto.model[field_idx].desc,
+                            reactive_tooltip=desc_tooltip,
+                        ),
                         Label("  "),
                         W(stretch=1),
                         XButton("Del", on_clicked=mk_delete_action(field_idx), auto_default=False),
@@ -442,6 +475,7 @@ class NewRegDefDialog(Dialog):
                         )
                     ],
                     gui_model=[],
+                    desc="",
                 ),
             ).exec()
 
@@ -491,6 +525,7 @@ def open_create_or_edit_register_from_template(
                     )
                 ],
                 gui_model=[],
+                desc="",
             ),
         ).exec()
     else:

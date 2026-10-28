@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
 )
 from pytide6 import Dialog, HBoxPanel, PushButton, VBoxLayout, VBoxPanel, W
 from pytide6.inputs import LineEdit
+from sprats.collections import Variable
 
 from i2cc.app import App
 
@@ -221,6 +222,7 @@ class XButton(PushButton):
         enabled: bool = True,
         tool_tip: str | None = None,
         respond_to_enter_and_return_keys: bool = True,
+        reactive_tooltip: Variable[str] | None = None,
     ):
         super().__init__(
             text,
@@ -233,6 +235,42 @@ class XButton(PushButton):
             tool_tip=tool_tip,
             respond_to_enter_and_return_keys=respond_to_enter_and_return_keys,
         )
+        if reactive_tooltip is not None:
+            reactive_tooltip.register_value_change_callback(self.setToolTip)
+
+
+class ModalLineTextInputDialog(Dialog):
+    def __init__(self, parent, *, text: str, windowTitle: str):
+        super().__init__(parent, windowTitle=windowTitle, modal=True, css=App.css.UserPromptDialog)
+        self.original_text = text
+        self.__text = Variable(text)
+        self.new_value = text
+        self.setLayout(
+            VBoxLayout(
+                [
+                    HBoxPanel(
+                        [
+                            LineEdit(
+                                reactive_variable=self.__text,
+                                with_min_width_for_text="_" * 100,
+                            )
+                        ]
+                    ),
+                    W(stretch=1),
+                    HBoxPanel(
+                        [
+                            W(stretch=1),
+                            XButton("Ok", on_clicked=self.ok, auto_default=True),
+                            XButton("Cancel", on_clicked=self.close),
+                        ]
+                    ),
+                ]
+            )
+        )
+
+    def ok(self):
+        self.new_value = self.__text.value
+        self.close()
 
 
 class ModalMessageDialog(Dialog):
