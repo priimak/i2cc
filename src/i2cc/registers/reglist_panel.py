@@ -326,7 +326,10 @@ class RegListPanel(VBoxPanel):
         self.reglist_table.table_model.beginResetModel()
         self.reglist_table.table_model.regenerate_registers_to_display()
         self.register_text.clear()
+        self.register_text.register = None
         self.reglist_table.table_model.endResetModel()
+        if self.reglist_table.model().rowCount() > 0:
+            self.reglist_table.selectRow(0)
 
     def pass_key_press_event(self) -> Callable[[QKeyEvent], None]:
         def key_pressed(event: QKeyEvent) -> None:
