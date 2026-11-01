@@ -282,13 +282,12 @@ class ModalMessageDialog(Dialog):
             icon_label = QLabel()
             icon_label.setPixmap(QIcon.fromTheme(icon).pixmap(QSize(52, 52)))
             msg_widgets.append(VBoxPanel([icon_label, W(stretch=1)], margins=0))
-        text_edit = QTextEdit(message)
+        text_edit = QTextEdit(message.replace("\n", "<br/>"))
         text_edit.setReadOnly(True)
 
         min_width = text_edit.fontMetrics().horizontalAdvance(message + "  ")
         max_width = text_edit.fontMetrics().horizontalAdvance("_" * 100)
-        text_edit.setMinimumWidth(min(min_width, max_width))
-        text_edit.setMaximumWidth(max_width)
+        text_edit.setMinimumWidth(max(min(min_width, max_width), max_width))
 
         msg_widgets.append(text_edit)
         self.setLayout(

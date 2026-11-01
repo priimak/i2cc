@@ -4,13 +4,14 @@ from pathlib import Path
 from bitstring import BitArray
 from i2c_api import I2CLogger, I2CMaster
 from i2c_api.log import I2CTransactionElement
+from i2c_api.master import DummyI2CMaster
 from PySide6.QtWidgets import QApplication, QFileDialog, QMainWindow, QMessageBox
 from qppte import Settings
 from rgscore import Register
 from sprats.collections import Variable
 from sprats.config import AppPersistence
 
-from i2cc.dongles.dongles import SUPPORTED_DONGLES_DICT, I2CMasterContainer, mk_DummyI2CMaster
+from i2cc.dongles.dongles import SUPPORTED_DONGLES_DICT
 from i2cc.i2c_op_thread import HighlightOff, I2COpThread, ReadRegister, WriteRegister
 from i2cc.project.project import Projects
 from i2cc.registers.reg_read_results import ShowRegSignalData
@@ -137,21 +138,21 @@ class App:
     def __init__(self, persistence: AppPersistence, q_application: QApplication):
         last_selected_device = persistence.config.get_value("last_selected_device", dict)
         self.i2c_logger = InAppI2CLogger(self.append_i2c_log_message)
-        self.i2c_master = Variable[I2CMasterContainer](None, clazz=I2CMasterContainer)
+        self.i2c_master = Variable[I2CMaster](None, clazz=I2CMaster)
         if last_selected_device != dict():
             try:
-                self.i2c_master.value = SUPPORTED_DONGLES_DICT[last_selected_device["make_and_model"]].cons(
+                self.i2c_master.value = SUPPORTED_DONGLES_DICT[last_selected_device["make_and_model"]].new_i2c_master(
                     last_selected_device["port"], self.i2c_logger
                 )
             except Exception:
-                self.i2c_master.value = mk_DummyI2CMaster("COM", None)
+                self.i2c_master.value = DummyI2CMaster(None, self.i2c_logger)
         else:
-            self.i2c_master.value = mk_DummyI2CMaster("COM", None)
+            self.i2c_master.value = DummyI2CMaster(None, self.i2c_logger)
 
         self.port: str | None = None
         self.persistence = persistence
         self.q_application = q_application
-        self.i2c_master_changed: list[Callable[[I2CMasterContainer], None]] = []
+        self.i2c_master_changed: list[Callable[[I2CMaster], None]] = []
         self.i2c_master.register_value_change_callback(lambda m: [c(m) for c in self.i2c_master_changed])
         self.scan_and_show_select_device_dialog: Callable[[], None] = lambda: None
         self.select_device_address: Callable[[str], None] = lambda _: None
@@ -243,7 +244,7 @@ class App:
 
     @property
     def i2c(self) -> I2CMaster:
-        return self.i2c_master.value.driver
+        return self.i2c_master.value
 
     def scan(self) -> list[int]:
         return [] if self.i2c is None else self.i2c.scan()

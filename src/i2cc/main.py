@@ -1,7 +1,9 @@
 import sys
+import traceback
 from dataclasses import asdict
 from typing import override
 
+from i2c_api.master import DummyI2CMaster
 from PySide6 import QtGui
 from PySide6.QtCore import QByteArray, QLockFile, QSize, Qt
 from PySide6.QtGui import QCloseEvent, QFont
@@ -26,7 +28,7 @@ from i2cc.app import App
 from i2cc.commands_panel import CommandsPanel
 from i2cc.custom_commands.custom_commands_panel import CustomCommandsPanel
 from i2cc.dongles.dongle_selector_dialog import select_dongle
-from i2cc.dongles.dongles import SUPPORTED_DONGLES_DICT, mk_DummyI2CMaster
+from i2cc.dongles.dongles import SUPPORTED_DONGLES_DICT
 from i2cc.find_actions_dialog import FindActionDialog
 from i2cc.gui_tools import ModalMessageDialog
 from i2cc.i2c_log import LogLineLabel
@@ -44,14 +46,10 @@ class InfoPanel(HBoxPanel):
 
         i2c_master_container = app.i2c_master.value
         self.selected_dongle_label = Label(
-            ""
-            if i2c_master_container is None
-            else (i2c_master_container.display_name + " :: " + i2c_master_container.port),
+            "" if i2c_master_container is None else app.i2c_master.value.display_name(),
             css=App.css.selected_dongle_label,
         )
-        app.i2c_master.register_value_change_callback(
-            lambda m: self.selected_dongle_label.setText(m.display_name + " :: " + m.port)
-        )
+        app.i2c_master.register_value_change_callback(lambda m: self.selected_dongle_label.setText(m.display_name()))
         self.log_line = LogLineLabel()
         app.show_last_i2c_log_message = self.log_line.set_i2c_log_message
 
@@ -188,13 +186,13 @@ class I2CDriverWindow(MainWindow):
                 ModalMessageDialog.information(
                     self, "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
                 )
-                self.app.i2c_master.value = mk_DummyI2CMaster("COM", None)
+                self.app.i2c_master.value = DummyI2CMaster(None, self.app.i2c_logger)
         else:
             try:
                 saved_speed = self.app.persistence.config.get_by_xpath("/speed")
-                self.app.i2c_master.value = SUPPORTED_DONGLES_DICT[last_selected_device["make_and_model"]].cons(
-                    last_selected_device["port"], self.app.i2c_logger
-                )
+                self.app.i2c_master.value = SUPPORTED_DONGLES_DICT[
+                    last_selected_device["make_and_model"]
+                ].new_i2c_master(last_selected_device["port"], self.app.i2c_logger)
                 self.cpanel.speed_selector.setCurrentText(saved_speed)
             except Exception:
                 self.app.show_error(
@@ -205,9 +203,9 @@ class I2CDriverWindow(MainWindow):
                     ModalMessageDialog.information(
                         self, "Dongle <em>DummyI2CDriver</em> used for demo purposes will be used"
                     )
-                    self.app.i2c_master.value = mk_DummyI2CMaster("COM", None)
+                    self.app.i2c_master.value = DummyI2CMaster(None, self.app.i2c_logger)
                     self.app.persistence.config.set_value(
-                        "last_selected_device", {"make_and_model": "Demo :: DummyI2CDriver", "port": "COM"}
+                        "last_selected_device", {"make_and_model": "Demo :: DummyI2CDongle", "port": None}
                     )
 
 
@@ -272,8 +270,8 @@ def main():
         application.init()
 
         sys.exit(app.exec())
-    except Exception as ex:
-        ModalMessageDialog.error(None, f"Error: {ex}")
+    except Exception:
+        ModalMessageDialog.error(None, f"Error:\n\n {traceback.format_exc()}")
         sys.exit(1)
 
 

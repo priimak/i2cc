@@ -155,12 +155,12 @@ class CustomCommandsPanel(VBoxPanel):
         code_preview_panel = VBoxPanel(
             [
                 HBoxPanel(
-                    [(Label(" Code Preview ", css=title_labels_css)), W(stretch=1)],
+                    [(Label(" Command Code ", css=title_labels_css)), W(stretch=1)],
                     margins=0,
                 ),
                 self.code_preview_widget,
             ],
-            margins=(0, 10, 0, 0),
+            margins=(0, 0, 0, 10),
             spacing=0,
         )
         self.results_and_preview_splitter = Splitter(
@@ -168,6 +168,7 @@ class CustomCommandsPanel(VBoxPanel):
             childrenCollapsible=False,
             handleWidth=3,
             widgets=[
+                code_preview_panel,
                 VBoxPanel(
                     [
                         HBoxPanel(
@@ -179,7 +180,6 @@ class CustomCommandsPanel(VBoxPanel):
                     margins=0,
                     spacing=0,
                 ),
-                code_preview_panel,
             ],
             margins=0,
         )
@@ -223,7 +223,7 @@ class CustomCommandsPanel(VBoxPanel):
         show_buttons_action.setChecked(show_commands_buttons)
         show_buttons_action.triggered.connect(set_buttons_visible)
 
-        show_code_preview_action = config_label.addMenuAction("Show code preview")
+        show_code_preview_action = config_label.addMenuAction("Show command code")
         show_code_preview_action.setCheckable(True)
         show_code_preview = self.app.persistence.state.get_value("code_preview_show", True)
         show_code_preview_action.setChecked(show_code_preview)

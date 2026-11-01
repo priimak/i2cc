@@ -1,3 +1,4 @@
+from i2c_api import I2CMaster
 from PySide6.QtWidgets import QMessageBox
 from pytide6 import ComboBox, Dialog, HBoxPanel, Label, VBoxLayout, VBoxPanel, W
 from pytide6.frame import HorizonalLine
@@ -5,7 +6,6 @@ from pytide6.inputs import LineEdit
 from sprats.collections import Variable
 
 from i2cc.app import App
-from i2cc.dongles.dongles import I2CMasterContainer
 from i2cc.gui_tools import XButton
 from i2cc.i2c_op_thread import I2CBusScan
 
@@ -182,13 +182,13 @@ class CommandsPanel(VBoxPanel):
         self.do_i2c_bus_scan()
         SelectDeviceDialog(self.app, self.addr_selector.available_addresses).show()
 
-    def i2c_master_changed(self, i2c: I2CMasterContainer) -> None:
+    def i2c_master_changed(self, i2c: I2CMaster) -> None:
         self.pullup_selector.clear()
-        pullup_value_to_set = i2c.driver.get_pullup()
-        self.pullup_selector.addItems(i2c.driver.list_pullups())
+        pullup_value_to_set = i2c.get_pullup()
+        self.pullup_selector.addItems(i2c.list_pullups())
         self.pullup_selector.setCurrentText(pullup_value_to_set)
 
         self.speed_selector.clear()
-        clock_speed_to_set = f"{i2c.driver.get_clk_speed()} KHz"
-        self.speed_selector.addItems([f"{s} KHz" for s in i2c.driver.list_clk_speeds()])
+        clock_speed_to_set = f"{i2c.get_clk_speed()} KHz"
+        self.speed_selector.addItems([f"{s} KHz" for s in i2c.list_clk_speeds()])
         self.speed_selector.setCurrentText(clock_speed_to_set)
