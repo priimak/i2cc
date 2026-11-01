@@ -16,6 +16,7 @@ from qppte import QPythonPlainTextEdit, QPythonPlainTextWidget
 from sprats.collections import Variable
 
 from i2cc.app import App
+from i2cc.custom_commands.custom_command_runner import CommandRunner
 from i2cc.custom_commands.find_register_dialog import FindRegisterDialog
 from i2cc.gui_tools import (
     ListTableView,
@@ -226,8 +227,10 @@ class CustomCommandsEditor(Dialog):
                         history_button
                         + [
                             W(stretch=1),
-                            XButton("Ok", on_clicked=self.save_command, auto_default=False),
-                            XButton("Cancel", on_clicked=self.close, auto_default=False),
+                            XButton("Run", on_clicked=self.run_command, auto_default=False, tool_tip="Shift+F6"),
+                            Label("     "),
+                            XButton("Ok", on_clicked=self.save_command, auto_default=False, tool_tip="Ctrl+Enter"),
+                            XButton("Cancel", on_clicked=self.close, auto_default=False, tool_tip="Ctrl+Q"),
                         ],
                         margins=0,
                     ),
@@ -236,6 +239,28 @@ class CustomCommandsEditor(Dialog):
         )
         if new_command:
             command_name_line_edit.setFocus()
+
+        self.command_runner = CommandRunner(app)
+
+        run_action = QAction("Run", self)
+        run_action.setShortcut(QtCore.QKeyCombination(QtCore.Qt.KeyboardModifier.ShiftModifier, Qt.Key.Key_F6))
+        run_action.triggered.connect(self.run_command)
+        self.addAction(run_action)
+
+    def run_command(self):
+        try:
+            code = self.code_editor.toPlainText()
+            self.command_runner.run_command(
+                CustomCommand(
+                    label=self.command_label.value.strip(),
+                    source_code=code,
+                    compiled_code=compile(code, "<str>", "exec"),
+                )
+            )
+        except Exception as ex:
+            tb_lines = traceback.format_exception(type(ex), ex, ex.__traceback__)
+            x = "".join(tb_lines[2:])
+            self.app.show_error(x)
 
     def save_command(self):
         code = self.code_editor.toPlainText()
@@ -268,4 +293,4 @@ class CustomCommandsEditor(Dialog):
         except Exception as ex:
             tb_lines = traceback.format_exception(type(ex), ex, ex.__traceback__)
             x = "".join(tb_lines[2:])
-            self.app.show_error(str(x))
+            self.app.show_error(x)

@@ -1,23 +1,18 @@
-import io
 import traceback
 from collections.abc import Callable
-from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import dataclass
 from typing import Any
 
-from i2c_api import I2CTransactionBuilder
 from PySide6 import QtCore
 from PySide6.QtCore import QByteArray, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import QLabel, QMessageBox, QTextEdit
 from pytide6 import HBoxPanel, Label, Menu, Splitter, VBoxPanel, W
 from qppte import QPythonPlainTextEdit
-from rgscore import RLinkI2C, S, U
-from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.custom_commands.custom_command_editor import CustomCommandsEditor
-from i2cc.custom_commands.user_prompt import EvalExit, mk_prompt_user
+from i2cc.custom_commands.custom_command_runner import CommandRunner
 from i2cc.gui_tools import (
     InTableSearchField,
     ListTableView,
@@ -279,47 +274,8 @@ class CustomCommandsPanel(VBoxPanel):
             command_label = self.commands_table.table_model.commands_to_display[selected_row].id
             for cmd in self.app.project.commands:
                 if cmd.label == command_label:
-                    link = RLinkI2C(self.app.i2c, self.app.device_address)
-
-                    def mk_link_provider(lnk):
-                        def provider():
-                            return lnk
-
-                        return provider
-
-                    def exit_eval():
-                        raise EvalExit()
-
-                    attrs = {}
-                    for r in self.app.project.reg_list.registers:
-                        attrs[r.name] = r.mk_embedding_class(mk_link_provider(link), auto_sync=False)()
-                    dut_cls = type("DUT", (), attrs)
-                    gg = {
-                        "read": lambda r: r._read(),
-                        "write": lambda r: r._write(),
-                        "dut": dut_cls(),
-                        "ctx": self.app.project.commands_context,
-                        "i2c": I2CTransactionBuilder(self.app.i2c, default_device_address=self.app.device_address),
-                        "prompt_user": mk_prompt_user(cmd.label),
-                        "Variable": Variable,
-                        "exit": exit_eval,
-                        "U": U,
-                        "S": S,
-                        "__command_name__": str(command_label),
-                        "__device_address__": self.app.device_address,
-                        "__project_name__": self.app.project.name,
-                    }
-                    out_buffer = io.StringIO()
-                    try:
-                        with redirect_stdout(out_buffer), redirect_stderr(out_buffer):
-                            eval(cmd.compiled_code, gg)
-                    finally:
-                        log_str = out_buffer.getvalue().rstrip()
-                        if log_str != "":
-                            self.app.append_custom_commands_log_stdout(log_str)
-
-        except EvalExit:
-            pass
+                    CommandRunner(self.app).run_command(cmd)
+                    break
         except Exception as ex:
             if isinstance(ex, ValueError):
                 self.app.show_error(str(ex))
