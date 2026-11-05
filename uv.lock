@@ -305,11 +305,11 @@ requires-dist = [
     { name = "i2c-api", specifier = ">=0.21.0" },
     { name = "i2c-drivers", specifier = ">=0.2.0" },
     { name = "pyside6", specifier = "==6.11.2" },
-    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.25.1" },
+    { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.25.2" },
     { name = "qppte", specifier = ">=0.7.2" },
     { name = "requests", specifier = ">=2.34.2" },
-    { name = "rgscore", specifier = ">=0.14.3" },
-    { name = "sprats", git = "https://github.com/priimak/sprats.git?rev=v0.9.0" },
+    { name = "rgscore", specifier = ">=0.14.4" },
+    { name = "sprats", git = "https://github.com/priimak/sprats.git?rev=v0.10.1" },
     { name = "usb-monitor" },
 ]
 
@@ -735,8 +735,8 @@ wheels = [
 
 [[package]]
 name = "pytide6"
-version = "0.25.1"
-source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.25.1#80cf57e1d602378afe320c4b5fe34e6bcec6cf9a" }
+version = "0.25.2"
+source = { git = "https://github.com/priimak/PyTide6.git?rev=v0.25.2#e0bfa48ce5dccf971c66488103f48b1dfe67c29c" }
 dependencies = [
     { name = "pyside6" },
     { name = "sprats" },
@@ -855,16 +855,16 @@ wheels = [
 
 [[package]]
 name = "rgscore"
-version = "0.14.3"
+version = "0.14.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
     { name = "i2c-api" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6e/e1/cd3c4eccf620778cfe0433d3d8f301813d95395c4a84a3ae214ba600767e/rgscore-0.14.3.tar.gz", hash = "sha256:e9fbfe15e2d54d6caa36699d7a3f66756784507c5a64ca21fcd2f182d23e1127", size = 19158, upload-time = "2026-11-01T02:12:58.86Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d2/d9/08d5e7ab817e967577e611536496739bf77bc7f8529558c9e4a89360faa4/rgscore-0.14.4.tar.gz", hash = "sha256:ee78d6f9e14bbe7b2f1c2653885e600ced9e2a62bac173db672148ae0696e397", size = 20243, upload-time = "2026-11-05T19:15:10.521Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/ac/d832d376415379c8e6d5f915959561640c69ecacdfbbad4f7344f779518b/rgscore-0.14.3-py3-none-any.whl", hash = "sha256:4ac38f25d3c8afa1d6e014fb1c601735ef22cdb598a0d58bc648dfa99d692af9", size = 10814, upload-time = "2026-11-01T02:12:57.986Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/59/cdfa2a232e11fe5558198313efe907e96c7fdce454110688dc4437e859b6/rgscore-0.14.4-py3-none-any.whl", hash = "sha256:de5c94dd0f3005c876b81729a0a8b24c2b1f5f0db4dd7a664cb4170a0a69748c", size = 11311, upload-time = "2026-11-05T19:15:09.352Z" },
 ]
 
 [[package]]
@@ -915,8 +915,8 @@ wheels = [
 
 [[package]]
 name = "sprats"
-version = "0.9.0"
-source = { git = "https://github.com/priimak/sprats.git?rev=v0.9.0#06995b43ff14c3ca4bd8d67f05f8a5cca9ceae61" }
+version = "0.10.1"
+source = { git = "https://github.com/priimak/sprats.git?rev=v0.10.1#22331305c9f2179b4b4befdc94b31190f7ae7a36" }
 dependencies = [
     { name = "pydantic" },
 ]

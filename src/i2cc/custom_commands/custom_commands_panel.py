@@ -5,7 +5,7 @@ from typing import Any
 
 from PySide6 import QtCore
 from PySide6.QtCore import QByteArray, QModelIndex, QPersistentModelIndex, Qt
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtGui import QAction, QKeyEvent, QKeySequence
 from PySide6.QtWidgets import QLabel, QMessageBox, QTextEdit
 from pytide6 import HBoxPanel, Label, Menu, Splitter, VBoxPanel, W
 from qppte import QPythonPlainTextEdit
@@ -123,6 +123,21 @@ class CustomCommandsPanel(VBoxPanel):
             commands_table_model.update_based_on_command_table_selection_change
         )
 
+        action = QAction("Edit", self)
+        action.setShortcut(QtCore.QKeyCombination(QtCore.Qt.KeyboardModifier.ControlModifier, Qt.Key.Key_E))
+        action.triggered.connect(self.edit_selected_command)
+        self.addAction(action)
+
+        action = QAction("New", self)
+        action.setShortcut(QtCore.QKeyCombination(QtCore.Qt.KeyboardModifier.ControlModifier, Qt.Key.Key_N))
+        action.triggered.connect(self.define_new_command)
+        self.addAction(action)
+
+        action = QAction("Delete", self)
+        action.setShortcut(QtCore.QKeyCombination(QtCore.Qt.KeyboardModifier.NoModifier, Qt.Key.Key_Delete))
+        action.triggered.connect(self.delete_selected_command)
+        self.addAction(action)
+
         self.context_menu = Menu(
             parent=self,
             actions=[
@@ -133,6 +148,19 @@ class CustomCommandsPanel(VBoxPanel):
                 ("Delete", self.delete_selected_command),
             ],
         )
+
+        self.context_menu.actions()[0].setShortcutVisibleInContextMenu(True)
+        self.context_menu.actions()[0].setShortcut(QKeySequence("Enter"))
+
+        self.context_menu.actions()[2].setShortcutVisibleInContextMenu(True)
+        self.context_menu.actions()[2].setShortcut(QKeySequence("Ctrl+N"))
+
+        self.context_menu.actions()[3].setShortcutVisibleInContextMenu(True)
+        self.context_menu.actions()[3].setShortcut(QKeySequence("Ctrl+E"))
+
+        self.context_menu.actions()[4].setShortcutVisibleInContextMenu(True)
+        self.context_menu.actions()[4].setShortcut(QKeySequence("Delete"))
+
         self.commands_table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.commands_table.customContextMenuRequested.connect(
             lambda pos: self.context_menu.popup(self.commands_table.viewport().mapToGlobal(pos))

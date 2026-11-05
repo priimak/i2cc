@@ -43,7 +43,7 @@ class FileMenu(QMenu):
         self.addAction("&Import Project from File", app.import_project)
         self.addSeparator()
         self.addAction("Do&wnload Official Project", lambda: DownloadProjectDialog(app).exec())
-        self.addAction("Download Project from &URL", None)
+        self.addAction("Download Project from &URL")
         self.addSeparator()
         self.addAction("&Clear history", app.clear_history)
         self.addSeparator()
@@ -67,7 +67,7 @@ class ViewMenu(QMenu):
         results_panel_action.setChecked(app.persistence.state.get_value("results_panel_visible", True))
         results_panel_action.toggled.connect(app.set_results_panel_visible)
 
-        commands_panel_action = self.addAction("&Commands Panel")
+        commands_panel_action = self.addAction("&Register Commands Panel")
         commands_panel_action.setCheckable(True)
         value = app.persistence.state.get_value("commands_panel_visible", True)
         commands_panel_action.setChecked(value)

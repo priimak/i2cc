@@ -17,7 +17,11 @@ from sprats.collections import Variable
 
 from i2cc.app import App
 from i2cc.custom_commands.custom_command_runner import CommandRunner
-from i2cc.custom_commands.find_register_dialog import FindRegisterDialog
+from i2cc.custom_commands.find_register_dialog import (
+    FindEnumFieldValuesDialog,
+    FindRegisterDialog,
+    FindRegisterFieldDialog,
+)
 from i2cc.gui_tools import (
     ListTableView,
     TableModelAllSelectableAndEnabled,
@@ -31,14 +35,22 @@ COMMENT_REGEX = re.compile(r"^(\s*)#\s?")
 NO_COMMENT_REGEX = re.compile(r"^(\s*)")
 
 
+register_match = re.compile(r".*(regList|dut)\.(?P<register_name>[a-zA-Z]+[a-zA-Z0-9_]*)\.$")
+
+regList_register_field_match = re.compile(
+    r".*regList\.(?P<register_name>[a-zA-Z]+[a-zA-Z0-9_]*)\.(?P<field_name>[a-zA-Z_]+[0-9]*)\.$"
+)
+
+
 class CodeEditor(QPythonPlainTextEdit):
     space_key_event = QKeyEvent(QtCore.QEvent.Type.KeyPress, Qt.Key.Key_A, QtCore.Qt.KeyboardModifier.NoModifier, " ")
 
-    def __init__(self, parent: QDialog, app: App, save_command: Callable[[], None]):
+    def __init__(self, parent: QDialog, app: App, save_command: Callable[[], None], run_command: Callable[[], None]):
         super().__init__(None, settings=app.get_code_editor_settings())
 
         self.app = app
         self.save_command = save_command
+        self.run_command = run_command
         char_width = self.fontMetrics().height()
         self.setMinimumHeight(char_width * 25)
 
@@ -50,25 +62,43 @@ class CodeEditor(QPythonPlainTextEdit):
     @override
     def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
-        if event.type() == QtCore.QEvent.Type.KeyPress:
-            if (
-                key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]
-                and event.modifiers() == Qt.KeyboardModifier.ControlModifier
-            ):
-                self.save_command()
-                return
+        if event.type() == QtCore.QEvent.Type.KeyPress and key in [Qt.Key.Key_Enter, Qt.Key.Key_Return]:
+            match event.modifiers():
+                case Qt.KeyboardModifier.ControlModifier:
+                    self.save_command()
+                    return
+                case Qt.KeyboardModifier.ShiftModifier:
+                    self.run_command()
+                    return
 
         super().keyPressEvent(event)
 
-        if key == Qt.Key.Key_Period and self.textCursor().block().text()[0 : self.textCursor().columnNumber()].endswith(
-            "dut."
-        ):
-            # show popup selector for registers and fields
-            pos = self.cursorRect().topLeft()
-            pos = self.viewport().mapToGlobal(pos)
-            dialog = FindRegisterDialog(self, self.app, self.insertPlainText)
-            dialog.move(pos)
-            dialog.exec()
+        if key == Qt.Key.Key_Period:
+            txt = self.textCursor().block().text()[0 : self.textCursor().columnNumber()]
+            if txt.endswith("dut.") or txt.endswith("regList."):
+                # show popup selector for registers and fields
+                pos = self.viewport().mapToGlobal(self.cursorRect().topLeft())
+                dialog = FindRegisterDialog(self, self.app, self.insertPlainText)
+                dialog.move(pos)
+                dialog.exec()
+                return
+
+            mr = register_match.match(txt)
+            if mr:
+                pos = self.viewport().mapToGlobal(self.cursorRect().topLeft())
+                dialog = FindRegisterFieldDialog(self, self.app, self.insertPlainText, mr.group(2))
+                dialog.move(pos)
+                dialog.exec()
+                return
+
+            mr = regList_register_field_match.match(txt)
+            if mr:
+                # show pop for field enum values
+                pos = self.viewport().mapToGlobal(self.cursorRect().topLeft())
+                dialog = FindEnumFieldValuesDialog(self, self.app, self.insertPlainText, mr.group(1), mr.group(2))
+                dialog.move(pos)
+                dialog.exec()
+                return
 
 
 class HistoryTableModel(TableModelWithOneColumn, TableModelAllSelectableAndEnabled, TableModelWithFilterAction):
@@ -190,7 +220,7 @@ class CustomCommandsEditor(Dialog):
         self.update_old_historical_records: Callable[[], None] = lambda: None
 
         self.command_label = Variable("" if cmd is None else cmd.label)
-        self.code_editor = CodeEditor(self, app, self.save_command)
+        self.code_editor = CodeEditor(self, app, self.save_command, self.run_command)
         code_editor_widget = QPythonPlainTextWidget(self, editor=self.code_editor)
         if cmd is not None:
             self.code_editor.setPlainText(cmd.source_code)
@@ -227,7 +257,7 @@ class CustomCommandsEditor(Dialog):
                         history_button
                         + [
                             W(stretch=1),
-                            XButton("Run", on_clicked=self.run_command, auto_default=False, tool_tip="Shift+F6"),
+                            XButton("Run", on_clicked=self.run_command, auto_default=False, tool_tip="Shift+Enter"),
                             Label("     "),
                             XButton("Ok", on_clicked=self.save_command, auto_default=False, tool_tip="Ctrl+Enter"),
                             XButton("Cancel", on_clicked=self.close, auto_default=False, tool_tip="Ctrl+Q"),
@@ -243,7 +273,7 @@ class CustomCommandsEditor(Dialog):
         self.command_runner = CommandRunner(app)
 
         run_action = QAction("Run", self)
-        run_action.setShortcut(QtCore.QKeyCombination(QtCore.Qt.KeyboardModifier.ShiftModifier, Qt.Key.Key_F6))
+        run_action.setShortcut(QtCore.QKeyCombination(QtCore.Qt.KeyboardModifier.ShiftModifier, Qt.Key.Key_Enter))
         run_action.triggered.connect(self.run_command)
         self.addAction(run_action)
 

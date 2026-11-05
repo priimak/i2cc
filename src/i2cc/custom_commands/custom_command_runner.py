@@ -30,10 +30,17 @@ class CommandRunner:
         for r in self.app.project.reg_list.registers:
             attrs[r.name] = r.mk_embedding_class(mk_link_provider(link), auto_sync=False)()
         dut_cls = type("DUT", (), attrs)
+
+        attrs = {}
+        for r in self.app.project.reg_list.registers:
+            attrs[r.name] = r.mk_field_model_accessor()
+        regList_cls = type("RegList", (), attrs)
+
         self.gg = {
             "read": lambda r: r._read(),
             "write": lambda r: r._write(),
             "dut": dut_cls(),
+            "regList": regList_cls(),
             "ctx": self.app.project.commands_context,
             "i2c": I2CTransactionBuilder(self.app.i2c, default_device_address=self.app.device_address),
             "Variable": Variable,
