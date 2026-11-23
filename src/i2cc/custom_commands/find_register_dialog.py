@@ -39,7 +39,7 @@ class RegistersModel(
     def mk_registers_to_display(self) -> list[RegisterDisplayData]:
         return [
             RegisterDisplayData(register.name + field, register.name, field)
-            for register in self.app.project.reg_list.registers
+            for register in self.app.project.addr_map.registers
             for field in [""] + [f".{f}" for f in register.get_field_names()]
         ]
 
@@ -144,7 +144,7 @@ class RegisterFieldsModel(
 
     def mk_enums_to_display(self, register_name: str) -> list[str]:
         try:
-            valid_values: list[str] = self.app.project.reg_list.get_register_by_name(register_name).get_field_names()
+            valid_values: list[str] = self.app.project.addr_map.get_register_by_name(register_name).get_field_names()
             return [] if valid_values is None else valid_values
         except:
             return []
@@ -163,21 +163,23 @@ class RegisterFieldsModel(
 
     def apply_filter(self, filter_text: str, post_filter_action: Callable[[], Any]):
         char_filter = list(filter_text)
-        self.beginResetModel()
-        self.entries_to_display.clear()
-        self.entries_to_display_clean.clear()
-        if char_filter == []:
-            self.entries_to_display.extend(self.all_register_fields)
-            self.entries_to_display_clean.extend(self.all_register_fields)
-        else:
-            registers_to_display_input = self.all_register_fields
-            for register in registers_to_display_input:
-                new_register_name_and_field = apply_filter_to_text(char_filter, register)
-                if new_register_name_and_field is not None:
-                    self.entries_to_display.append(new_register_name_and_field)
-                    self.entries_to_display_clean.append(register)
-        self.endResetModel()
-        post_filter_action()
+        try:
+            self.beginResetModel()
+            self.entries_to_display.clear()
+            self.entries_to_display_clean.clear()
+            if char_filter == []:
+                self.entries_to_display.extend(self.all_register_fields)
+                self.entries_to_display_clean.extend(self.all_register_fields)
+            else:
+                registers_to_display_input = self.all_register_fields
+                for register in registers_to_display_input:
+                    new_register_name_and_field = apply_filter_to_text(char_filter, register)
+                    if new_register_name_and_field is not None:
+                        self.entries_to_display.append(new_register_name_and_field)
+                        self.entries_to_display_clean.append(register)
+        finally:
+            self.endResetModel()
+            post_filter_action()
 
 
 class FindRegisterFieldDialog(Dialog):
@@ -230,6 +232,12 @@ class FindRegisterFieldDialog(Dialog):
             self.close()
 
 
+@dataclass(frozen=True)
+class EnumValueDisplay:
+    enum_value_to_display: str
+    enum_value_str: str
+
+
 class FieldEnumValuesModel(
     TableModelWithOneColumn,
     TableModelAllSelectableAndEnabled,
@@ -238,29 +246,29 @@ class FieldEnumValuesModel(
     def __init__(self, app: App, register_name: str, field_name: str):
         super().__init__()
         self.app = app
-        self.registers_to_display = self.mk_enums_to_display(register_name, field_name)
+        self.enum_values_to_display: list[EnumValueDisplay] = self.mk_enums_to_display(register_name, field_name)
         self.register_name = register_name
         self.field_name = field_name
 
     @cache
-    def mk_enums_to_display(self, register_name: str, field_name: str) -> list[str]:
+    def mk_enums_to_display(self, register_name: str, field_name: str) -> list[EnumValueDisplay]:
         try:
             valid_values: list[EnumValue] = (
-                self.app.project.reg_list.get_register_by_name(register_name)
+                self.app.project.addr_map.get_register_by_name(register_name)
                 .get_field_definition(field_name)
                 .enum_values
             )
             valid_values = [] if valid_values is None else valid_values
-            return [e.name for e in valid_values]
+            return [EnumValueDisplay(e.name, e.name) for e in valid_values]
         except:
             return []
 
     def rowCount(self, /, parent: QModelIndex | QPersistentModelIndex = ...) -> int:
-        return len(self.registers_to_display)
+        return len(self.enum_values_to_display)
 
     def data(self, index: QModelIndex | QPersistentModelIndex, /, role: int = ...) -> Any:
         if index.isValid() and role == Qt.ItemDataRole.DisplayRole and index.column() == 0:
-            return self.registers_to_display[index.row()]
+            return self.enum_values_to_display[index.row()].enum_value_to_display
         else:
             return None
 
@@ -269,27 +277,36 @@ class FieldEnumValuesModel(
 
     def apply_filter(self, filter_text: str, post_filter_action: Callable[[], Any]):
         char_filter = list(filter_text)
-        self.beginResetModel()
-        self.registers_to_display.clear()
-        if char_filter == []:
-            self.registers_to_display = self.mk_enums_to_display(self.register_name, self.field_name)
+        try:
+            self.beginResetModel()
+            if char_filter == []:
+                self.enum_values_to_display = self.mk_enums_to_display(self.register_name, self.field_name)
+                self.endResetModel()
+                post_filter_action()
+                return
+
+            enum_values_to_display_input = self.mk_enums_to_display(self.register_name, self.field_name)
+
+            res = []
+            for enum_value_to_display in enum_values_to_display_input:
+                new_enum_value_to_display = apply_filter_to_text(char_filter, enum_value_to_display.enum_value_str)
+                if new_enum_value_to_display is not None:
+                    res.append(EnumValueDisplay(new_enum_value_to_display, enum_value_to_display.enum_value_str))
+
+            self.enum_values_to_display = res
+        finally:
             self.endResetModel()
             post_filter_action()
-            return
-
-        registers_to_display_input = self.mk_enums_to_display(self.register_name, self.field_name)
-        for register in registers_to_display_input:
-            new_register_name_and_field = apply_filter_to_text(char_filter, register)
-            if new_register_name_and_field is not None:
-                self.registers_to_display.append(new_register_name_and_field)
-
-        self.endResetModel()
-        post_filter_action()
 
 
 class FindEnumFieldValuesDialog(Dialog):
     def __init__(
-        self, parent, app: App, insert_text_callback: Callable[[str], None], register_name: str, field_name: str
+        self,
+        parent,
+        app: App,
+        insert_text_callback: Callable[[str], None],
+        register_name: str,
+        field_name: str,
     ):
         super().__init__(
             parent,
@@ -332,8 +349,7 @@ class FindEnumFieldValuesDialog(Dialog):
         selected_indexes = self.enums_table.selectedIndexes()
         if selected_indexes is not None and len(selected_indexes) > 0:
             selected_row = selected_indexes[0].row()
-            selected_register = self.enums_table.table_model.registers_to_display[selected_row]
-
-            if selected_register != "":
-                self.insert_text_callback(selected_register)
+            selected_enum = self.enums_table.table_model.enum_values_to_display[selected_row]
+            if selected_enum != "":
+                self.insert_text_callback(selected_enum.enum_value_str)
             self.close()

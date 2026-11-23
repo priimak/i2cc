@@ -52,12 +52,14 @@ class ProjectsModel(
         self.project_names_raw = self.project_names_to_display.copy()
 
     def set_project_names(self, project_names: list[str]):
-        self.beginResetModel()
-        self.project_names = project_names
-        self.project_names.sort()
-        self.project_names_to_display = self.project_names.copy()
-        self.project_names_raw = self.project_names_to_display.copy()
-        self.endResetModel()
+        try:
+            self.beginResetModel()
+            self.project_names = project_names
+            self.project_names.sort()
+            self.project_names_to_display = self.project_names.copy()
+            self.project_names_raw = self.project_names_to_display.copy()
+        finally:
+            self.endResetModel()
 
     def apply_filter(self, filter_text: str, post_filter_action: Callable[[], Any]):
         char_filter = list(filter_text)

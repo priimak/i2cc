@@ -12,7 +12,7 @@ from types import CodeType
 from typing import Any, Self
 
 import requests
-from rgscore import RegList
+from rgscore import AddrMap
 
 PROJECT_RE = re.compile("^[a-zA-Z0-9_]+$")
 
@@ -198,7 +198,7 @@ class Project:
         if not self.commands_path.exists():
             self.commands_path.write_text("[]")
 
-        self.reg_list = RegList()
+        self.addr_map = AddrMap()
         if not self.reg_list_path.exists():
             self.save_reglist()
 
@@ -304,7 +304,7 @@ class Project:
         version = json.loads(self.version_json_path.read_text())["version"]
         if version != 1:
             raise RuntimeError(f"Unable to load project version {version}")
-        self.reg_list = RegList.from_json_def(self.reg_list_path.read_text())
+        self.addr_map = AddrMap.new_instance_from_file(self.reg_list_path)
         self.notes = self.notes_markdown_path.read_text()
 
         self.results = [RawResult(**row) for row in json.loads(self.results_path.read_text())]
@@ -331,7 +331,7 @@ class Project:
         self.notes_markdown_path.write_text(self.notes)
 
     def save_reglist(self):
-        self.reg_list_path.write_text(self.reg_list.to_json_def())
+        self.reg_list_path.write_text(self.addr_map.to_json_def())
 
     def save_commands(self):
         self.commands_path.write_text(json.dumps([cmd.to_dict() for cmd in self.commands]))

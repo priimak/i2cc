@@ -16,7 +16,7 @@ dependencies = [
     "sprats",
     "i2c-api>=0.21.0",
     "i2c-drivers>=0.2.0",
-    "rgscore>=0.14.4",
+    "rgscore>=0.15.1",
 ]
 
 [project.scripts]

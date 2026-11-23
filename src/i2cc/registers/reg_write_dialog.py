@@ -5,10 +5,11 @@ from PySide6.QtCore import QMargins, Qt
 from PySide6.QtGui import (
     QDoubleValidator,
     QFocusEvent,
+    QIcon,
     QKeyEvent,
     QPalette,
 )
-from PySide6.QtWidgets import QGridLayout, QStyle, QToolButton
+from PySide6.QtWidgets import QGridLayout, QLineEdit, QStyle, QToolButton
 from pytide6 import (
     Dialog,
     HBoxPanel,
@@ -24,6 +25,7 @@ from pytide6.palette import Palette
 from rgscore import Register
 
 from i2cc.app import App
+from i2cc.custom_commands.find_register_dialog import FindEnumFieldValuesDialog
 from i2cc.gui_tools import XButton
 
 
@@ -32,7 +34,29 @@ class FieldValueInput(LineEdit):
         super().__init__(text, validator=QDoubleValidator())
         self.register = register
         self.field_name = field_name
+        self.field_def = register.get_field_definition(field_name)
+        enum_values = self.field_def.enum_values
+        if enum_values is None:
+            enum_values = []
+        enums = {str(e.name): float(e.value) for e in enum_values}
         self.setParent(parent)
+
+        self.enum_list_action = self.addAction(
+            QIcon.fromTheme(QIcon.ThemeIcon.GoDown), QLineEdit.ActionPosition.LeadingPosition
+        )
+
+        def insert(s: str):
+            self.setText(self.field_def.number_format.format(enums.get(s, 0.0)))
+            self.editingFinished.emit()
+
+        def show_enum_menu():
+            dialog = FindEnumFieldValuesDialog(self, parent.app, insert, register.name, field_name)
+            if dialog.enums_table.table_model.rowCount() > 0:
+                pos = self.mapToGlobal(self.cursorRect().topLeft())
+                dialog.move(pos)
+                dialog.exec()
+
+        self.enum_list_action.triggered.connect(show_enum_menu)
 
     def next_up(self):
         self.keyPressEvent(
@@ -78,6 +102,9 @@ class FieldValueInput(LineEdit):
             self.setText(f"{new_field_value}")
             self.editingFinished.emit()
 
+        elif key == Qt.Key.Key_Space and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            self.enum_list_action.triggered.emit()
+
         super().keyPressEvent(event)
 
 
@@ -111,7 +138,8 @@ class RegisterWriteDialog(Dialog):
 
             def mk_field_value_setter(fname: str, input_line_edit: LineEdit):
                 def set_field_value():
-                    min_val, max_val = self.register.get_field_definition(fname).range()
+                    field_def = self.register.get_field_definition(fname)
+                    min_val, max_val = field_def.range()
                     try:
                         actually_set_value = self.register.set_field_value(
                             fname,
@@ -147,7 +175,7 @@ class RegisterWriteDialog(Dialog):
                 1,
             )
             fields_layout.addWidget(
-                Label(f"{field_definition.signed}{field_definition.width}.{field_definition.fractional}  "),
+                Label(f"{field_definition.number_format}  "),
                 row,
                 2,
             )

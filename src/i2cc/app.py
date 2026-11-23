@@ -181,6 +181,7 @@ class App:
         self.set_code_settings: Callable[[Settings], None] = lambda _: None
         self.set_results_panel_visible: Callable[[bool], None] = lambda _: None
         self.set_commands_panel_visible: Callable[[bool], None] = lambda _: None
+        self.reload_results_table_from_memory: Callable[[], None] = lambda _: None
 
         # called by results panel when register is read and result are (re)displayed
         self.registers_values_changed: Callable[[int], None] = lambda _: None
@@ -309,7 +310,7 @@ class App:
 
                         write_num_bits = self.write_register_num_bytes.value * 8
                         if len(retval) < write_num_bits:
-                            return BitArray(write_num_bits - len(retval)) + retval
+                            return BitArray.from_zeros(write_num_bits - len(retval)) + retval
                         else:
                             return retval[-write_num_bits:]
                     else:
@@ -394,13 +395,9 @@ class App:
 
     def update_results_display_data(self):
         for row in self.project.results:
-            register: Register | None = self.project.reg_list.get_register_by_address(row.address)
-            if register is None:
-                row.name_and_address = f"0x{row.address:0{row.address_bus_width_in_bytes * 2}X}"
-            else:
-                row.name_and_address = (
-                    f"{register.name} @ 0x{register.address:0{register.address_bus_width_bytes * 2}X}"
-                )
+            registers: list[Register] | None = self.project.addr_map.get_register_by_address(row.address)
+            name = "" if registers is None else (" ".join([str(r.name) for r in registers]) + " @ ")
+            row.name_and_address = f"{name}0x{row.address:0{registers[0].address_bus_width_bytes * 2}X}"
 
     def export_project(self):
         last_used_dir = Path(self.persistence.state.get_value("last_used_dir", str(Path.home().absolute())))

@@ -223,11 +223,13 @@ class XButton(PushButton):
         tool_tip: str | None = None,
         respond_to_enter_and_return_keys: bool = True,
         reactive_tooltip: Variable[str] | None = None,
+        props: dict[str, Any] | None = None,
+        x_clicked: Callable[[PushButton], Any] | None = None,
     ):
         super().__init__(
             text,
             parent,
-            on_clicked=on_clicked,
+            on_clicked=(lambda: x_clicked(self)) if x_clicked is not None else on_clicked,
             auto_default=auto_default,
             style_sheet=App.css.PushButton,
             cursor=cursor,
@@ -237,6 +239,9 @@ class XButton(PushButton):
         )
         if reactive_tooltip is not None:
             reactive_tooltip.register_value_change_callback(self.setToolTip)
+        if props is not None:
+            for key in props.keys():
+                self.setProperty(key, props[key])
 
 
 class ModalLineTextInputDialog(Dialog):

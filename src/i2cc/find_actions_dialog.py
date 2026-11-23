@@ -87,21 +87,22 @@ class ActionsModel(
 
     def apply_filter(self, filter_text: str, post_filter_action: Callable[[], Any]):
         char_filter = list(filter_text)
-        self.beginResetModel()
-        self.actions_to_display.clear()
-        if char_filter == []:
-            self.actions_to_display = ACTIONS.copy()
+        try:
+            self.beginResetModel()
+            self.actions_to_display.clear()
+            if char_filter == []:
+                self.actions_to_display = ACTIONS.copy()
+                self.endResetModel()
+                post_filter_action()
+                return
+
+            for action in ACTIONS:
+                new_label = apply_filter_to_text(char_filter, action.name)
+                if new_label is not None:
+                    self.actions_to_display.append(Action(new_label, action.action))
+        finally:
             self.endResetModel()
             post_filter_action()
-            return
-
-        for action in ACTIONS:
-            new_label = apply_filter_to_text(char_filter, action.name)
-            if new_label is not None:
-                self.actions_to_display.append(Action(new_label, action.action))
-
-        self.endResetModel()
-        post_filter_action()
 
 
 class FindActionDialog(Dialog):

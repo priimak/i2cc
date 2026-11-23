@@ -98,6 +98,12 @@ class I2CDriverWindow(MainWindow):
         right_bottom_panel.addTab(ProjectNotes(app), "Project notes")
         right_bottom_panel.setStyleSheet(App.css.Tabs)
 
+        def tab_changed(index: int):
+            if index == 0:
+                self.reg_list_panel.register_text.reload_register()
+
+        right_bottom_panel.currentChanged.connect(tab_changed)
+
         right_panel = VBoxPanel(
             widgets=[
                 VBoxPanel([self.cpanel], background_color="black", margins=1),

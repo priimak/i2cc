@@ -335,10 +335,12 @@ class CustomCommandsPanel(VBoxPanel):
                     "Please confirm that you want to delete this command?",
                 )
                 if ret == QMessageBox.StandardButton.Yes:
-                    self.commands_table.table_model.beginResetModel()
-                    self.app.project.delete_custom_command(cmd.label)
-                    self.commands_table.table_model.regenerate_commands_to_display()
-                    self.commands_table.table_model.endResetModel()
+                    try:
+                        self.commands_table.table_model.beginResetModel()
+                        self.app.project.delete_custom_command(cmd.label)
+                        self.commands_table.table_model.regenerate_commands_to_display()
+                    finally:
+                        self.commands_table.table_model.endResetModel()
                     self.commands_table.selectRow(min(self.commands_table.table_model.rowCount() - 1, row))
 
     def edit_selected_command(self):
@@ -356,9 +358,11 @@ class CustomCommandsPanel(VBoxPanel):
     def request_commands_reload(self, keep_selection: bool):
         self.code_preview_widget.clear()
         selected_row = self.get_selected_row()
-        self.commands_table.table_model.beginResetModel()
-        self.commands_table.table_model.regenerate_commands_to_display()
-        self.commands_table.table_model.endResetModel()
+        try:
+            self.commands_table.table_model.beginResetModel()
+            self.commands_table.table_model.regenerate_commands_to_display()
+        finally:
+            self.commands_table.table_model.endResetModel()
         if keep_selection:
             self.commands_table.selectRow(selected_row)
         else:

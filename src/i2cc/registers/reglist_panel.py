@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from threading import Lock
 from typing import Any
 
-from bitstring import BitArray
 from PySide6 import QtGui
 from PySide6.QtCore import QItemSelection, QModelIndex, QPersistentModelIndex, Qt
 from PySide6.QtGui import QKeyEvent
@@ -59,7 +58,7 @@ class RegListModel(
                 fields=", ".join(register.get_field_names()),
                 pure_name=register.name,
             )
-            for register in self.app.project.reg_list.registers
+            for register in self.app.project.addr_map.registers
         ]
 
     def regenerate_registers_to_display(self):
@@ -101,44 +100,46 @@ class RegListModel(
 
     def apply_filter(self, filter_text: str, post_filter_action: Callable[[], Any]):
         char_filter = list(filter_text)
-        self.beginResetModel()
-        self.registers_to_display.clear()
-        if char_filter == []:
-            self.registers_to_display = self.mk_registers_to_display()
+        try:
+            self.beginResetModel()
+            self.registers_to_display.clear()
+            if char_filter == []:
+                self.registers_to_display = self.mk_registers_to_display()
+                self.endResetModel()
+                post_filter_action()
+                return
+
+            registers_to_display_input = self.mk_registers_to_display()
+
+            for register in registers_to_display_input:
+                new_register_address = apply_filter_to_text(char_filter, register.address)
+                new_register_name = apply_filter_to_text(char_filter, register.name)
+                new_register_fields = apply_filter_to_text(char_filter, register.fields)
+
+                fields_ = [new_register_address, new_register_name, new_register_fields]
+                if len([a for a in fields_ if a is not None]) > 0:
+                    # we have something to display
+                    if new_register_address is None:
+                        new_register_address = register.address
+
+                    if new_register_name is None:
+                        new_register_name = register.name
+
+                    if new_register_fields is None:
+                        new_register_fields = register.fields
+
+                    # add to display
+                    self.registers_to_display.append(
+                        RegisterDisplayData(
+                            address=new_register_address,
+                            name=new_register_name,
+                            fields=new_register_fields,
+                            pure_name=register.name,
+                        )
+                    )
+        finally:
             self.endResetModel()
             post_filter_action()
-            return
-
-        registers_to_display_input = self.mk_registers_to_display()
-
-        for register in registers_to_display_input:
-            new_register_address = apply_filter_to_text(char_filter, register.address)
-            new_register_name = apply_filter_to_text(char_filter, register.name)
-            new_register_fields = apply_filter_to_text(char_filter, register.fields)
-
-            fields_ = [new_register_address, new_register_name, new_register_fields]
-            if len([a for a in fields_ if a is not None]) > 0:
-                # we have something to display
-                if new_register_address is None:
-                    new_register_address = register.address
-
-                if new_register_name is None:
-                    new_register_name = register.name
-
-                if new_register_fields is None:
-                    new_register_fields = register.fields
-
-                # add to display
-                self.registers_to_display.append(
-                    RegisterDisplayData(
-                        address=new_register_address,
-                        name=new_register_name,
-                        fields=new_register_fields,
-                        pure_name=register.name,
-                    )
-                )
-        self.endResetModel()
-        post_filter_action()
 
 
 class RegInfoText(QTextEdit):
@@ -163,47 +164,154 @@ class RegInfoText(QTextEdit):
     def show_register(self, register: Register) -> None:
         with self.__lock:
             self.register = register
-            fields_rows = ""
             raw_result = self.app.project.get_raw_result_for_address(register.address)
             if raw_result is not None:
-                register.data.clear()
-                register.data.append(BitArray(f"0b{raw_result.value_bin}"))
+                self.app.reload_results_table_from_memory()
 
+            table_format = QtGui.QTextTableFormat()
+            table_format.setWidth(QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 100))
+            constraints = [
+                QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 1),
+                QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 1),
+                QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 1),
+                QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 1),
+                QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 1),
+                QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 1),
+                QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 95),
+            ]
+            table_format.setColumnWidthConstraints(constraints)
+
+            cursor = self.textCursor()
+            cursor.beginEditBlock()
+            cursor.select(QtGui.QTextCursor.SelectionType.Document)
+            cursor.removeSelectedText()
+            table = cursor.insertTable(1, 7, table_format)
+
+            format = table.format()
+            format.setBorder(0)
+            table.setFormat(format)
+            table.appendRows(6)
+
+            c0 = table.cellAt(0, 0).firstCursorPosition()
+            c0.insertText("Register:")
+            c = table.cellAt(0, 1).firstCursorPosition()
+            table.mergeCells(0, 1, 1, 6)
+            char_format = QtGui.QTextCharFormat()
+            char_format.setForeground(QtGui.QColorConstants.Blue)
+            c.setCharFormat(char_format)
+            assert register.name is not None
+            c.insertText(register.name)
+
+            table.cellAt(1, 0).firstCursorPosition().insertText("Description:")
+            c = table.cellAt(1, 1).firstCursorPosition()
+            table.mergeCells(1, 1, 1, 6)
+            char_format = QtGui.QTextCharFormat()
+            char_format.setForeground(QtGui.QColorConstants.DarkGreen)
+            char_format.setFontItalic(True)
+            c.setCharFormat(char_format)
+            c.insertText(register.desc)
+
+            table.cellAt(2, 0).firstCursorPosition().insertText("Address:")
+            c = table.cellAt(2, 1).firstCursorPosition()
+            char_format = QtGui.QTextCharFormat()
+            char_format.setForeground(QtGui.QColorConstants.Blue)
+            c.setCharFormat(char_format)
+            assert register.address is not None
+            c.insertText(f"0x{register.address:0{register.address_bus_width_bytes * 2}X}")
+
+            c0 = table.cellAt(3, 0).firstCursorPosition()
+            bf = QtGui.QTextBlockFormat()
+            bf.setNonBreakableLines(True)
+            c0.setBlockFormat(bf)
+            c0.insertText("Width (bits):")
+            c = table.cellAt(3, 1).firstCursorPosition()
+            char_format = QtGui.QTextCharFormat()
+            char_format.setForeground(QtGui.QColorConstants.Blue)
+            c.setCharFormat(char_format)
+            c.insertText(f"{register.width}")
+
+            table.cellAt(4, 0).firstCursorPosition().insertText("Reset value:")
+            c = table.cellAt(4, 1).firstCursorPosition()
+            table.mergeCells(4, 1, 1, 6)
+            char_format = QtGui.QTextCharFormat()
+            char_format.setForeground(QtGui.QColorConstants.Blue)
+            c.setCharFormat(char_format)
+            c.insertText(register.reset_value.bin)
+
+            table.cellAt(5, 0).firstCursorPosition().insertText("Raw data:")
+            c = table.cellAt(5, 1).firstCursorPosition()
+            table.mergeCells(5, 1, 1, 6)
+            char_format = QtGui.QTextCharFormat()
+            char_format.setForeground(QtGui.QColorConstants.Blue)
+            c.setCharFormat(char_format)
+            c.insertText(register.data.bin)
+
+            table.cellAt(6, 0).firstCursorPosition().insertText("Fields:")
+            row = 7
             for field_name in register.get_field_names():
+                table.appendRows(1)
                 field_def = register.get_field_definition(field_name)
-                fields_rows += (
-                    f"<tr><td>&nbsp;</td><td style='white-space: nowrap;'><p style='color: blue;'>{field_def.name}&nbsp;&nbsp;</p></td>"
-                    f"<td style='white-space: nowrap;'>[{field_def.end_offset()}:{field_def.offset}]&nbsp;&nbsp;</td>"
-                    f"<td style='white-space: nowrap;'>{field_def.signed}{field_def.width}.{field_def.fractional}</td>"
-                )
-                if field_def.rw:
-                    fields_rows += "<td style='white-space: nowrap;'>&nbsp;&nbsp;r/w</td>"
-                else:
-                    fields_rows += "<td style='white-space: nowrap;'>&nbsp;&nbsp;r/o</td>"
-                if raw_result is None:
-                    fields_rows += "<td></td>"
-                else:
-                    fields_rows += f"<td style='white-space: nowrap;'>&nbsp;&nbsp;=> {register.get_field_value(field_def.name)}</td>"
-                if field_def.desc.strip() == "":
-                    fields_rows += "<td></td></tr>"
-                else:
-                    fields_rows += f"<td style='white-space: nowrap;'><p style='color: green;'><em>&nbsp;&nbsp;# {field_def.desc}</em></p></td></tr>"
 
-            self.setText(
-                f"""
-                <table>
-                <tbody>
-                <tr><td>Register:</td><td colspan=6><p style='color: blue;'>{register.name}</p></td></tr>
-                <tr><td>Description:</td><td colspan=6><p style='color: green;'><em>{register.desc}</em></p></td></tr>
-                <tr><td>Address:</td><td colspan=6><p style='color: blue;'>0x{register.address:0{register.address_bus_width_bytes * 2}X}</p></td></tr>
-                <tr><td style='white-space: nowrap;'>Width (bits):&nbsp;&nbsp;</td><td colspan=6><p style='color: blue;'>{register.width}</p></td></tr>
-                <tr><td>Raw data:&nbsp;&nbsp;</td><td colspan=6><p style='color: blue;'>{register.data.bin}</p></td></tr>
-                <tr><td colspan=7>Fields:</td></tr>
-                {fields_rows}
-                </tbody>
-                </table>
-            """.strip()
-            )
+                cell = table.cellAt(row, 1)
+                c = cell.firstCursorPosition()
+                char_format = QtGui.QTextCharFormat()
+                char_format.setForeground(QtGui.QColorConstants.Blue)
+                c.setCharFormat(char_format)
+                bf = c.blockFormat()
+                bf.setTopMargin(0)
+                bf.setBottomMargin(0)
+                bf.setNonBreakableLines(True)
+                c.setBlockFormat(bf)
+                c.insertText(f"{field_def.name}  ")
+
+                c = table.cellAt(row, 2).firstCursorPosition()
+                c.setBlockFormat(bf)
+                c.insertText(f"[{field_def.end_offset()}:{field_def.offset}]  ")
+
+                c = table.cellAt(row, 3).firstCursorPosition()
+                c.setBlockFormat(bf)
+                c.insertText(f"{field_def.number_format!r}  ")
+
+                c = table.cellAt(row, 4).firstCursorPosition()
+                c.setBlockFormat(bf)
+                c.insertText("r/w  " if field_def.rw else "r/o")
+                if raw_result is not None:
+                    c = table.cellAt(row, 5).firstCursorPosition()
+                    c.setBlockFormat(bf)
+                    c.insertText("=> " + str(register.get_field_value(field_def.name)) + "  ")
+                c = table.cellAt(row, 6).firstCursorPosition()
+                char_format = QtGui.QTextCharFormat()
+                char_format.setForeground(QtGui.QColorConstants.DarkGreen)
+                char_format.setFontItalic(True)
+                c.setCharFormat(char_format)
+                c.insertText(field_def.desc)
+
+                row += 1
+                if field_def.enum_values is not None:
+                    for e in field_def.enum_values:
+                        table.appendRows(1)
+
+                        c = table.cellAt(row, 1).firstCursorPosition()
+                        char_format = QtGui.QTextCharFormat()
+                        char_format.setForeground(QtGui.QColorConstants.Red)
+                        c.setCharFormat(char_format)
+                        c.setBlockFormat(bf)
+                        c.insertText(f"  {e.name}")
+
+                        c = table.cellAt(row, 3).firstCursorPosition()
+                        table.mergeCells(row, 3, 1, 2)
+                        c.setBlockFormat(bf)
+                        c.insertText(f"{e.value}")
+
+                        c = table.cellAt(row, 6).firstCursorPosition()
+                        char_format = QtGui.QTextCharFormat()
+                        char_format.setForeground(QtGui.QColorConstants.Gray)
+                        char_format.setFontItalic(True)
+                        c.setCharFormat(char_format)
+                        c.insertText(f"{e.desc}")
+
+                        row += 1
+            c.endEditBlock()
 
 
 class RegListPanel(VBoxPanel):
@@ -258,7 +366,7 @@ class RegListPanel(VBoxPanel):
                 self.register_text.setText("")
             else:
                 register_name = self.reglist_table.table_model.registers_to_display[selected_indexes[0].row()].pure_name
-                self.register_text.show_register(app.project.reg_list.get_register_by_name(register_name))
+                self.register_text.show_register(app.project.addr_map.get_register_by_name(register_name))
 
         self.reglist_table.selectionModel().selectionChanged.connect(selection_changed)
 
@@ -323,13 +431,15 @@ class RegListPanel(VBoxPanel):
             self.register_text.reload_register()
 
     def request_reglist_reload(self):
-        self.reglist_table.table_model.beginResetModel()
-        self.reglist_table.table_model.regenerate_registers_to_display()
-        self.register_text.clear()
-        self.register_text.register = None
-        self.reglist_table.table_model.endResetModel()
-        if self.reglist_table.model().rowCount() > 0:
-            self.reglist_table.selectRow(0)
+        try:
+            self.reglist_table.table_model.beginResetModel()
+            self.reglist_table.table_model.regenerate_registers_to_display()
+            self.register_text.clear()
+            self.register_text.register = None
+        finally:
+            self.reglist_table.table_model.endResetModel()
+            if self.reglist_table.model().rowCount() > 0:
+                self.reglist_table.selectRow(0)
 
     def pass_key_press_event(self) -> Callable[[QKeyEvent], None]:
         def key_pressed(event: QKeyEvent) -> None:
@@ -363,13 +473,13 @@ class RegListPanel(VBoxPanel):
     def edit_selected_register(self):
         row_and_name = self.get_selected_register_name()
         if row_and_name is not None:
-            register = self.app.project.reg_list.get_register_by_name(row_and_name.name)
+            register = self.app.project.addr_map.get_register_by_name(row_and_name.name)
             DefRegEditor(
                 app=self.app,
                 windowTitle="Edit Register",
                 is_new_register=False,
                 register_proto=RegisterPrototype.from_register(
-                    self.app.project.reg_list.get_register_by_name(register.name)
+                    self.app.project.addr_map.get_register_by_name(register.name)
                 ),
             ).exec()
 
@@ -382,7 +492,7 @@ class RegListPanel(VBoxPanel):
                 f"Please confirm that you want to delete register [{register.name}]?",
             )
             if ret == QMessageBox.StandardButton.Yes:
-                self.app.project.reg_list.delete_register_by_name(register.name)
+                self.app.project.addr_map.delete_register_by_name(register.name)
                 self.app.request_reglist_reload()
                 self.search_field.textChanged.emit(self.search_field.text())
                 self.reglist_table.selectRow(min(self.reglist_table.table_model.rowCount() - 1, register.row))
@@ -392,7 +502,7 @@ class RegListPanel(VBoxPanel):
     def read_selected_register(self):
         register = self.get_selected_register_name()
         if register is not None:
-            r = self.app.project.reg_list.get_register_by_name(register.name)
+            r = self.app.project.addr_map.get_register_by_name(register.name)
             self.app.read_register_address_str.set_value(f"0x{r.address:0{r.address_bus_width_bytes * 2}X}")
             self.app.read_register_num_bytes.set_value(int(r.width / 8))
             self.app.read_register()
@@ -402,5 +512,5 @@ class RegListPanel(VBoxPanel):
         if register is not None:
             RegisterWriteDialog(
                 self.app,
-                register=self.app.project.reg_list.get_register_by_name(register.name),
+                register=self.app.project.addr_map.get_register_by_name(register.name),
             ).exec()

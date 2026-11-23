@@ -308,7 +308,7 @@ requires-dist = [
     { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.25.2" },
     { name = "qppte", specifier = ">=0.7.2" },
     { name = "requests", specifier = ">=2.34.2" },
-    { name = "rgscore", specifier = ">=0.14.4" },
+    { name = "rgscore", specifier = ">=0.15.1" },
     { name = "sprats", git = "https://github.com/priimak/sprats.git?rev=v0.10.1" },
     { name = "usb-monitor" },
 ]
@@ -855,16 +855,18 @@ wheels = [
 
 [[package]]
 name = "rgscore"
-version = "0.14.4"
+version = "0.15.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
     { name = "i2c-api" },
     { name = "pydantic" },
+    { name = "requests" },
+    { name = "tabulate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d2/d9/08d5e7ab817e967577e611536496739bf77bc7f8529558c9e4a89360faa4/rgscore-0.14.4.tar.gz", hash = "sha256:ee78d6f9e14bbe7b2f1c2653885e600ced9e2a62bac173db672148ae0696e397", size = 20243, upload-time = "2026-11-05T19:15:10.521Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1f/46/14b707fbec8d569ce530008cbe32196d7fadb022a6f4ec1d197fba1568b4/rgscore-0.15.1.tar.gz", hash = "sha256:dffe8deef4e49cc00d5048312ef1e62577712d4b4afc4d1d683bb4bd5786b0f7", size = 29700, upload-time = "2026-11-19T18:30:33.079Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/59/cdfa2a232e11fe5558198313efe907e96c7fdce454110688dc4437e859b6/rgscore-0.14.4-py3-none-any.whl", hash = "sha256:de5c94dd0f3005c876b81729a0a8b24c2b1f5f0db4dd7a664cb4170a0a69748c", size = 11311, upload-time = "2026-11-05T19:15:09.352Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/c4/aafbe205e81858cc95fbf25ce03e42f460e8a6a8bc0d3382f2e9c2b136b7/rgscore-0.15.1-py3-none-any.whl", hash = "sha256:4ecf254f88a74d703f00f45a8750be2aeb35d374635ce2e8f9f6f522a2a66560", size = 18422, upload-time = "2026-11-19T18:30:31.295Z" },
 ]
 
 [[package]]
@@ -919,6 +921,15 @@ version = "0.10.1"
 source = { git = "https://github.com/priimak/sprats.git?rev=v0.10.1#22331305c9f2179b4b4befdc94b31190f7ae7a36" }
 dependencies = [
     { name = "pydantic" },
+]
+
+[[package]]
+name = "tabulate"
+version = "0.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/58/8c37dea7bbf769b20d58e7ace7e5edfe65b849442b00ffcdd56be88697c6/tabulate-0.10.0.tar.gz", hash = "sha256:e2cfde8f79420f6deeffdeda9aaec3b6bc5abce947655d17ac662b126e48a60d", size = 91754, upload-time = "2026-03-04T18:55:34.402Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/55/db07de81b5c630da5cbf5c7df646580ca26dfaefa593667fc6f2fe016d2e/tabulate-0.10.0-py3-none-any.whl", hash = "sha256:f0b0622e567335c8fabaaa659f1b33bcb6ddfe2e496071b743aa113f8774f2d3", size = 39814, upload-time = "2026-03-04T18:55:31.284Z" },
 ]
 
 [[package]]

@@ -107,6 +107,7 @@ class ResultsTable(QTableView):
         self.viewport().setMouseTracking(True)
 
         self.app.request_results_reload = self.request_results_reload
+        self.app.reload_results_table_from_memory = self.reload_results_table_from_memory
 
     def define_new_register(self):
         for index in self.selectedIndexes():
@@ -146,21 +147,27 @@ class ResultsTable(QTableView):
             self.selectRow(row)
 
     def remove_all_results(self):
-        self.model.beginResetModel()
-        removed_addresses = [row.address for row in self.model.project.results]
-        self.model.project.results.clear()
-        self.model.endResetModel()
-        for addr in removed_addresses:
-            self.app.registers_values_changed(addr)
+        try:
+            self.model.beginResetModel()
+            removed_addresses = [row.address for row in self.model.project.results]
+            self.model.project.results.clear()
+            self.model.endResetModel()
+            for addr in removed_addresses:
+                self.app.registers_values_changed(addr)
+        finally:
+            self.model.endResetModel()
 
     def remove_select_reg_result(self):
         idx = self.currentIndex()
         if idx is not None:
-            self.model.beginResetModel()
-            removed_row = self.model.project.remove_result(idx.row())
-            self.model.endResetModel()
-            if removed_row is not None:
-                self.app.registers_values_changed(removed_row.address)
+            try:
+                self.model.beginResetModel()
+                removed_row = self.model.project.remove_result(idx.row())
+                self.model.endResetModel()
+                if removed_row is not None:
+                    self.app.registers_values_changed(removed_row.address)
+            finally:
+                self.model.endResetModel()
 
     def request_results_reload(self):
         self.model.beginResetModel()
@@ -209,43 +216,52 @@ class ResultsTable(QTableView):
             self.model.highlighted_rows.add(row_to_highlight)
             self.model.endResetModel()
 
+    def reload_results_table_from_memory(self):
+        try:
+            self.model.beginResetModel()
+
+            for row in range(self.model.rowCount()):
+                res: RawResult | None = self.model.project.get_results_at_row(row)
+                if res is not None:
+                    registers = self.app.project.addr_map.get_register_by_address(res.address)
+                    if registers is not None:
+                        self.model.project.results[row].value_bin = registers[0].data.bin
+                        self.model.project.results[row].value_hex = f"0x{registers[0].data.hex.upper()}"
+        finally:
+            self.model.endResetModel()
+
     def show_register_value(self, data: ShowRegSignalData) -> None:
         row = self.model.indexOfByAddr(data.register_address)
-        self.model.beginResetModel()
-        register_address = int(data.register_address, 16)
-        if row == -1:
-            # insert new row
-            register = self.app.project.reg_list.get_register_by_address(register_address)
-            self.model.project.add_result(
-                RawResult(
-                    name_and_address=(
-                        data.register_address if register is None else f"{register.name} @ {data.register_address}"
-                    ),
-                    value_hex=data.hexval,
-                    value_bin=data.binval,
-                    address=register_address,
-                    address_bus_width_in_bytes=data.address_bus_width_in_bytes,
-                )
-            )
-            row = self.model.indexOfByAddr(data.register_address)
-        else:
-            register = self.app.project.reg_list.get_register_by_address(register_address)
-            self.model.project.replace_result(
-                row,
-                RawResult(
-                    name_and_address=(
-                        data.register_address if register is None else f"{register.name} @ {data.register_address}"
-                    ),
-                    value_hex=data.hexval,
-                    value_bin=data.binval,
-                    address=register_address,
-                    address_bus_width_in_bytes=data.address_bus_width_in_bytes,
-                ),
-            )
+        try:
+            self.model.beginResetModel()
+            register_address = int(data.register_address, 16)
+            registers = self.app.project.addr_map.get_register_by_address(register_address)
 
-        if data.highlight:
-            self.model.highlighted_rows.add(row)
-        self.model.endResetModel()
+            name_and_address = data.register_address
+            if registers is not None:
+                name_and_address = " ".join([r.name for r in registers]) + " @ " + name_and_address
+
+            raw_result = RawResult(
+                name_and_address=name_and_address,
+                value_hex=data.hexval,
+                value_bin=data.binval,
+                address=register_address,
+                address_bus_width_in_bytes=data.address_bus_width_in_bytes,
+            )
+            if row == -1:
+                # insert new row
+                self.model.project.add_result(raw_result)
+                row = self.model.indexOfByAddr(data.register_address)
+            else:
+                self.model.project.replace_result(
+                    row,
+                    raw_result,
+                )
+
+            if data.highlight:
+                self.model.highlighted_rows.add(row)
+        finally:
+            self.model.endResetModel()
 
         # update register def display if necessary
         self.app.registers_values_changed(register_address)

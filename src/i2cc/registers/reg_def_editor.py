@@ -1,25 +1,27 @@
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import reduce
 
 from PySide6 import QtGui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QLayoutItem
+from PySide6.QtWidgets import QGridLayout, QLayoutItem, QScrollArea, QWidget
 from pytide6 import (
     CheckBox,
     ComboBox,
     Dialog,
     HBoxPanel,
     Label,
+    PushButton,
     VBoxLayout,
     VBoxPanel,
     W,
 )
 from pytide6.frame import HorizonalLine
 from pytide6.inputs import LineEdit
-from rgscore import FieldDef, Register
+from rgscore import BinaryCodedDecimal, EnumValue, FieldDef, FixedPointNumber, Register
+from rgscore.model.register import enum_value_name_re
 from sprats.collections import Variable
 
 from i2cc.app import App
@@ -164,6 +166,160 @@ class AddressInput(LineEdit):
         super().keyPressEvent(event)
 
 
+@dataclass
+class EnumVars:
+    name: str
+    value: str
+    desc: str
+
+
+class EnumEditDialog(Dialog):
+    def __init__(self, parent, *, enums: list[EnumValue] | None):
+        super().__init__(parent)
+        self.is_success = False
+        self.app: App = parent.app
+        self.enums = [] if enums is None else enums
+        self.vs = [EnumVars(e.name, str(e.value), e.desc) for e in self.enums]
+        self.ins = []
+
+        self.enums_layout = QGridLayout()
+
+        self.build_ins()
+
+        enum_panel = QWidget()
+        enum_panel.setLayout(self.enums_layout)
+        enum_area = QScrollArea()
+        enum_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        enum_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        enum_area.setWidgetResizable(True)
+        enum_area.setWidget(VBoxPanel([enum_panel, W(stretch=1)]))
+        self.enums_layout.addWidget(
+            XButton("Add New Enum Value", on_clicked=self.add_new_enum, auto_default=False), 0, 0, 1, 2
+        )
+        self.enums_layout.addWidget(Label("Enum Name"), 1, 0)
+        self.enums_layout.addWidget(Label("Value"), 1, 1)
+        self.enums_layout.addWidget(Label("Description"), 1, 2)
+        self.build_rows()
+
+        self.setLayout(
+            VBoxLayout(
+                [
+                    W(enum_area, stretch=1),
+                    HBoxPanel(
+                        [
+                            W(stretch=1),
+                            XButton("Ok", auto_default=False, on_clicked=self.save_enums_and_close),
+                            XButton("Cancel", on_clicked=self.close, auto_default=False),
+                        ]
+                    ),
+                ]
+            )
+        )
+        enum_panel.adjustSize()
+        hint = enum_panel.sizeHint()
+        vbar = enum_area.verticalScrollBar().sizeHint().width() if enum_area.verticalScrollBar().isVisible() else 0
+        hbar = enum_area.horizontalScrollBar().sizeHint().height() if enum_area.horizontalScrollBar().isVisible() else 0
+        enum_area.resize(
+            hint.width() + vbar,
+            hint.height() + hbar,
+        )
+
+    def build_ins(self):
+        for i, v in enumerate(self.vs):
+            self.ins.append(
+                [
+                    LineEdit(text=v.name, with_fixed_width_for_text="_" * 20),
+                    LineEdit(text=v.value, with_fixed_width_for_text="0.1234567"),
+                    LineEdit(text=v.desc, with_min_width_for_text="_" * 50),
+                    XButton("Del", props={"row": i}, x_clicked=self.del_button_pressed, auto_default=False),
+                ]
+            )
+
+    def remove_all_enums_gui_elements(self):
+        enums_layout_items = self.enums_layout.layout()
+        for _ in range(enums_layout_items.count()):
+            w: QLayoutItem = enums_layout_items.takeAt(0)
+            w.widget().setParent(None)
+            enums_layout_items.removeItem(w)
+
+        enums_layout_items.update()
+
+    def del_button_pressed(self, b: PushButton):
+        for i, v in enumerate(self.vs):
+            v.name = self.ins[i][0].text()
+            v.value = self.ins[i][1].text()
+            v.desc = self.ins[i][2].text()
+
+        self.remove_all_enums_gui_elements()
+        idx: int = b.property("row")
+        del self.vs[idx]
+        self.ins.clear()
+        self.build_ins()
+        self.enums_layout.addWidget(
+            XButton("Add New Enum Value", on_clicked=self.add_new_enum, auto_default=False), 0, 0, 1, 2
+        )
+        self.enums_layout.addWidget(Label("Enum Name"), 1, 0)
+        self.enums_layout.addWidget(Label("Value"), 1, 1)
+        self.enums_layout.addWidget(Label("Description"), 1, 2)
+        self.build_rows()
+
+    def add_new_enum(self):
+        self.vs.append(EnumVars("", "0", ""))
+        self.ins.append(
+            [
+                LineEdit(text=self.vs[-1].name, with_fixed_width_for_text="_" * 20),
+                LineEdit(text=self.vs[-1].value, with_fixed_width_for_text="0.1234567"),
+                LineEdit(text=self.vs[-1].desc, with_min_width_for_text="_" * 50),
+                XButton("Del", props={"row": len(self.ins)}, x_clicked=self.del_button_pressed, auto_default=False),
+            ]
+        )
+        row = len(self.ins) + 2
+        for c in range(4):
+            self.enums_layout.addWidget(self.ins[-1][c], row, c)
+
+    def build_rows(self):
+        row = 2
+        for le in self.ins:
+            self.enums_layout.addWidget(le[0], row, 0)
+            self.enums_layout.addWidget(le[1], row, 1)
+            self.enums_layout.addWidget(le[2], row, 2)
+            self.enums_layout.addWidget(le[3], row, 3)
+            row += 1
+
+    def save_enums_and_close(self):
+        for i, v in enumerate(self.vs):
+            v.name = self.ins[i][0].text()
+            v.value = self.ins[i][1].text()
+            v.desc = self.ins[i][2].text()
+            name = v.name.strip()
+            if name == "":
+                self.app.show_error("Every enum must have a non empty name")
+                return
+            elif not enum_value_name_re.match(name):
+                self.app.show_error(
+                    f"Invalid enum name [{v.name}]. Enum names must start with letter and "
+                    "contain only letters, numbers and underscores."
+                )
+                return
+            try:
+                float(v.value)
+            except:
+                self.app.show_error(f"Invalid enum value [{v.value}]")
+                return
+
+        if len({v.name for v in self.vs}) != len(self.vs):
+            self.app.show_error("Enum names must be unique")
+            return
+
+        if len({float(v.value) for v in self.vs}) != len(self.vs):
+            self.app.show_error("Enum values must be unique")
+            return
+
+        self.enums = [EnumValue(name=v.name, value=float(v.value), desc=v.desc) for v in self.vs]
+        self.is_success = True
+        self.close()
+
+
 class DefRegEditor(Dialog):
     def __init__(
         self,
@@ -189,7 +345,15 @@ class DefRegEditor(Dialog):
 
         def add_new_field():
             self.remove_all_fields_gui_elements()
-            self.register_proto.model.append(FieldDef(name="", offset=0, signed="U", width=0, fractional=0, rw=True))
+            self.register_proto.model.append(
+                FieldDef(
+                    name="",
+                    offset=0,
+                    number_format=FixedPointNumber(signed="U", integer_bits=0, fractional_bits=0),
+                    width=0,
+                    rw=True,
+                )
+            )
             self.register_proto.gui_model.clear()
             self.build_fields_panel(self.fields_panel)
 
@@ -259,11 +423,11 @@ class DefRegEditor(Dialog):
         try:
             new_register = self.register_proto.to_register()
             if self.is_new_register:
-                self.app.project.reg_list.add(new_register)
+                self.app.project.addr_map.add(new_register)
             else:
                 # we are editing register
-                original_register = self.app.project.reg_list.get_register_by_name(self.original_register_name)
-                self.app.project.reg_list.update_register_def(original_register, new_register)
+                original_register = self.app.project.addr_map.get_register_by_name(self.original_register_name)
+                self.app.project.addr_map.update_register_def(original_register, new_register)
 
             self.app.request_reglist_reload()
             self.app.request_reglist_select_register(new_register)
@@ -295,18 +459,10 @@ class DefRegEditor(Dialog):
 
                 return set_rw
 
-            def mk_signed_setter(fd: FieldDef):
-                def set_signed(value: str):
-                    fd.signed = "S" if value == "Signed" else "U"
-
-                return set_signed
-
             def mk_fractional_setter(fd: FieldDef):
                 def set_fractional(value: str):
-                    if value == "":
-                        fd.fractional = 0
-                    else:
-                        fd.fractional = int(value)
+                    if isinstance(fd.number_format, FixedPointNumber):
+                        fd.number_format = replace(fd.number_format, fractional_bits=(0 if value == "" else int(value)))
 
                 return set_fractional
 
@@ -315,6 +471,42 @@ class DefRegEditor(Dialog):
                     fd.name = value
 
                 return set_name
+
+            def get_current_selector_for_signed_combo_box(fd: FieldDef) -> int:
+                if isinstance(fd.number_format, BinaryCodedDecimal):
+                    return 2
+                elif fd.number_format.signed == "U":
+                    return 0
+                else:
+                    return 1
+
+            def get_fractional_input_value(fd: FieldDef) -> str:
+                if isinstance(fd.number_format, FixedPointNumber):
+                    return f"{fd.number_format.fractional_bits}"
+                else:
+                    return "0"
+
+            fractional_input_field = FractionalInput(
+                get_fractional_input_value(field_def),
+                on_text_change=mk_fractional_setter(field_def),
+            )
+
+            def mk_signed_setter(fd: FieldDef, fif: FractionalInput):
+                def set_signed(value: str):
+                    if value == "BCD":
+                        fd.number_format = BinaryCodedDecimal()
+                        fif.setVisible(False)
+                    else:
+                        if isinstance(fd.number_format, BinaryCodedDecimal):
+                            fd.number_format = FixedPointNumber(
+                                signed=("S" if value == "Signed" else "U"), integer_bits=fd.width, fractional_bits=0
+                            )
+                            fif.setText("0")
+                        else:
+                            fd.number_format = replace(fd.number_format, signed=("S" if value == "Signed" else "U"))
+                        fif.setVisible(True)
+
+                return set_signed
 
             self.register_proto.gui_model.append(
                 FieldDefGUIElements(
@@ -329,14 +521,11 @@ class DefRegEditor(Dialog):
                         on_text_change=mk_rw_setter(field_def),
                     ),
                     signed_selector=ComboBox(
-                        items=["Unsinged", "Signed"],
-                        current_selection=(0 if field_def.signed == "U" else 1),
-                        on_text_change=mk_signed_setter(field_def),
+                        items=["Unsinged", "Signed", "BCD"],
+                        current_selection=get_current_selector_for_signed_combo_box(field_def),
+                        on_text_change=mk_signed_setter(field_def, fractional_input_field),
                     ),
-                    fractional_input_field=FractionalInput(
-                        f"{field_def.fractional}",
-                        on_text_change=mk_fractional_setter(field_def),
-                    ),
+                    fractional_input_field=fractional_input_field,
                 )
             )
         for field_idx, field_def in enumerate(self.register_proto.model):
@@ -368,6 +557,9 @@ class DefRegEditor(Dialog):
                         else:
                             field_def.offset = offset
                             field_def.width = 1 if on else 0
+
+                        if isinstance(field_def.number_format, FixedPointNumber):
+                            field_def.number_format = replace(field_def.number_format, integer_bits=field_def.width)
 
                         # update numerical type width label
                         self.register_proto.gui_model[field_idx].width_label.setText(f"{field_def.width}.")
@@ -419,6 +611,18 @@ class DefRegEditor(Dialog):
 
             field_name_input_field = self.register_proto.gui_model[field_idx].field_name_input_field
             desc_tooltip.register_value_change_callback(field_name_input_field.setToolTip)
+
+            def mk_edit_enums(idx: int):
+                def edit_enums():
+                    enum_dialog = EnumEditDialog(self, enums=self.register_proto.model[idx].enum_values)
+                    enum_dialog.exec()
+                    if enum_dialog.is_success:
+                        self.register_proto.model[idx].enum_values = (
+                            None if enum_dialog.enums == [] else enum_dialog.enums
+                        )
+
+                return edit_enums
+
             wgs.append(
                 HBoxPanel(
                     cbs
@@ -429,6 +633,7 @@ class DefRegEditor(Dialog):
                         self.register_proto.gui_model[field_idx].signed_selector,
                         self.register_proto.gui_model[field_idx].width_label,
                         self.register_proto.gui_model[field_idx].fractional_input_field,
+                        W(stretch=1),
                         XButton(
                             "Desc",
                             auto_default=False,
@@ -436,8 +641,12 @@ class DefRegEditor(Dialog):
                             tool_tip=self.register_proto.model[field_idx].desc,
                             reactive_tooltip=desc_tooltip,
                         ),
+                        XButton(
+                            "Enums",
+                            auto_default=False,
+                            on_clicked=mk_edit_enums(field_idx),
+                        ),
                         Label("  "),
-                        W(stretch=1),
                         XButton("Del", on_clicked=mk_delete_action(field_idx), auto_default=False),
                     ],
                     margins=0,
@@ -468,9 +677,8 @@ class NewRegDefDialog(Dialog):
                         FieldDef(
                             name="",
                             offset=0,
-                            signed="U",
+                            number_format=FixedPointNumber(signed="U", integer_bits=0, fractional_bits=0),
                             width=0,
-                            fractional=0,
                             rw=True,
                         )
                     ],
@@ -503,7 +711,7 @@ class NewRegDefDialog(Dialog):
 def open_create_or_edit_register_from_template(
     app: App, register_address: int, address_bus_width_bytes: int, width_bits: int
 ):
-    register = app.project.reg_list.get_register_by_address(register_address)
+    register = app.project.addr_map.get_register_by_address(register_address)
     if register is None:
         return DefRegEditor(
             app,
@@ -518,9 +726,8 @@ def open_create_or_edit_register_from_template(
                     FieldDef(
                         name="",
                         offset=0,
-                        signed="U",
+                        number_format=FixedPointNumber(signed="U", integer_bits=0, fractional_bits=0),
                         width=0,
-                        fractional=0,
                         rw=True,
                     )
                 ],
