@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from typing import Any
 
+from bitstring import BitArray
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, QPersistentModelIndex
 from PySide6.QtGui import QColor, QKeyEvent, QMouseEvent, Qt
 from PySide6.QtWidgets import QAbstractItemView, QTableView, QWidget
@@ -240,6 +241,8 @@ class ResultsTable(QTableView):
             name_and_address = data.register_address
             if registers is not None:
                 name_and_address = " ".join([r.name for r in registers]) + " @ " + name_and_address
+                for register in registers:
+                    register.data = BitArray(f"0b{data.binval}")
 
             raw_result = RawResult(
                 name_and_address=name_and_address,
