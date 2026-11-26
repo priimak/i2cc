@@ -251,19 +251,19 @@ wheels = [
 
 [[package]]
 name = "i2c-api"
-version = "0.21.0"
+version = "0.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/83/b3/7eed538804957925e77d8073eea23d8c54e4c4024a15891e9dc2db97fdee/i2c_api-0.21.0.tar.gz", hash = "sha256:7bdbc453ab1cdb24e5ee7ea070c2bf63c377042b7e500709ea723957a5a5c82b", size = 10009, upload-time = "2026-11-01T01:51:19.02Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/88/6e/6eb10756577d48120a4f198ac343081c5fe177a829dc775b7c222d223323/i2c_api-0.22.0.tar.gz", hash = "sha256:e35bc02e7a0136798fa0108eb985771826c3b18d6a01086e89dc1091e3905414", size = 11130, upload-time = "2026-11-25T16:46:06.389Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5e/04/309bb2b3cec6c9fb3ec1af739d4dcdccd9e36a7aec4412fdb658e4b6f776/i2c_api-0.21.0-py3-none-any.whl", hash = "sha256:e6acb42f95283526409cd81491096ea37162becfb8e580173c3e44ce9f00e505", size = 10340, upload-time = "2026-11-01T01:51:18.068Z" },
+    { url = "https://files.pythonhosted.org/packages/be/ee/7d6ecc4e4fe3902b598a5bf888b369b53883c902a9340a1bf9fd58c9348e/i2c_api-0.22.0-py3-none-any.whl", hash = "sha256:18d201a26c19a9cf823bfe0222062469e19b6161bf2e8ba099612fbb8c3d8ef5", size = 11125, upload-time = "2026-11-25T16:46:05.568Z" },
 ]
 
 [[package]]
 name = "i2c-drivers"
-version = "0.2.0"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
@@ -272,9 +272,9 @@ dependencies = [
     { name = "i2cdriver" },
     { name = "pyftdi" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/49/44b30178cce917ac1fd50cfd120d5049378741fb31c4890e585ab7eedb28/i2c_drivers-0.2.0.tar.gz", hash = "sha256:5f3d0257aea28bbda626bf63d741987057c87813613870962e29eb6513ca973e", size = 7113, upload-time = "2026-11-01T02:03:37.553Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/07/7b/ba0ada86e59a8e184c7619f0d3760ce5a266f3424fba66037392e977ecdd/i2c_drivers-0.2.1.tar.gz", hash = "sha256:110b1ec46b00b5d6538f023b350df56d9fc3681a377c3fa427437fe17ac2abfa", size = 7101, upload-time = "2026-11-25T17:02:53.015Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/af/94/26eb44aa30c0cea31ffc92a283d3ec99fd67dd0e3517fdd0b31e61a32067/i2c_drivers-0.2.0-py3-none-any.whl", hash = "sha256:7dc87b0bb7c858a5824e46fce0410ab7265db3d1059dfa857d2c7e8fa25064dd", size = 7408, upload-time = "2026-11-01T02:03:36.484Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/22/f5a22c4681bf7a6f1471c93fed207164bcb8a9734be050dac4efa7016daa/i2c_drivers-0.2.1-py3-none-any.whl", hash = "sha256:01732e70cf955983d117a5ff9fe45d8e2218e9fd95c62c122aec2c33a082f9ae", size = 7435, upload-time = "2026-11-25T17:02:52.109Z" },
 ]
 
 [[package]]
@@ -302,13 +302,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "i2c-api", specifier = ">=0.21.0" },
-    { name = "i2c-drivers", specifier = ">=0.2.0" },
+    { name = "i2c-api", specifier = ">=0.22.0,<2.0.0" },
+    { name = "i2c-drivers", specifier = ">=0.2.1,<2.0.0" },
     { name = "pyside6", specifier = "==6.11.2" },
     { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.25.2" },
     { name = "qppte", specifier = ">=0.7.2" },
     { name = "requests", specifier = ">=2.34.2" },
-    { name = "rgscore", specifier = ">=0.15.1" },
+    { name = "rgscore", specifier = ">=0.15.3,<2.0.0" },
     { name = "sprats", git = "https://github.com/priimak/sprats.git?rev=v0.10.1" },
     { name = "usb-monitor" },
 ]
@@ -855,7 +855,7 @@ wheels = [
 
 [[package]]
 name = "rgscore"
-version = "0.15.1"
+version = "0.15.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
@@ -864,9 +864,9 @@ dependencies = [
     { name = "requests" },
     { name = "tabulate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/46/14b707fbec8d569ce530008cbe32196d7fadb022a6f4ec1d197fba1568b4/rgscore-0.15.1.tar.gz", hash = "sha256:dffe8deef4e49cc00d5048312ef1e62577712d4b4afc4d1d683bb4bd5786b0f7", size = 29700, upload-time = "2026-11-19T18:30:33.079Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/54/7fbe12db3516b0eda570d82a26b0af2cd5e741a0bd6b279fcac3847ecf69/rgscore-0.15.3.tar.gz", hash = "sha256:23e730980215818332aa735d5ec225c7d6affe7031f09c2497993d5eab1d2c3a", size = 29945, upload-time = "2026-11-25T17:16:51.095Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4b/c4/aafbe205e81858cc95fbf25ce03e42f460e8a6a8bc0d3382f2e9c2b136b7/rgscore-0.15.1-py3-none-any.whl", hash = "sha256:4ecf254f88a74d703f00f45a8750be2aeb35d374635ce2e8f9f6f522a2a66560", size = 18422, upload-time = "2026-11-19T18:30:31.295Z" },
+    { url = "https://files.pythonhosted.org/packages/88/98/d37bbd85ab1331503a2c1b8f0e0c8f20c6ee0a9640836aef1ddcad91b33f/rgscore-0.15.3-py3-none-any.whl", hash = "sha256:7341b29dd73960c8176e4cc4d7ac28afd48d2acbb5ad586fb5a7f00a158049fe", size = 18570, upload-time = "2026-11-25T17:16:50.085Z" },
 ]
 
 [[package]]

@@ -14,9 +14,9 @@ dependencies = [
     "qppte>=0.7.2",
     "pytide6",
     "sprats",
-    "i2c-api>=0.21.0",
-    "i2c-drivers>=0.2.0",
-    "rgscore>=0.15.1",
+    "i2c-api>=0.22.0, < 2.0.0",
+    "i2c-drivers>=0.2.1, < 2.0.0",
+    "rgscore>=0.15.3, < 2.0.0",
 ]
 
 [project.scripts]
