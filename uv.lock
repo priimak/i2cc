@@ -308,7 +308,7 @@ requires-dist = [
     { name = "pytide6", git = "https://github.com/priimak/PyTide6.git?rev=v0.25.2" },
     { name = "qppte", specifier = ">=0.7.2" },
     { name = "requests", specifier = ">=2.34.2" },
-    { name = "rgscore", specifier = ">=0.15.3,<2.0.0" },
+    { name = "rgscore", specifier = ">=0.16.0" },
     { name = "sprats", git = "https://github.com/priimak/sprats.git?rev=v0.10.1" },
     { name = "usb-monitor" },
 ]
@@ -855,7 +855,7 @@ wheels = [
 
 [[package]]
 name = "rgscore"
-version = "0.15.3"
+version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
@@ -864,9 +864,9 @@ dependencies = [
     { name = "requests" },
     { name = "tabulate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7b/54/7fbe12db3516b0eda570d82a26b0af2cd5e741a0bd6b279fcac3847ecf69/rgscore-0.15.3.tar.gz", hash = "sha256:23e730980215818332aa735d5ec225c7d6affe7031f09c2497993d5eab1d2c3a", size = 29945, upload-time = "2026-11-25T17:16:51.095Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/19/07940d43cc778c0a4d98bfdf604f3f3f7abff1f221813fa1c249ac9a1a67/rgscore-0.16.0.tar.gz", hash = "sha256:b78355e2d52736d701c03ad7b5e9e21a7f407e1bbf64253f28e7c80d417dacd8", size = 30373, upload-time = "2026-11-26T21:02:29.585Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/98/d37bbd85ab1331503a2c1b8f0e0c8f20c6ee0a9640836aef1ddcad91b33f/rgscore-0.15.3-py3-none-any.whl", hash = "sha256:7341b29dd73960c8176e4cc4d7ac28afd48d2acbb5ad586fb5a7f00a158049fe", size = 18570, upload-time = "2026-11-25T17:16:50.085Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/f7/2f2c9f8f111541645aadfe5b29bec47fd544a76181028e7ae2818c95999f/rgscore-0.16.0-py3-none-any.whl", hash = "sha256:31aa28ba202425b56a882c395ad5b145efc50d7d41900fdfae6636b2a9b68f47", size = 18869, upload-time = "2026-11-26T21:02:28.634Z" },
 ]
 
 [[package]]

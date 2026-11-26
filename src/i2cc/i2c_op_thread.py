@@ -129,7 +129,7 @@ class I2COpThread(QThread):
                     write_cmd.register_value,
                     num_bytes=None,
                     read_back=read_back,
-                    use_restart=True,
+                    use_restart=False,
                 )
                 if regval is None:
                     self.show_error.emit(f"Failed to read back register at address {write_cmd.address_str()}")
@@ -157,7 +157,7 @@ class I2COpThread(QThread):
                     read_cmd.device_address,
                     RegisterAddress(read_cmd.register_address, read_cmd.address_bus_width_in_bytes),
                     read_cmd.num_bytes,
-                    use_restart=True,
+                    use_restart=False,
                 )
                 if regval is None:
                     self.show_error.emit(f"Failed to read register at address {read_cmd.address_str()}")
